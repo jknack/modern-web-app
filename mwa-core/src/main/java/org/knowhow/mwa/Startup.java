@@ -1,13 +1,9 @@
 package org.knowhow.mwa;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -21,29 +17,24 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.web.WebApplicationInitializer;
+import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.Sets;
 
 /**
  * <p>
@@ -52,15 +43,16 @@ import com.google.common.collect.Sets;
  * <ul>
  * <li>XML free configuration.
  * <li>Application context 'root' for Spring.
- * <li>Configure the {@link DispatcherServlet} with a MVC application context.
- * <li>Configure {@link Environment} using an application properties file.
+ * <li>Configure the {@link DispatcherServlet} with the root application
+ * context.
+ * <li>Configure {@link Environment} using an application properties files.
  * <li>Configure the {@link PropertySourcesPlaceholderConfigurer} for
- * {@link Value @Value} usage.
- * <li>Organize your application in modules: normal-modules and web-modules.
+ * {@link Value} usage.
+ * <li>Organize your application in modules: (a.k.a Spring Configuration).
  * <li>Module's package are scanned for detecting Spring beans (a.k.a component
  * scanning).
- * <li>Publish a 'debug' bean of type boolean. If the app is running in dev
- * mode: debug is true.
+ * <li>Publish an {@link Application} object with: the application's name,
+ * contextPath, version and mode.
  * </ul>
  *
  * @author edgar.espina
@@ -80,14 +72,16 @@ public abstract class Startup implements WebApplicationInitializer {
    * <ul>
    * <li>XML free configuration.
    * <li>Application context 'root' for Spring.
-   * <li>Configure the {@link DispatcherServlet} with a MVC application context.
-   * <li>Configure {@link Environment} using an application properties file.
+   * <li>Configure the {@link DispatcherServlet} with the root application
+   * context.
+   * <li>Configure {@link Environment} using an application properties files.
    * <li>Configure the {@link PropertySourcesPlaceholderConfigurer} for
-   * {@link Value @Value} usage.
-   * <li>Organize your application in modules: normal-modules and web-modules.
-   * <li>Module's package are scanned for detecting Spring beans.
-   * <li>Publish a 'debug' bean of type boolean. If the app is running in dev
-   * mode: debug is true.
+   * {@link Value} usage.
+   * <li>Organize your application in modules: (a.k.a Spring Configuration).
+   * <li>Module's package are scanned for detecting Spring beans (a.k.a
+   * component scanning).
+   * <li>Publish an {@link Application} object with: the application's name,
+   * contextPath, version and mode.
    * </ul>
    *
    * @param servletContext The servelt context.
@@ -96,28 +90,15 @@ public abstract class Startup implements WebApplicationInitializer {
   @Override
   public final void onStartup(final ServletContext servletContext)
       throws ServletException {
+    // redirect java util logging calls.
     SLF4JBridgeHandler.install();
 
     AnnotationConfigWebApplicationContext rootContext =
         new AnnotationConfigWebApplicationContext();
     servletContext.addListener(new ContextLoaderListener(rootContext));
 
-    /**
-     * Application's properties setup.
-     * 1. It add the properties to the: environment.
-     * 2. It enable @Value annotations.
-     */
-    ResourceLoader resourceLoader = new DefaultResourceLoader();
-    Resource properties = resourceLoader.getResource(properties());
-    // Add to the environment
-    final ConfigurableEnvironment env = rootContext.getEnvironment();
-    env.getPropertySources().addFirst(asPropertySource(properties));
-    // Enable @Value
-    PropertySourcesPlaceholderConfigurer propertyConfigurer =
-        new PropertySourcesPlaceholderConfigurer();
-    propertyConfigurer.setIgnoreResourceNotFound(true);
-    propertyConfigurer.setLocation(properties);
-    rootContext.addBeanFactoryPostProcessor(propertyConfigurer);
+    // Configure the environment
+    final ConfigurableEnvironment env = configureEnvironment(rootContext);
 
     /**
      * Creates the application object.
@@ -132,21 +113,13 @@ public abstract class Startup implements WebApplicationInitializer {
             defaultAppVersion(version),
             Strings.isNullOrEmpty(mode) ? Application.DEV : Mode.valueOf(mode));
     env.setActiveProfiles(application.mode().name());
+
+    logger.debug("Starting application: {}", application);
+
     /**
      * Scan beans under each module's package.
      */
-    Set<Class<?>> modules = getModules();
-    Set<Class<?>> webModules = Sets.newLinkedHashSet(
-        Sets.filter(modules, new Predicate<Class<?>>() {
-          @Override
-          public boolean apply(final Class<?> module) {
-            return module.getAnnotation(EnableWebMvc.class) != null
-                || WebMvcConfigurationSupport.class.isAssignableFrom(module)
-                || WebMvcConfigurer.class.isAssignableFrom(module);
-          }
-        }));
-    modules.removeAll(webModules);
-    registerModules(rootContext, "module", modules);
+    registerModules(rootContext, modules());
 
     /**
      * Register the application object.
@@ -155,22 +128,50 @@ public abstract class Startup implements WebApplicationInitializer {
       @Override
       public void postProcessBeanFactory(
           final ConfigurableListableBeanFactory beanFactory) {
-        logger.info("Starting application: {}", application);
-        beanFactory.registerSingleton("__application_", application);
+        beanFactory.registerSingleton("mwa.application", application);
       }
     });
 
     /**
-     * Creates the Spring MVC dispatcher.
+     * Creates the Spring MVC dispatcher servlet.
      */
-    AnnotationConfigWebApplicationContext mvcContext =
-        new AnnotationConfigWebApplicationContext();
     ServletRegistration.Dynamic dispatcher = servletContext.addServlet(
-        "spring-dispatcher", new DispatcherServlet(mvcContext));
+        "spring-dispatcher", new DispatcherServlet(rootContext));
     dispatcher.setLoadOnStartup(1);
     dispatcher.addMapping(dispatcherMapping());
-    registerModules(mvcContext, "web-module", webModules);
-    onStartup(env, servletContext, mvcContext);
+    onStartup(servletContext, rootContext);
+  }
+
+  /**
+   * Publish application properties files into the environment. Additionally, it
+   * enabled the use of {@link Value} annotation.
+   *
+   * @param rootContext The Spring application context.
+   * @return The application environment.
+   * @throws ServletException If the properties files failst to load.
+   */
+  private ConfigurableEnvironment configureEnvironment(
+      final ConfigurableWebApplicationContext rootContext)
+      throws ServletException {
+    try {
+      ResourcePatternResolver resourceLoader =
+          new PathMatchingResourcePatternResolver();
+      Resource[] propertiesFiles = resourceLoader.getResources(properties());
+      // Add to the environment
+      final ConfigurableEnvironment env = rootContext.getEnvironment();
+      for (Resource propertyFile : propertiesFiles) {
+        logger.debug("Adding property file: {}", propertyFile);
+        env.getPropertySources().addFirst(asPropertySource(propertyFile));
+      }
+      // Enable @Value
+      PropertySourcesPlaceholderConfigurer propertyConfigurer =
+          new PropertySourcesPlaceholderConfigurer();
+      propertyConfigurer.setEnvironment(env);
+      rootContext.addBeanFactoryPostProcessor(propertyConfigurer);
+      return env;
+    } catch (IOException ex) {
+      throw new ServletException("The environment cannot be configured.", ex);
+    }
   }
 
   /**
@@ -194,9 +195,8 @@ public abstract class Startup implements WebApplicationInitializer {
    * @param servletContext The servlet's context.
    * @param rootContext The Spring MVC application context.
    */
-  protected void onStartup(final Environment environment,
-      final ServletContext servletContext,
-      final AnnotationConfigWebApplicationContext rootContext) {
+  protected void onStartup(final ServletContext servletContext,
+      final ConfigurableWebApplicationContext rootContext) {
   }
 
   /**
@@ -214,47 +214,17 @@ public abstract class Startup implements WebApplicationInitializer {
    * Add modules to the application context.
    *
    * @param context The String application context.
-   * @param moduleType The module's name.
    * @param modules The list of modules.
    */
   private void registerModules(
       final AnnotationConfigWebApplicationContext context,
-      final String moduleType,
-      final Set<Class<?>> modules) {
-    List<String> packageToScan = new ArrayList<String>();
+      final Class<?>[] modules) {
+    Set<String> packageToScan = new LinkedHashSet<String>();
     for (Class<?> module : modules) {
-      logger.debug("Registering {}: {}", moduleType, module.getSimpleName());
       packageToScan.add(module.getPackage().getName());
     }
-    context.register(modules.toArray(new Class[modules.size()]));
+    context.register(modules);
     context.scan(packageToScan.toArray(new String[packageToScan.size()]));
-  }
-
-  /**
-   * Check for valid module.
-   *
-   * @param module The module to check. Required.
-   * @return The module.
-   * @throw {@link IllegalArgumentException} If the module isn't valid.
-   */
-  private Class<?> checkModule(final Class<?> module) {
-    if (isModule(module)) {
-      return module;
-    }
-    throw new IllegalArgumentException("Module:" + module.getName()
-        + " must have @" + Configuration.class.getName());
-  }
-
-  /**
-   * Is a valid module? Reject null modules or not marked with
-   * {@link Configuration}.
-   *
-   * @param module The candidate module.
-   * @return True if the candidate module is valid.
-   */
-  private boolean isModule(final Class<?> module) {
-    checkNotNull(module, "The module's class is required.");
-    return module.getAnnotation(Configuration.class) != null;
   }
 
   /**
@@ -271,20 +241,6 @@ public abstract class Startup implements WebApplicationInitializer {
     } catch (IOException ex) {
       throw new ServletException(ex);
     }
-  }
-
-  /**
-   * Read application's modules.
-   *
-   * @return Read application's modules.
-   */
-  private Set<Class<?>> getModules() {
-    Class<?>[] modules = modules();
-    Set<Class<?>> result = new LinkedHashSet<Class<?>>();
-    for (Class<?> module : modules) {
-      result.add(checkModule(module));
-    }
-    return result;
   }
 
   /**

@@ -15,8 +15,4 @@ public class Main extends Startup {
         AppModule.class, ViewModule.class };
   }
 
-  @Override
-  protected String dispatcherMapping() {
-    return "/*";
-  }
 }

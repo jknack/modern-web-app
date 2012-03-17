@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 
 /**
- * Provide additional models attributes to view.
+ * Provide additional models attributes to a view.
  *
  * @author edgar.espina
  * @since 0.1

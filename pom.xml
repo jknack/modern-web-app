@@ -18,6 +18,10 @@
     <module>mwa-demo</module>
   </modules>
 
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+
   <dependencyManagement>
     <dependencies>
       <!-- Servlet API -->
@@ -301,6 +305,7 @@
             <artifactId>jetty-maven-plugin</artifactId>
             <version>${jetty-maven-plugin-version}</version>
             <configuration>
+              <useTestScope>true</useTestScope>
               <webApp>
                 <contextPath>/${project.artifactId}</contextPath>
               </webApp>
