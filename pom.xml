@@ -341,7 +341,7 @@
             <executions>
               <execution>
                 <id>checkstyle</id>
-                <phase>compile</phase>
+                <phase>none</phase>
                 <goals>
                   <goal>checkstyle</goal>
                 </goals>
