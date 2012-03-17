@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.knowhow</groupId>
+  <artifactId>modern-web-app</artifactId>
+  <packaging>pom</packaging>
+  <version>0.1.0-SNAPSHOT</version>
+  <name>A Modern Web App Archicture</name>
+
+  <modules>
+    <module>mwa-core</module>
+    <module>mwa-jpa</module>
+    <module>mwa-view</module>
+    <module>mwa-mustache</module>
+    <module>mwa-logging</module>
+    <module>mwa-demo</module>
+  </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Servlet API -->
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>${servlet-api-version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <!-- Spring -->
+      <dependency>
+        <groupId>javax.inject</groupId>
+        <artifactId>javax.inject</artifactId>
+        <version>${javax.inject-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
+        <version>${spring-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+        <version>${spring-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-tx</artifactId>
+        <version>${spring-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-orm</artifactId>
+        <version>${spring-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-oxm</artifactId>
+        <version>${spring-version}</version>
+      </dependency>
+
+      <!-- Jackson -->
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-mapper-asl</artifactId>
+        <version>${jackson-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cglib</groupId>
+        <artifactId>cglib-nodep</artifactId>
+        <version>${cglib-version}</version>
+      </dependency>
+
+      <!-- Hibernate JPA -->
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-entitymanager</artifactId>
+        <version>${hibernate-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.jolbox</groupId>
+        <artifactId>bonecp</artifactId>
+        <version>${bonecp-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>${mysql-connector-java-version}</version>
+      </dependency>
+
+      <!-- Logging System -->
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>${commons-logging-version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>${log4j-version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j-version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>${slf4j-version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <version>${slf4j-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>log4j-over-slf4j</artifactId>
+        <version>${slf4j-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jul-to-slf4j</artifactId>
+        <version>${slf4j-version}</version>
+      </dependency>
+
+      <!-- File upload support -->
+      <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <version>${commons-fileupload-version}</version>
+      </dependency>
+
+      <!-- commons-io -->
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons-io-version}</version>
+      </dependency>
+
+      <!-- commons-lang3 -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3-version}</version>
+      </dependency>
+
+      <!-- commons-collections -->
+      <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <version>${commons-collections-version}</version>
+      </dependency>
+
+      <!-- Google Guava -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava-version}</version>
+      </dependency>
+
+      <!-- Mustache: Template Engine -->
+      <dependency>
+        <groupId>com.github.spullara.mustache.java</groupId>
+        <artifactId>builder</artifactId>
+        <version>${mustache.java-version}</version>
+      </dependency>
+
+      <!-- TODO: move embedded db driver to test deps -->
+      <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>${h2-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derby</artifactId>
+        <version>${derby-version}</version>
+      </dependency>
+
+      <!-- Test dependencies -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit-version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.easymock</groupId>
+        <artifactId>easymock</artifactId>
+        <version>${easymock-version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-api-easymock</artifactId>
+        <version>${powermock-version}</version>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-module-junit4</artifactId>
+        <version>${powermock-version}</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <profiles>
+    <profile>
+      <!-- We enable all these plugins by default. -->
+      <id>development</id>
+      <activation>
+        <file>
+          <exists>pom.xml</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <!-- We're on 1.6 -->
+          <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>${maven-compiler-plugin-version}</version>
+            <configuration>
+              <source>1.6</source>
+              <target>1.6</target>
+            </configuration>
+          </plugin>
+
+          <!-- Source code -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${maven-source-plugin-version}</version>
+          </plugin>
+
+          <!-- Enforcer: Java6 and Maven-2.2.x -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <version>${maven-enforcer-plugin-version}</version>
+          </plugin>
+
+          <!-- Surefire: unit test -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${maven-surefire-plugin-version}</version>
+          </plugin>
+
+          <!-- War plugin -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <version>${maven-war-plugin-version}</version>
+            <configuration>
+              <failOnMissingWebXml>false</failOnMissingWebXml>
+            </configuration>
+          </plugin>
+
+          <!-- Jetty Setup for development -->
+          <plugin>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-maven-plugin</artifactId>
+            <version>${jetty-maven-plugin-version}</version>
+            <configuration>
+              <webApp>
+                <contextPath>/${project.artifactId}</contextPath>
+              </webApp>
+            </configuration>
+          </plugin>
+
+          <!-- Eclipse setup -->
+          <plugin>
+            <!-- Let's make the life easier and use the proper tool -->
+            <artifactId>maven-eclipse-plugin</artifactId>
+            <!-- Our custom version publish test resources in dev mode. -->
+            <version>${maven-eclipse-plugin-version}</version>
+            <configuration>
+              <wtpversion>2.0</wtpversion>
+              <downloadSources>true</downloadSources>
+              <excludes>
+                <!-- A test classpath free of logging issues. -->
+                <exclude>commons-logging:commons-logging</exclude>
+                <exclude>log4j:log4j</exclude>
+                <exclude>org.slf4j:slf4j-log4j12</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>${maven-checkstyle-plugin-version}</version>
+            <configuration>
+              <consoleOutput>true</consoleOutput>
+              <configLocation>checkstyle.xml</configLocation>
+              <failsOnError>true</failsOnError>
+            </configuration>
+            <executions>
+              <execution>
+                <id>checkstyle</id>
+                <phase>none</phase>
+                <goals>
+                  <goal>checkstyle</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <properties>
+    <spring-version>3.1.1.RELEASE</spring-version>
+    <hibernate-version>4.1.0.Final</hibernate-version>
+    <jackson-version>1.9.5</jackson-version>
+    <logback-version>1.0.0</logback-version>
+    <slf4j-version>1.6.4</slf4j-version>
+    <servlet-api-version>3.0.1</servlet-api-version>
+    <javax.inject-version>1</javax.inject-version>
+    <cglib-version>2.2.2</cglib-version>
+    <bonecp-version>0.7.1.RELEASE</bonecp-version>
+    <mysql-connector-java-version>5.1.18</mysql-connector-java-version>
+    <commons-logging-version>1.1.1</commons-logging-version>
+    <log4j-version>1.2.16</log4j-version>
+    <commons-fileupload-version>1.2.2</commons-fileupload-version>
+    <commons-io-version>2.0.1</commons-io-version>
+    <h2-version>1.3.164</h2-version>
+    <derby-version>10.8.2.2</derby-version>
+    <junit-version>4.10</junit-version>
+    <easymock-version>3.1</easymock-version>
+    <powermock-version>1.4.11</powermock-version>
+    <commons-lang3-version>3.1</commons-lang3-version>
+    <commons-collections-version>3.2</commons-collections-version>
+    <guava-version>11.0</guava-version>
+    <mustache.java-version>0.6.2</mustache.java-version>
+
+    <!-- Encoding UTF-8 -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- Maven plugins -->
+    <maven-compiler-plugin-version>2.3.2</maven-compiler-plugin-version>
+    <maven-source-plugin-version>2.1.2</maven-source-plugin-version>
+    <maven-enforcer-plugin-version>1.0.1</maven-enforcer-plugin-version>
+    <maven-surefire-plugin-version>2.12</maven-surefire-plugin-version>
+    <maven-eclipse-plugin-version>2.8</maven-eclipse-plugin-version>
+    <maven-war-plugin-version>2.2</maven-war-plugin-version>
+    <maven-checkstyle-plugin-version>2.8</maven-checkstyle-plugin-version>
+    <jetty-maven-plugin-version>8.1.2.v20120308</jetty-maven-plugin-version>
+    <findbugs-maven-plugin-version>2.4.0</findbugs-maven-plugin-version>
+
+    <!-- Maven Global properties -->
+    <maven.build.timestamp.format>yyyyMMdd.hhmmss</maven.build.timestamp.format>
+    <buildDate>${maven.build.timestamp}</buildDate>
+  </properties>
+  <url>https://github.com/edgarespina/modern-web-app</url>
+</project>
