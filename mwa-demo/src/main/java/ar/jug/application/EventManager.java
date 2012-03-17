@@ -1,5 +1,6 @@
 package ar.jug.application;
 
+import static ar.jug.domain.QEvent.event;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -7,8 +8,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import ar.jug.domain.Event;
+
+import com.mysema.query.jpa.impl.JPAQuery;
 
 @Controller
 @Transactional
@@ -33,10 +34,7 @@ public class EventManager {
   @RequestMapping(value="/events", method = GET)
   @ResponseBody
   public List<Event> list() {
-    CriteriaBuilder cb = em.getCriteriaBuilder();
-    CriteriaQuery<Event> query = cb.createQuery(Event.class);
-    return em.createQuery(query.select(query.from(Event.class)))
-        .getResultList();
+    return new JPAQuery(em).from(event).list(event);
   }
 
   @RequestMapping(value="/events",method = POST)

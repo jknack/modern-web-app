@@ -11,7 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>mwa-demo</artifactId>
   <packaging>war</packaging>
-  <name>A MWA Demo App for the Java User Group Argentina</name>
+  <name>A MWA Demo for the Java User Group Argentina</name>
 
   <dependencies>
     <!-- Servlet API -->
@@ -70,4 +70,33 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <!-- Query DSL -->
+      <plugin>
+        <groupId>com.mysema.maven</groupId>
+        <artifactId>maven-apt-plugin</artifactId>
+        <version>${maven-apt-plugin-version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>process</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>target/query-dsl/java</outputDirectory>
+              <processor>com.mysema.query.apt.jpa.JPAAnnotationProcessor</processor>
+              <logOnlyOnError>true</logOnlyOnError>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.mysema.querydsl</groupId>
+            <artifactId>querydsl-apt</artifactId>
+            <version>${querydsl-version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
 </project>

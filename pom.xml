@@ -101,6 +101,19 @@
         <version>${mysql-connector-java-version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>com.mysema.querydsl</groupId>
+        <artifactId>querydsl-apt</artifactId>
+        <version>${querydsl-version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.mysema.querydsl</groupId>
+        <artifactId>querydsl-jpa</artifactId>
+        <version>${querydsl-version}</version>
+      </dependency>
+
       <!-- Logging System -->
       <dependency>
         <groupId>commons-logging</groupId>
@@ -378,6 +391,7 @@
     <commons-collections-version>3.2</commons-collections-version>
     <guava-version>11.0</guava-version>
     <mustache.java-version>0.6.2</mustache.java-version>
+    <querydsl-version>2.3.3</querydsl-version>
 
     <!-- Encoding UTF-8 -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -390,6 +404,7 @@
     <maven-eclipse-plugin-version>2.9</maven-eclipse-plugin-version>
     <maven-war-plugin-version>2.2</maven-war-plugin-version>
     <maven-checkstyle-plugin-version>2.8</maven-checkstyle-plugin-version>
+    <maven-apt-plugin-version>1.0.2</maven-apt-plugin-version>
     <jetty-maven-plugin-version>8.1.2.v20120308</jetty-maven-plugin-version>
     <findbugs-maven-plugin-version>2.4.0</findbugs-maven-plugin-version>
 
