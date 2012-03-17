@@ -38,7 +38,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 /**
  * Creates a .settings folder for Eclipse WTP 1.x release and writes out the configuration under it.
- * 
+ *
  * @author <a href="mailto:rahul.thakur.xdev@gmail.com">Rahul Thakur</a>
  * @author <a href="mailto:fgiust@apache.org">Fabrizio Giustina</a>
  * @version $Id$
@@ -59,7 +59,7 @@ public class EclipseWtpComponentWriter
 
     /**
      * File name where the WTP component settings will be stored for our Eclipse Project.
-     * 
+     *
      * @return <code>.component</code>
      */
     protected String getComponentFileName()
@@ -69,7 +69,7 @@ public class EclipseWtpComponentWriter
 
     /**
      * Version number added to component configuration.
-     * 
+     *
      * @return <code>1.0</code>
      */
     protected String getProjectVersion()
@@ -111,7 +111,7 @@ public class EclipseWtpComponentWriter
 
     /**
      * Writes out the module type settings for a Web Tools Project to a component file.
-     * 
+     *
      * @param writer
      * @param packaging
      * @param buildOutputDirectory
@@ -119,8 +119,8 @@ public class EclipseWtpComponentWriter
      * @param localRepository
      * @throws MojoExecutionException
      */
-    private void writeModuleTypeComponent( XMLWriter writer, String packaging, File buildOutputDirectory,
-                                           EclipseSourceDir[] sourceDirs, ArtifactRepository localRepository )
+    private void writeModuleTypeComponent( final XMLWriter writer, final String packaging, final File buildOutputDirectory,
+                                           final EclipseSourceDir[] sourceDirs, final ArtifactRepository localRepository )
         throws MojoExecutionException
     {
         writer.startElement( ELT_PROJECT_MODULES );
@@ -207,15 +207,11 @@ public class EclipseWtpComponentWriter
         for ( int j = 0; j < sourceDirs.length; j++ )
         {
             EclipseSourceDir dir = sourceDirs[j];
-            // test src/resources are not added to wtpmodules
-            if ( !dir.isTest() )
-            {
-                // <wb-resource deploy-path="/" source-path="/src/java" />
-                writer.startElement( ELT_WB_RESOURCE );
-                writer.addAttribute( ATTR_DEPLOY_PATH, target );
-                writer.addAttribute( ATTR_SOURCE_PATH, dir.getPath() );
-                writer.endElement();
-            }
+            // <wb-resource deploy-path="/" source-path="/src/java" />
+            writer.startElement( ELT_WB_RESOURCE );
+            writer.addAttribute( ATTR_DEPLOY_PATH, target );
+            writer.addAttribute( ATTR_SOURCE_PATH, dir.getPath() );
+            writer.endElement();
         }
 
         writer.endElement(); // wb-module
@@ -225,7 +221,7 @@ public class EclipseWtpComponentWriter
     /**
      * @param writer
      */
-    protected void writeContextRoot( XMLWriter writer )
+    protected void writeContextRoot( final XMLWriter writer )
     {
         writer.startElement( ELT_PROPERTY );
         writer.addAttribute( ATTR_CONTEXT_ROOT, config.getContextName() );

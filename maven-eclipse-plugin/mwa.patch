@@ -1,0 +1,130 @@
+Index: src/main/java/org/apache/maven/plugin/eclipse/writers/wtp/EclipseWtpComponentWriter.java
+===================================================================
+--- src/main/java/org/apache/maven/plugin/eclipse/writers/wtp/EclipseWtpComponentWriter.java  (revision 1232712)
++++ src/main/java/org/apache/maven/plugin/eclipse/writers/wtp/EclipseWtpComponentWriter.java  (working copy)
+@@ -38,7 +38,7 @@
+ 
+ /**
+  * Creates a .settings folder for Eclipse WTP 1.x release and writes out the configuration under it.
+- * 
++ *
+  * @author <a href="mailto:rahul.thakur.xdev@gmail.com">Rahul Thakur</a>
+  * @author <a href="mailto:fgiust@apache.org">Fabrizio Giustina</a>
+  * @version $Id$
+@@ -59,7 +59,7 @@
+ 
+     /**
+      * File name where the WTP component settings will be stored for our Eclipse Project.
+-     * 
++     *
+      * @return <code>.component</code>
+      */
+     protected String getComponentFileName()
+@@ -69,7 +69,7 @@
+ 
+     /**
+      * Version number added to component configuration.
+-     * 
++     *
+      * @return <code>1.0</code>
+      */
+     protected String getProjectVersion()
+@@ -111,7 +111,7 @@
+ 
+     /**
+      * Writes out the module type settings for a Web Tools Project to a component file.
+-     * 
++     *
+      * @param writer
+      * @param packaging
+      * @param buildOutputDirectory
+@@ -119,8 +119,8 @@
+      * @param localRepository
+      * @throws MojoExecutionException
+      */
+-    private void writeModuleTypeComponent( XMLWriter writer, String packaging, File buildOutputDirectory,
+-                                           EclipseSourceDir[] sourceDirs, ArtifactRepository localRepository )
++    private void writeModuleTypeComponent( final XMLWriter writer, final String packaging, final File buildOutputDirectory,
++                                           final EclipseSourceDir[] sourceDirs, final ArtifactRepository localRepository )
+         throws MojoExecutionException
+     {
+         writer.startElement( ELT_PROJECT_MODULES );
+@@ -207,15 +207,11 @@
+         for ( int j = 0; j < sourceDirs.length; j++ )
+         {
+             EclipseSourceDir dir = sourceDirs[j];
+-            // test src/resources are not added to wtpmodules
+-            if ( !dir.isTest() )
+-            {
+-                // <wb-resource deploy-path="/" source-path="/src/java" />
+-                writer.startElement( ELT_WB_RESOURCE );
+-                writer.addAttribute( ATTR_DEPLOY_PATH, target );
+-                writer.addAttribute( ATTR_SOURCE_PATH, dir.getPath() );
+-                writer.endElement();
+-            }
++            // <wb-resource deploy-path="/" source-path="/src/java" />
++            writer.startElement( ELT_WB_RESOURCE );
++            writer.addAttribute( ATTR_DEPLOY_PATH, target );
++            writer.addAttribute( ATTR_SOURCE_PATH, dir.getPath() );
++            writer.endElement();
+         }
+ 
+         writer.endElement(); // wb-module
+@@ -225,7 +221,7 @@
+     /**
+      * @param writer
+      */
+-    protected void writeContextRoot( XMLWriter writer )
++    protected void writeContextRoot( final XMLWriter writer )
+     {
+         writer.startElement( ELT_PROPERTY );
+         writer.addAttribute( ATTR_CONTEXT_ROOT, config.getContextName() );
+Index: src/main/java/org/apache/maven/plugin/eclipse/writers/wtp/AbstractWtpResourceWriter.java
+===================================================================
+--- src/main/java/org/apache/maven/plugin/eclipse/writers/wtp/AbstractWtpResourceWriter.java  (revision 1232712)
++++ src/main/java/org/apache/maven/plugin/eclipse/writers/wtp/AbstractWtpResourceWriter.java  (working copy)
+@@ -277,8 +277,8 @@
+             String type = dep.getType();
+ 
+             // NB war is needed for ear projects, we suppose nobody adds a war dependency to a war/jar project
+-            // exclude test and provided and system dependencies outside the project
+-            if ( ( !dep.isTestDependency() && !dep.isProvided() && !dep.isSystemScopedOutsideProject( project ) )
++            // and provided and system dependencies outside the project
++            if ( ( !dep.isProvided() && !dep.isSystemScopedOutsideProject( project ) )
+                 && ( Constants.PROJECT_PACKAGING_JAR.equals( type ) || Constants.PROJECT_PACKAGING_EJB.equals( type )
+                     || "ejb-client".equals( type ) || Constants.PROJECT_PACKAGING_WAR.equals( type ) ) ) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+             {
+Index: src/main/java/org/apache/maven/plugin/eclipse/writers/wtp/EclipseWtpmodulesWriter.java
+===================================================================
+--- src/main/java/org/apache/maven/plugin/eclipse/writers/wtp/EclipseWtpmodulesWriter.java  (revision 1232712)
++++ src/main/java/org/apache/maven/plugin/eclipse/writers/wtp/EclipseWtpmodulesWriter.java  (working copy)
+@@ -36,7 +36,7 @@
+ 
+ /**
+  * Writes eclipse .wtpmodules file.
+- * 
++ *
+  * @author <a href="mailto:fgiust@users.sourceforge.net">Fabrizio Giustina</a>
+  * @version $Id$
+  */
+@@ -112,15 +112,11 @@
+         for ( int j = 0; j < config.getSourceDirs().length; j++ )
+         {
+             EclipseSourceDir dir = config.getSourceDirs()[j];
+-            // test src/resources are not added to wtpmodules
+-            if ( !dir.isTest() )
+-            {
+-                // <wb-resource deploy-path="/" source-path="/src/java" />
+-                writer.startElement( ELT_WB_RESOURCE );
+-                writer.addAttribute( ATTR_DEPLOY_PATH, target );
+-                writer.addAttribute( ATTR_SOURCE_PATH, dir.getPath() );
+-                writer.endElement();
+-            }
++            // <wb-resource deploy-path="/" source-path="/src/java" />
++            writer.startElement( ELT_WB_RESOURCE );
++            writer.addAttribute( ATTR_DEPLOY_PATH, target );
++            writer.addAttribute( ATTR_SOURCE_PATH, dir.getPath() );
++            writer.endElement();
+         }
+ 
+         writer.endElement(); // wb-module

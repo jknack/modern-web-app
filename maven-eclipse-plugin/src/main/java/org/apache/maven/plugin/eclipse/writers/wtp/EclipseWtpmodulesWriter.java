@@ -36,7 +36,7 @@ import org.codehaus.plexus.util.xml.XMLWriter;
 
 /**
  * Writes eclipse .wtpmodules file.
- * 
+ *
  * @author <a href="mailto:fgiust@users.sourceforge.net">Fabrizio Giustina</a>
  * @version $Id$
  */
@@ -112,15 +112,11 @@ public class EclipseWtpmodulesWriter
         for ( int j = 0; j < config.getSourceDirs().length; j++ )
         {
             EclipseSourceDir dir = config.getSourceDirs()[j];
-            // test src/resources are not added to wtpmodules
-            if ( !dir.isTest() )
-            {
-                // <wb-resource deploy-path="/" source-path="/src/java" />
-                writer.startElement( ELT_WB_RESOURCE );
-                writer.addAttribute( ATTR_DEPLOY_PATH, target );
-                writer.addAttribute( ATTR_SOURCE_PATH, dir.getPath() );
-                writer.endElement();
-            }
+            // <wb-resource deploy-path="/" source-path="/src/java" />
+            writer.startElement( ELT_WB_RESOURCE );
+            writer.addAttribute( ATTR_DEPLOY_PATH, target );
+            writer.addAttribute( ATTR_SOURCE_PATH, dir.getPath() );
+            writer.endElement();
         }
 
         writer.endElement(); // wb-module

@@ -304,8 +304,8 @@ public abstract class AbstractWtpResourceWriter
             String type = dep.getType();
 
             // NB war is needed for ear projects, we suppose nobody adds a war dependency to a war/jar project
-            // exclude test and provided and system dependencies outside the project
-            if ( ( !dep.isTestDependency() && !dep.isProvided() && !dep.isSystemScopedOutsideProject( project ) )
+            // and provided and system dependencies outside the project
+            if ( ( !dep.isProvided() && !dep.isSystemScopedOutsideProject( project ) )
                 && ( Constants.PROJECT_PACKAGING_JAR.equals( type ) || Constants.PROJECT_PACKAGING_EJB.equals( type )
                     || "ejb-client".equals( type ) || Constants.PROJECT_PACKAGING_WAR.equals( type ) ) ) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             {
