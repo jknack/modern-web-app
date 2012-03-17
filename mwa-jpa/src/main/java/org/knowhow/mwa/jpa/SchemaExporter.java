@@ -76,7 +76,7 @@ public class SchemaExporter {
    * @param database The database's type. Required.
    * @param output The output file. Required.
    * @param packagesToScan Where the persistent class are. Required.
-   * @throws Exception
+   * @throws Exception If the schema cannot be exported.
    */
   public void export(final Database database, final File output,
       final String... packagesToScan) throws Exception {

@@ -65,7 +65,7 @@ public class JpaConfigurer {
    * Creates a new {@link JpaConfigurer}.
    *
    * @param packagesToScan The packages to scan. Required.
-   * @throws Exception
+   * @throws Exception If the packages cannot be detected.
    */
   public JpaConfigurer(final String... packagesToScan) throws Exception {
     checkArgument(packagesToScan.length != 0,
@@ -77,7 +77,7 @@ public class JpaConfigurer {
    * Creates a new {@link JpaConfigurer}.
    *
    * @param packagesToScan The packages to scan. Required.
-   * @throws Exception
+   * @throws Exception If the packages cannot be detected.
    */
   public JpaConfigurer(final Package... packagesToScan) throws Exception {
     checkArgument(packagesToScan.length != 0,
@@ -92,8 +92,9 @@ public class JpaConfigurer {
   /**
    * Scan and collect JPA resources.
    *
+   * @param packagesToScan The list of packages.
    * @return A list with classes.
-   * @throws Exception
+   * @throws Exception If the packages cannot be detected.
    */
   private Set<Class<?>> scan(final String[] packagesToScan) throws Exception {
     Set<Class<?>> entities = new LinkedHashSet<Class<?>>();
@@ -130,7 +131,8 @@ public class JpaConfigurer {
   /**
    * Perform Spring-based scanning for entity classes.
    *
-   * @param packagesToScan
+   * @param packagesToScan The candidate packages.
+   * @return All the class names that match a JPA entity.
    */
   private String[] list(final String[] packagesToScan) {
     Set<String> entities = new HashSet<String>();
@@ -156,7 +158,7 @@ public class JpaConfigurer {
           }
         }
       }
-    } catch(IOException ex) {
+    } catch (IOException ex) {
       throw new MappingException(
           "Failed to scan classpath for unlisted classes", ex);
     }
@@ -167,6 +169,11 @@ public class JpaConfigurer {
    * Check whether any of the configured entity type filters matches the
    * current class descriptor contained in the metadata
    * reader.
+   *
+   * @param reader The metadata reader.
+   * @param readerFactory The metadata reader factory.
+   * @return True if the current resources matches a JPA entity.
+   * @throws IOException If the disk fails.
    */
   private boolean matchesFilter(final MetadataReader reader,
       final MetadataReaderFactory readerFactory) throws IOException {

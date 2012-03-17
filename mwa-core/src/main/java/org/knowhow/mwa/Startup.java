@@ -18,11 +18,11 @@ import org.knowhow.mwa.Application.Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
@@ -89,6 +89,9 @@ public abstract class Startup implements WebApplicationInitializer {
    * <li>Publish a 'debug' bean of type boolean. If the app is running in dev
    * mode: debug is true.
    * </ul>
+   *
+   * @param servletContext The servelt context.
+   * @throws ServletException If something goes wrong.
    */
   @Override
   public final void onStartup(final ServletContext servletContext)
@@ -151,8 +154,7 @@ public abstract class Startup implements WebApplicationInitializer {
     rootContext.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
       @Override
       public void postProcessBeanFactory(
-          final ConfigurableListableBeanFactory beanFactory)
-          throws BeansException {
+          final ConfigurableListableBeanFactory beanFactory) {
         logger.info("Starting application: {}", application);
         beanFactory.registerSingleton("__application_", application);
       }
@@ -171,6 +173,13 @@ public abstract class Startup implements WebApplicationInitializer {
     onStartup(env, servletContext, mvcContext);
   }
 
+  /**
+   * Build the application version number using the provided version and the
+   * current date.
+   *
+   * @param version The version number. Optional.
+   * @return A unique application version.
+   */
   private String defaultAppVersion(final String version) {
     String startupTime =
         new SimpleDateFormat(".yyyyMMdd.hhmmss").format(new Date());
@@ -203,6 +212,10 @@ public abstract class Startup implements WebApplicationInitializer {
 
   /**
    * Add modules to the application context.
+   *
+   * @param context The String application context.
+   * @param moduleType The module's name.
+   * @param modules The list of modules.
    */
   private void registerModules(
       final AnnotationConfigWebApplicationContext context,
@@ -235,17 +248,27 @@ public abstract class Startup implements WebApplicationInitializer {
   /**
    * Is a valid module? Reject null modules or not marked with
    * {@link Configuration}.
+   *
+   * @param module The candidate module.
+   * @return True if the candidate module is valid.
    */
   private boolean isModule(final Class<?> module) {
     checkNotNull(module, "The module's class is required.");
     return module.getAnnotation(Configuration.class) != null;
   }
 
+  /**
+   * Get a {@link PropertySource} from the resource.
+   *
+   * @param resource The resource.
+   * @return A {@link PropertySource}.
+   * @throws ServletException If the disk fails.
+   */
   private ResourcePropertySource asPropertySource(final Resource resource)
       throws ServletException {
     try {
       return new ResourcePropertySource(resource);
-    } catch(IOException ex) {
+    } catch (IOException ex) {
       throw new ServletException(ex);
     }
   }

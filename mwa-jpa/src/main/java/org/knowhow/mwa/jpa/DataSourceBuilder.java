@@ -37,7 +37,7 @@ import com.jolbox.bonecp.BoneCPDataSource;
  * @see EmbeddedDatabaseBuilder
  * @see <a href="http://www.http://jolbox.com/">BoneCP</a>
  */
-public class DataSourceBuilder {
+public final class DataSourceBuilder {
 
   /**
    * The H2 driver class's name.
@@ -215,7 +215,7 @@ public class DataSourceBuilder {
    *
    * @param environment The application's environment. Required.
    * @return A new {@link DataSource} object.
-   * @throws ClassNotFoundException
+   * @throws ClassNotFoundException If the driver isn't found.
    */
   public static DataSource build(final Environment environment)
       throws ClassNotFoundException {
@@ -272,7 +272,7 @@ public class DataSourceBuilder {
    *
    * @param database The database type.
    * @return A new embedded database or null.
-   * @throws ClassNotFoundException
+   * @throws ClassNotFoundException If the driver isn't found.
    */
   private static DataSource createEmbeddedDatabase(
       final String database) throws ClassNotFoundException {

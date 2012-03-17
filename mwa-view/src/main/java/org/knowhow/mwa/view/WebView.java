@@ -34,7 +34,7 @@ public abstract class WebView extends AbstractTemplateView {
 
   /**
    * Fire {@link ModelContribution#contribute(String, Map)} events. It will
-   * fails if a name clash is found.
+   * fails if a name clash is found. {@inheritDoc}
    */
   @Override
   protected final Map<String, Object> createMergedOutputModel(
@@ -73,7 +73,7 @@ public abstract class WebView extends AbstractTemplateView {
       for (ModelContribution contribution : contributions) {
         contribution.contribute(getBeanName(), safeModel);
       }
-    } catch(IOException ex) {
+    } catch (IOException ex) {
       // don't go further
       throw new IllegalStateException("A model contribution has fail.", ex);
     }

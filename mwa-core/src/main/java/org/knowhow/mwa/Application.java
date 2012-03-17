@@ -17,7 +17,7 @@ public class Application {
    * For example, you can use an in-memory database if you're running in dev
    * mode.
    */
-  public static class Mode {
+  public static final class Mode {
     /**
      * The mode's name. Required.
      */

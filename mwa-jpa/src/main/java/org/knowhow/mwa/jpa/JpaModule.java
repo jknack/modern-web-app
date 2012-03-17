@@ -105,6 +105,7 @@ public class JpaModule {
    * responsibly for providing JDBC transactions to classes/methods annotated
    * with {@link Transactional annotation}.
    *
+   * @param emf The {@link EntityManagerFactory} resource. Required.
    * @return A {@link JpaTransactionManager service}. This service is
    *         responsibly for providing JDBC transactions to classes/methods
    *         annotated with {@link Transactional annotation}.
@@ -122,6 +123,7 @@ public class JpaModule {
    * {@link EntityManager service} using the {@link PersistenceContext
    * annotation}.
    *
+   * @param configurer The JPA configurer. Required.
    * @return A {@link EntityManagerFactory object} available for use. Spring
    *         managed beans can use the {@link EntityManager service} using the
    *         {@link PersistenceContext annotation}.

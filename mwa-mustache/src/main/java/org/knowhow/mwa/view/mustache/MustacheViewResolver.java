@@ -92,9 +92,7 @@ public class MustacheViewResolver extends WebViewResolver {
   }
 
   /**
-   * Configure a new {@link MustacheView}.
-   *
-   * {@inheritDoc}
+   * Configure a new {@link MustacheView}. {@inheritDoc}
    */
   @Override
   protected void buildView(final WebView view) throws Exception {
@@ -104,6 +102,7 @@ public class MustacheViewResolver extends WebViewResolver {
 
   /**
    * Configure Mustache.
+   * {@inheritDoc}
    */
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -151,7 +150,7 @@ public class MustacheViewResolver extends WebViewResolver {
    * Set parallel template processing.
    *
    * @param parallelProcessing True, for parallel template processing. Default
-   *          is: false.
+   *        is: false.
    */
   public void setParallelProcessing(final boolean parallelProcessing) {
     this.parallelProcessing = parallelProcessing;
@@ -187,7 +186,7 @@ public class MustacheViewResolver extends WebViewResolver {
   /**
    * The required view class.
    *
-   * @returns The required view class.
+   * @return The required view class.
    */
   @Override
   protected Class<?> requiredViewClass() {

@@ -28,7 +28,7 @@ public interface ModelContribution {
    * Called once during initialization.
    *
    * @param context The servlet context. It's never null.
-   * @throws IOException
+   * @throws IOException If something goes wrong.
    */
   void init(ServletContext context) throws IOException;
 
@@ -37,11 +37,12 @@ public interface ModelContribution {
    *
    * @param view The view's name. It never nulls.
    * @param model The model. It never nulls.
+   * @throws IOException If something goes wrong.
    */
   void contribute(String view, Map<String, Object> model) throws IOException;
 
   /**
-   * Enabled or disable the cache.
+   * Enabled or disable the cache. Useful for dev and no-dev environments.
    *
    * @param cache True for enable the cache.
    */

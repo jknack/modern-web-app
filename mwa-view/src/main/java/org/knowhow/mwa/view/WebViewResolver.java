@@ -31,7 +31,7 @@ public abstract class WebViewResolver extends AbstractTemplateViewResolver
   }
 
   /**
-   * Build the view with Web2 support.
+   * Build the view with modern web support. {@inheritDoc}
    */
   @Override
   protected final AbstractUrlBasedView buildView(final String viewName)
@@ -44,7 +44,7 @@ public abstract class WebViewResolver extends AbstractTemplateViewResolver
 
   /**
    * Fire {@link ModelContribution#init(javax.servlet.ServletContext)
-   * events}.
+   * events} and propagate the use cache option. {@inheritDoc}
    */
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -58,6 +58,7 @@ public abstract class WebViewResolver extends AbstractTemplateViewResolver
    * Build the view.
    *
    * @param view The view. It's never null.
+   * @throws Exception If something goes wrong.
    */
   protected abstract void buildView(WebView view) throws Exception;
 
@@ -69,7 +70,8 @@ public abstract class WebViewResolver extends AbstractTemplateViewResolver
    * @see AbstractUrlBasedView
    */
   @Override
-  public void setViewClass(@SuppressWarnings("rawtypes") final Class viewClass) {
+  public void setViewClass(
+      @SuppressWarnings("rawtypes") final Class viewClass) {
     Assert.notNull(viewClass, "A mustache view class is required.");
     Assert.isTrue(WebView.class.isAssignableFrom(viewClass),
         "The view class must be a: " + WebView.class);
@@ -77,7 +79,7 @@ public abstract class WebViewResolver extends AbstractTemplateViewResolver
   }
 
   /**
-   * Return view type here.
+   * {@inheritDoc}
    */
   @Override
   protected abstract Class<?> requiredViewClass();

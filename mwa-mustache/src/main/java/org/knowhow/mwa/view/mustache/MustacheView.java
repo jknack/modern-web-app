@@ -25,6 +25,7 @@ public class MustacheView extends WebView {
 
   /**
    * Merge model into the view.
+   * {@inheritDoc}
    */
   @Override
   protected void renderMergedTemplateModel(final Map<String, Object> model,
