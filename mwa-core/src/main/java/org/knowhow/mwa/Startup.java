@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.logging.Handler;
+import java.util.logging.LogManager;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -91,7 +93,7 @@ public abstract class Startup implements WebApplicationInitializer {
   public final void onStartup(final ServletContext servletContext)
       throws ServletException {
     // redirect java util logging calls.
-    SLF4JBridgeHandler.install();
+    configureJuli();
 
     AnnotationConfigWebApplicationContext rootContext =
         new AnnotationConfigWebApplicationContext();
@@ -140,6 +142,19 @@ public abstract class Startup implements WebApplicationInitializer {
     dispatcher.setLoadOnStartup(1);
     dispatcher.addMapping(dispatcherMapping());
     onStartup(servletContext, rootContext);
+  }
+
+  /**
+   * Turn off Juli and redirect Juli to SJF4J.
+   */
+  private void configureJuli() {
+    java.util.logging.Logger rootLogger =
+        LogManager.getLogManager().getLogger("");
+    Handler[] handlers = rootLogger.getHandlers();
+    for (Handler handler : handlers) {
+      rootLogger.removeHandler(handler);
+    }
+    SLF4JBridgeHandler.install();
   }
 
   /**

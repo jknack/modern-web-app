@@ -9,9 +9,9 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>mwa-jpa</artifactId>
+  <artifactId>mwa-mongo</artifactId>
   <packaging>jar</packaging>
-  <name>JPA      Module</name>
+  <name>Mongo    Module</name>
 
   <dependencies>
     <!-- MWA Core -->
@@ -21,24 +21,7 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Hibernate JPA -->
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-entitymanager</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.jolbox</groupId>
-      <artifactId>bonecp</artifactId>
-    </dependency>
-
-    <!-- Query DSL -->
-    <dependency>
-      <groupId>com.mysema.querydsl</groupId>
-      <artifactId>querydsl-jpa</artifactId>
-    </dependency>
-
-    <!-- Spring ORM, JDBC & TRX -->
+    <!-- Spring Data, Mongo -->
     <dependency>
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
@@ -49,26 +32,20 @@
       <artifactId>cglib-nodep</artifactId>
     </dependency>
 
+    <!-- Spring Data & Mongo -->
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-jdbc</artifactId>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongo-java-driver</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-tx</artifactId>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-mongodb</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-orm</artifactId>
-    </dependency>
-
-    <!-- Test databases -->
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
+      <groupId>com.google.code.morphia</groupId>
+      <artifactId>morphia</artifactId>
     </dependency>
 
     <!-- Unit test -->
@@ -81,6 +58,18 @@
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-easymock</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-junit4</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

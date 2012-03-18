@@ -3,22 +3,22 @@ package ar.jug.domain;
 import java.util.List;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import com.google.code.morphia.annotations.Embedded;
 import com.google.common.collect.Lists;
 
 @Entity
+@com.google.code.morphia.annotations.Entity
 public class Event {
 
   @Id
-  @GeneratedValue
-  private long id;
-
+  @com.google.code.morphia.annotations.Id
   private String name;
 
   @ManyToOne
+  @Embedded
   private EventType eventType;
 
   public Event(final String name) {
@@ -34,13 +34,6 @@ public class Event {
 
   public void setEventType(final EventType eventType) {
     this.eventType = eventType;
-  }
-  public long getId() {
-    return id;
-  }
-
-  public void setId(final long id) {
-    this.id = id;
   }
 
   public String getName() {

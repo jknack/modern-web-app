@@ -3,18 +3,16 @@ package ar.jug.domain;
 import java.util.List;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import com.google.code.morphia.annotations.Embedded;
 import com.google.common.collect.Lists;
 
 @Entity
+@Embedded
 public class EventType {
 
   @Id
-  @GeneratedValue
-  private long id;
-
   private String name;
 
   public EventType(final String name) {
@@ -22,14 +20,6 @@ public class EventType {
   }
 
   protected EventType() {
-  }
-
-  public long getId() {
-    return id;
-  }
-
-  public void setId(final long id) {
-    this.id = id;
   }
 
   public String getName() {

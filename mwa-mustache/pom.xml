@@ -14,6 +14,13 @@
   <name>Mustache Module</name>
 
   <dependencies>
+    <!-- MWA Core -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>mwa-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- Servlet API -->
     <dependency>
       <groupId>javax.servlet</groupId>
