@@ -1,7 +1,5 @@
 package org.knowhow.mwa.jpa;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -34,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  * </p>
  * <ul>
  * <li>A {@link DataSource} ready for development or production. See
- * {@link DataSourceBuilder}.
+ * {@link DataSources}.
  * <li>An {@link EntityManager} and {@link EntityManagerFactory} ready for
  * dependency injection.
  * <li>A {@link JpaTransactionManager platform transaction manager}.
@@ -63,27 +61,6 @@ public class JpaModule {
   private static Logger logger = LoggerFactory.getLogger(JpaModule.class);
 
   /**
-   * The global environment. Required.
-   */
-  @Inject
-  private Environment env;
-
-  /**
-   * Just for testing.
-   *
-   * @param environment The Spring's environment. Required.
-   */
-  public JpaModule(final Environment environment) {
-    this.env = checkNotNull(environment, "The environment is required.");
-  }
-
-  /**
-   * Required by Spring and cg-lib.
-   */
-  protected JpaModule() {
-  }
-
-  /**
    * <ul>
    * <li>An embedded or in-memory database if the {@link #DATABASE db} property
    * is one of: h2, derby or hsql. Useful for during development.
@@ -91,13 +68,15 @@ public class JpaModule {
    * isn't one of: h2, derby, or hsql. See: BoneCP.
    * </ul>
    *
+   * @param The application environment. Required.
    * @return A new {@link DataSource}.
    * @throws ClassNotFoundException If the driver class cannot be loaded.
-   * @see DataSourceBuilder
+   * @see DataSources
    */
   @Bean
-  public DataSource dataSource() throws ClassNotFoundException {
-    return DataSourceBuilder.build(env);
+  public DataSource dataSource(final Environment env)
+      throws ClassNotFoundException {
+    return DataSources.build(env);
   }
 
   /**
@@ -123,6 +102,7 @@ public class JpaModule {
    * {@link EntityManager service} using the {@link PersistenceContext
    * annotation}.
    *
+   * @param The application environment. Required.
    * @param configurer The JPA configurer. Required.
    * @return A {@link EntityManagerFactory object} available for use. Spring
    *         managed beans can use the {@link EntityManager service} using the
@@ -131,6 +111,7 @@ public class JpaModule {
    */
   @Bean
   public LocalContainerEntityManagerFactoryBean entityManagerFactory(
+      final Environment env,
       final JpaConfigurer configurer) throws ClassNotFoundException {
     logger.info("Starting service: {}",
         EntityManagerFactory.class.getSimpleName());
@@ -142,7 +123,7 @@ public class JpaModule {
     properties.put(AvailableSettings.HBM2DDL_AUTO, hbm2ddl);
     emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
     emf.setJpaPropertyMap(properties);
-    emf.setDataSource(dataSource());
+    emf.setDataSource(dataSource(env));
     emf.setPackagesToScan(configurer.getPackages());
     return emf;
   }

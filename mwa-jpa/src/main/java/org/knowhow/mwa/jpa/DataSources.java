@@ -37,7 +37,7 @@ import com.jolbox.bonecp.BoneCPDataSource;
  * @see EmbeddedDatabaseBuilder
  * @see <a href="http://www.http://jolbox.com/">BoneCP</a>
  */
-public final class DataSourceBuilder {
+public final class DataSources {
 
   /**
    * The H2 driver class's name.
@@ -197,12 +197,12 @@ public final class DataSourceBuilder {
    * The logging system.
    */
   private static Logger logger = LoggerFactory
-      .getLogger(DataSourceBuilder.class);
+      .getLogger(DataSources.class);
 
   /**
    * Not allowed.
    */
-  private DataSourceBuilder() {
+  private DataSources() {
   }
 
   /**
@@ -286,7 +286,7 @@ public final class DataSourceBuilder {
       @SuppressWarnings("unchecked")
       Class<? extends Driver> driverClass =
           (Class<? extends Driver>) ClassUtils.forName(H2_DRIVER,
-              DataSourceBuilder.class.getClassLoader());
+              DataSources.class.getClassLoader());
       dataSource.setDriverClass(driverClass);
       dataSource.setUrl(jdbcUrl);
       dataSource.setUsername("sa");
