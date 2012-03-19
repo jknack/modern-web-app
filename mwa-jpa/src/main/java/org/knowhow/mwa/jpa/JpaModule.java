@@ -25,6 +25,8 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.support.SharedEntityManagerBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 /**
  * <p>
@@ -68,7 +70,7 @@ public class JpaModule {
    * isn't one of: h2, derby, or hsql. See: BoneCP.
    * </ul>
    *
-   * @param The application environment. Required.
+   * @param env The application environment. Required.
    * @return A new {@link DataSource}.
    * @throws ClassNotFoundException If the driver class cannot be loaded.
    * @see DataSources
@@ -102,7 +104,7 @@ public class JpaModule {
    * {@link EntityManager service} using the {@link PersistenceContext
    * annotation}.
    *
-   * @param The application environment. Required.
+   * @param env The application environment. Required.
    * @param configurer The JPA configurer. Required.
    * @return A {@link EntityManagerFactory object} available for use. Spring
    *         managed beans can use the {@link EntityManager service} using the
@@ -111,8 +113,8 @@ public class JpaModule {
    */
   @Bean
   public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-      final Environment env,
-      final JpaConfigurer configurer) throws ClassNotFoundException {
+      final Environment env, final JpaConfigurer configurer)
+      throws ClassNotFoundException {
     logger.info("Starting service: {}",
         EntityManagerFactory.class.getSimpleName());
     LocalContainerEntityManagerFactoryBean emf =
@@ -141,6 +143,16 @@ public class JpaModule {
   }
 
   /**
+   * Publish a JSR-303 validator factory.
+   *
+   * @return A new JSR-303 validator factory.
+   */
+  @Bean
+  public LocalValidatorFactoryBean validatorFactory() {
+    return new LocalValidatorFactoryBean();
+  }
+
+  /**
    * Perform cleanup tasks.
    *
    * @throws Exception If something goes wrong during shutdown.
@@ -148,6 +160,26 @@ public class JpaModule {
   @PreDestroy
   public void destroy() throws Exception {
     cleanupDrivers();
+  }
+
+  /**
+   * Publish a {@link JSR303HandlerExceptionResolver JSR-303} message resolver.
+   *
+   * @return A new {@link JSR303HandlerExceptionResolver} message resolver.
+   */
+  @Bean
+  public HandlerExceptionResolver jsr303ExceptionResolver() {
+    return new JSR303HandlerExceptionResolver();
+  }
+
+  /**
+   * Publish a {@link DataAccessHandlerExceptionResolver} message resolver.
+   *
+   * @return A new {@link DataAccessHandlerExceptionResolver} message resolver.
+   */
+  @Bean
+  public HandlerExceptionResolver dataAccessExceptionResolver() {
+    return new DataAccessHandlerExceptionResolver();
   }
 
   /**

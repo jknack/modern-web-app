@@ -126,12 +126,34 @@
         <artifactId>querydsl-apt</artifactId>
         <version>${querydsl-version}</version>
         <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
         <groupId>com.mysema.querydsl</groupId>
         <artifactId>querydsl-jpa</artifactId>
         <version>${querydsl-version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>net.sourceforge.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-validator</artifactId>
+        <version>${hibernate-validator-version}</version>
       </dependency>
 
       <!-- Logging System -->
@@ -382,7 +404,7 @@
             <executions>
               <execution>
                 <id>checkstyle</id>
-                <phase>none</phase>
+                <phase>compile</phase>
                 <goals>
                   <goal>checkstyle</goal>
                 </goals>
@@ -405,6 +427,7 @@
     <spring-version>3.1.1.RELEASE</spring-version>
     <spring-data-version>1.0.1.RELEASE</spring-data-version>
     <hibernate-version>4.1.0.Final</hibernate-version>
+    <hibernate-validator-version>4.3.0.Alpha1</hibernate-validator-version>
     <jackson-version>1.9.5</jackson-version>
     <logback-version>1.0.0</logback-version>
     <slf4j-version>1.6.4</slf4j-version>

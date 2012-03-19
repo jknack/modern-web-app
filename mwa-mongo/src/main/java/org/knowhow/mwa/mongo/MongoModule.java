@@ -16,7 +16,6 @@ import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 
 import com.google.common.base.Strings;
 import com.mongodb.Mongo;
-import com.mongodb.MongoException;
 import com.mongodb.MongoURI;
 
 /**
@@ -64,11 +63,10 @@ public class MongoModule {
    * @param environment The application environment. Required.
    * @return A {@link MongoURI uri}.
    * @throws UnknownHostException If the host connection is rejected.
-   * @throws MongoException If the mongo connection is rejected.
    */
   @Bean
   public MongoURI mongoURI(final Environment environment)
-      throws UnknownHostException, MongoException {
+      throws UnknownHostException {
     Validate.notNull(environment, "The application environment is required.");
     MongoURI uri = new MongoURI(environment.getRequiredProperty("db"));
     String noUserUri = uri.toString();
@@ -86,11 +84,10 @@ public class MongoModule {
    * @param uri The mongo db uri. Required.
    * @return A Mongo database connection.
    * @throws UnknownHostException If the host connection is rejected.
-   * @throws MongoException If the mongo connection is rejected.
    */
   @Bean
   public Mongo mongo(final MongoURI uri)
-      throws UnknownHostException, MongoException {
+      throws UnknownHostException {
     Validate.notNull(uri, "The mongo database uri is required.");
     return uri.connect();
   }

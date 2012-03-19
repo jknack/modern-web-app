@@ -95,7 +95,7 @@ public abstract class Startup implements WebApplicationInitializer {
     // redirect java util logging calls.
     configureJuli();
 
-    AnnotationConfigWebApplicationContext rootContext =
+    final AnnotationConfigWebApplicationContext rootContext =
         new AnnotationConfigWebApplicationContext();
     servletContext.addListener(new ContextLoaderListener(rootContext));
 
@@ -206,7 +206,6 @@ public abstract class Startup implements WebApplicationInitializer {
   /**
    * Add application's filters, listener and servlets.
    *
-   * @param environment The application's environment.
    * @param servletContext The servlet's context.
    * @param rootContext The Spring MVC application context.
    */
@@ -235,6 +234,8 @@ public abstract class Startup implements WebApplicationInitializer {
       final AnnotationConfigWebApplicationContext context,
       final Class<?>[] modules) {
     Set<String> packageToScan = new LinkedHashSet<String>();
+    packageToScan.add(Startup.class.getPackage().getName());
+    packageToScan.add(getClass().getPackage().getName());
     for (Class<?> module : modules) {
       packageToScan.add(module.getPackage().getName());
     }
