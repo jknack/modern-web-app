@@ -48,13 +48,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- MWA Mongo -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-mongo</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
     <!-- Logging System -->
     <dependency>
       <groupId>${project.groupId}</groupId>
