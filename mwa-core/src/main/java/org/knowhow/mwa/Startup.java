@@ -221,7 +221,7 @@ public abstract class Startup implements WebApplicationInitializer {
    *         servlet. Default is: '/'.
    */
   protected String dispatcherMapping() {
-    return "/";
+    return "/*";
   }
 
   /**
