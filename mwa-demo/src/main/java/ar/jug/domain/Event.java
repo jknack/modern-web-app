@@ -6,6 +6,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -30,7 +31,6 @@ public class Event {
   /**
    * The event's name.
    */
-  @NotNull
   @NotEmpty
   private String name;
 
@@ -50,7 +50,14 @@ public class Event {
   /**
    * The event's location.
    */
+  @NotNull
   private String location;
+
+  /**
+   * The event rating.
+   */
+  @Min(value = 0)
+  private int rating;
 
   /**
    * Creates a new {@link Event}.
@@ -166,6 +173,27 @@ public class Event {
     this.type = type;
   }
 
+  /**
+   * The event's rating.
+   *
+   * @return The event's rating.
+   */
+  public int getRating() {
+    return rating;
+  }
+
+  /**
+   * Set the event's rating.
+   *
+   * @param rating The event's rating.
+   */
+  public void setRating(final int rating) {
+    this.rating = rating;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String toString() {
     return name;

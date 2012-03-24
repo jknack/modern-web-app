@@ -1,0 +1,14 @@
+This is a marker file and must to be present if you want to enabled QueryDSL for JPA.
+When this file is present:
+ * The JPAAnnotationProcessor is executed.
+   <groupId>com.mysema.maven</groupId>
+    <artifactId>maven-apt-plugin</artifactId>
+    <executions>
+        ...
+        <configuration>
+          <outputDirectory>${querydsl-jpa-output-dir}</outputDirectory>
+          <processor>com.mysema.query.apt.jpa.JPAAnnotationProcessor</processor>
+        </configuration>
+      </execution>
+    </executions>
+ * Eclipse APT support is automatically added for every eclipse:clean eclipse:eclipse execution.

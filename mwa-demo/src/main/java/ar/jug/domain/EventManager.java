@@ -2,23 +2,27 @@ package ar.jug.domain;
 
 import static ar.jug.domain.QEvent.event;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
-
-import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.validation.Valid;
 
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.mysema.query.jpa.impl.JPADeleteClause;
 import com.mysema.query.jpa.impl.JPAQuery;
 
 /**
@@ -55,15 +59,41 @@ public class EventManager {
   /**
    * List all the events.
    *
+   * @param criteria The event criteria.
    * @return All the events.
    */
   @RequestMapping(value = "/events", method = GET)
   @ResponseBody
-  public List<Event> list() {
+  public Iterable<Event> list(@Valid final EventCriteria criteria) {
+    return criteria.execute(em);
+  }
+
+  /**
+   * Get the event using the id.
+   *
+   * @param id The event's id. Required.
+   * @return The event.
+   */
+  @RequestMapping(value = "/events/{id}", method = GET)
+  @ResponseBody
+  public Event get(@PathVariable @NotEmpty final String id) {
     JPAQuery query = new JPAQuery(em);
-    return query.from(event).
-        orderBy(event.date.desc())
-        .list(event);
+    return query.from(event)
+        .where(event.id.equalsIgnoreCase(id))
+        .uniqueResult(event);
+  }
+
+  /**
+   * Delete the event using the id.
+   *
+   * @param id The event's id. Required.
+   */
+  @RequestMapping(value = "/events/{id}", method = DELETE)
+  @ResponseStatus(value = HttpStatus.OK)
+  public void delete(@PathVariable @NotEmpty final String id) {
+    new JPADeleteClause(em, event)
+        .where(event.id.equalsIgnoreCase(id))
+        .execute();
   }
 
   /**
