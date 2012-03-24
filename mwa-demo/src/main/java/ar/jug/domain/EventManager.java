@@ -10,6 +10,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.validation.Valid;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.mysema.query.jpa.impl.JPADeleteClause;
 import com.mysema.query.jpa.impl.JPAQuery;
 
 /**
@@ -77,10 +77,14 @@ public class EventManager {
   @RequestMapping(value = "/events/{id}", method = GET)
   @ResponseBody
   public Event get(@PathVariable @NotEmpty final String id) {
-    JPAQuery query = new JPAQuery(em);
-    return query.from(event)
+    Event result = new JPAQuery(em)
+        .from(event)
         .where(event.id.equalsIgnoreCase(id))
         .uniqueResult(event);
+    if (result == null) {
+      throw new NoResultException("Not found: \"" + id + "\"");
+    }
+    return result;
   }
 
   /**
@@ -91,9 +95,7 @@ public class EventManager {
   @RequestMapping(value = "/events/{id}", method = DELETE)
   @ResponseStatus(value = HttpStatus.OK)
   public void delete(@PathVariable @NotEmpty final String id) {
-    new JPADeleteClause(em, event)
-        .where(event.id.equalsIgnoreCase(id))
-        .execute();
+    em.remove(get(id));
   }
 
   /**
