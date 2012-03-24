@@ -1,11 +1,12 @@
 package org.knowhow.mwa;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import org.knowhow.mwa.handler.BindHandlerExceptionResolver;
 import org.knowhow.mwa.handler.MessageConverterHandlerExceptionResolver;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -66,18 +67,20 @@ class WebDefaults extends WebMvcConfigurerAdapter {
    *         Context.
    */
   private Iterable<HandlerExceptionResolver> customExceptionResolvers() {
+    Collection<HandlerExceptionResolver> result =
+        new ArrayList<HandlerExceptionResolver>();
+    result.add(new BindHandlerExceptionResolver());
     Collection<HandlerExceptionResolver> customExceptionResolvers =
         applicationContext.getBeansOfType(HandlerExceptionResolver.class)
             .values();
-    if (customExceptionResolvers == null) {
-      customExceptionResolvers = Collections.emptySet();
+    if (customExceptionResolvers != null) {
+      result.addAll(customExceptionResolvers);
     }
-    return customExceptionResolvers;
+    return result;
   }
 
   /**
-   * Enable the default servlet.
-   * {@inheritDoc}
+   * Enable the default servlet. {@inheritDoc}
    */
   @Override
   public void configureDefaultServletHandling(
