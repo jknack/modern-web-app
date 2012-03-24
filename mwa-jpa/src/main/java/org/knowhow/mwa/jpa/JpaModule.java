@@ -12,9 +12,11 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 
 import org.hibernate.cfg.AvailableSettings;
+import org.knowhow.mwa.handler.MessageConverterHandlerExceptionResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -180,6 +182,19 @@ public class JpaModule {
   @Bean
   public HandlerExceptionResolver dataAccessExceptionResolver() {
     return new DataAccessHandlerExceptionResolver();
+  }
+
+  /**
+   * Publish a {@link HandlerExceptionResolver} message converter resolver for
+   * {@link PersistenceException}.
+   *
+   * @return A new {@link HandlerExceptionResolver} message converter resolver
+   *         for {@link PersistenceException}.
+   */
+  @Bean
+  public HandlerExceptionResolver persistenceExceptionResolver() {
+    return new MessageConverterHandlerExceptionResolver(
+        PersistenceException.class);
   }
 
   /**
