@@ -44,12 +44,6 @@
       <artifactId>hibernate-validator</artifactId>
     </dependency>
 
-    <!-- Query DSL -->
-    <dependency>
-      <groupId>com.mysema.querydsl</groupId>
-      <artifactId>querydsl-jpa</artifactId>
-    </dependency>
-
     <!-- Spring ORM, JDBC & TRX -->
     <dependency>
       <groupId>javax.inject</groupId>
