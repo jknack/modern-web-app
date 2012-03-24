@@ -73,7 +73,7 @@ public class BindHandlerExceptionResolver extends
       error.put("rejectedValue", rejectedValue);
       error.put("message", (StringUtils.trimToEmpty(field) + " " + objectError
           .getDefaultMessage()).trim());
-      error.put("type", objectError.getCode());
+      error.put("type", StringUtils.uncapitalize(objectError.getCode()));
       error.put("source", objectError.getObjectName());
       errors.add(error);
     }

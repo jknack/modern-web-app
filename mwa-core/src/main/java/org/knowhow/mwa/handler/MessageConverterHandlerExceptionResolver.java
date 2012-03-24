@@ -1,6 +1,7 @@
 package org.knowhow.mwa.handler;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -11,8 +12,11 @@ import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
 import org.springframework.http.HttpOutputMessage;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -50,15 +54,38 @@ public class MessageConverterHandlerExceptionResolver
   private Class<? extends Exception> exceptionClass;
 
   /**
+   * The logging system.
+   */
+  private final Logger logger = getLogger(getClass());
+
+  /**
+   * The HTTP response status.
+   */
+  private final HttpStatus responseStatus;
+
+  /**
    * A new {@link MessageConverterHandlerExceptionResolver}.
    *
    * @param exceptionClass The exception type. Required.
    */
   public MessageConverterHandlerExceptionResolver(
       @Nonnull final Class<? extends Exception> exceptionClass) {
+    this(exceptionClass, HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * A new {@link MessageConverterHandlerExceptionResolver}.
+   *
+   * @param exceptionClass The exception type. Required.
+   * @param responseStatus The HTTP response status. Required.
+   */
+  public MessageConverterHandlerExceptionResolver(
+      @Nonnull final Class<? extends Exception> exceptionClass,
+      @Nonnull final HttpStatus responseStatus) {
     this.exceptionClass =
         checkNotNull(exceptionClass, "The exception class is required.");
-    setWarnLogCategory(getClass().getName());
+    this.responseStatus =
+        checkNotNull(responseStatus, "The response status is required.");
   }
 
   /**
@@ -72,6 +99,7 @@ public class MessageConverterHandlerExceptionResolver
     try {
       if (exceptionClass.isInstance(ex)) {
         handle(convert(ex), request, response);
+        logger.warn(buildLogMessage(ex, request), ex);
         return new ModelAndView();
       }
     } catch (Exception handlerException) {
@@ -105,7 +133,8 @@ public class MessageConverterHandlerExceptionResolver
    */
   protected Map<String, Object> asMap(final Throwable cause) {
     Map<String, Object> error = new LinkedHashMap<String, Object>();
-    error.put("type", cause.getClass().getSimpleName());
+    error.put("type",
+        StringUtils.uncapitalize(cause.getClass().getSimpleName()));
     error.put("message", cause.getMessage());
     return error;
   }
@@ -121,7 +150,7 @@ public class MessageConverterHandlerExceptionResolver
   private void handle(final Object error,
       final HttpServletRequest request, final HttpServletResponse response)
       throws IOException {
-    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    response.setStatus(responseStatus.value());
     MediaType contentType = contentType(request);
     HttpOutputMessage output = new ServletServerHttpResponse(response);
     messageConverter(contentType, error, request).write(error, contentType,
