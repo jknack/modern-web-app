@@ -398,7 +398,7 @@
             <version>${maven-checkstyle-plugin-version}</version>
             <configuration>
               <consoleOutput>true</consoleOutput>
-              <configLocation>/home/edgar/workspaces/git/modern-web-app/checkstyle.xml</configLocation>
+              <configLocation>https://raw.github.com/edgarespina/modern-web-app/master/checkstyle.xml</configLocation>
               <failsOnError>true</failsOnError>
             </configuration>
             <executions>
@@ -413,6 +413,127 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <!-- QueryDSL for JPA -->
+    <profile>
+      <id>querydsl-jpa</id>
+      <activation>
+        <file>
+          <exists>${basedir}/src/etc/modules/querydsl-jpa</exists>
+        </file>
+      </activation>
+      <properties>
+        <querydsl-jpa-apt-file>querydsl-jpa-${querydsl-version}-apt-one-jar.jar</querydsl-jpa-apt-file>
+        <querydsl-jpa-apt-remote-file>http://repo1.maven.org/maven2/com/mysema/querydsl/querydsl-jpa/${querydsl-version}/${querydsl-jpa-apt-file}</querydsl-jpa-apt-remote-file>
+        <querydsl-jpa-apt-dir>${java.io.tmpdir}/querydsl-jpa-apt</querydsl-jpa-apt-dir>
+        <querydsl-jpa-apt-path>${querydsl-jpa-apt-dir}/${querydsl-jpa-apt-file}</querydsl-jpa-apt-path>
+        <querydsl-jpa-output-dir>target/querydsl-jpa</querydsl-jpa-output-dir>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.7</version>
+            <executions>
+              <execution>
+                <id>get-querydsl-jpa-apt-file</id>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <target>
+                    <mkdir dir="${querydsl-jpa-apt-dir}"/>
+                    <get src="${querydsl-jpa-apt-remote-file}"
+                        dest="${querydsl-jpa-apt-path}"
+                        usetimestamp="true" />
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>1.4</version>
+            <executions>
+              <execution>
+                <id>add-source</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>add-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${querydsl-jpa-output-dir}</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.knowhow</groupId>
+            <artifactId>maven-eclipse-plugin</artifactId>
+            <configuration>
+              <additionalConfig>
+                <file>
+                  <name>.factorypath</name>
+                  <content><![CDATA[<factorypath>
+  <factorypathentry kind="EXTJAR" id="${querydsl-jpa-apt-path}" enabled="true" runInBatchMode="false"/>
+</factorypath>
+  ]]>
+                  </content>
+                </file>
+                <file>
+                  <name>.settings/org.eclipse.jdt.apt.core.prefs</name>
+                  <content><![CDATA[
+  eclipse.preferences.version=1
+org.eclipse.jdt.apt.aptEnabled=true
+org.eclipse.jdt.apt.genSrcDir=${querydsl-jpa-output-dir}
+org.eclipse.jdt.apt.reconcileEnabled=true
+org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
+   ]]>
+                  </content>
+                </file>
+              </additionalConfig>
+            </configuration>
+          </plugin>
+
+          <!-- Query DSL -->
+          <plugin>
+            <groupId>com.mysema.maven</groupId>
+            <artifactId>maven-apt-plugin</artifactId>
+            <version>${maven-apt-plugin-version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>process</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${querydsl-jpa-output-dir}</outputDirectory>
+                  <processor>com.mysema.query.apt.jpa.JPAAnnotationProcessor</processor>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>com.mysema.querydsl</groupId>
+                <artifactId>querydsl-apt</artifactId>
+                <version>${querydsl-version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+      <dependencies>
+        <!-- Query DSL -->
+        <dependency>
+          <groupId>com.mysema.querydsl</groupId>
+          <artifactId>querydsl-jpa</artifactId>
+        </dependency>
+      </dependencies>
     </profile>
   </profiles>
 
