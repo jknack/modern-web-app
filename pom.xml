@@ -513,6 +513,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
                 <configuration>
                   <outputDirectory>${querydsl-jpa-output-dir}</outputDirectory>
                   <processor>com.mysema.query.apt.jpa.JPAAnnotationProcessor</processor>
+                  <logOnlyOnError>true</logOnlyOnError>
                 </configuration>
               </execution>
             </executions>
