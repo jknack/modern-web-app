@@ -121,7 +121,10 @@ public abstract class Startup implements WebApplicationInitializer {
     /**
      * Scan beans under each module's package.
      */
-    registerModules(rootContext, modules());
+    Class<?>[] modules = modules();
+    if (modules.length > 0) {
+      registerModules(rootContext, modules);
+    }
 
     /**
      * Register the application object.
@@ -235,7 +238,6 @@ public abstract class Startup implements WebApplicationInitializer {
       final Class<?>[] modules) {
     Set<String> packageToScan = new LinkedHashSet<String>();
     packageToScan.add(Startup.class.getPackage().getName());
-    packageToScan.add(getClass().getPackage().getName());
     for (Class<?> module : modules) {
       packageToScan.add(module.getPackage().getName());
     }

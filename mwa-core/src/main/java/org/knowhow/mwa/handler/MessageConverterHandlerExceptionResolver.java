@@ -150,11 +150,12 @@ public class MessageConverterHandlerExceptionResolver
   private void handle(final Object error,
       final HttpServletRequest request, final HttpServletResponse response)
       throws IOException {
-    response.setStatus(responseStatus.value());
     MediaType contentType = contentType(request);
+    HttpMessageConverter converter =
+        messageConverter(contentType, error, request);
+    response.setStatus(responseStatus.value());
     HttpOutputMessage output = new ServletServerHttpResponse(response);
-    messageConverter(contentType, error, request).write(error, contentType,
-        output);
+    converter.write(error, contentType, output);
   }
 
   /**
@@ -177,9 +178,11 @@ public class MessageConverterHandlerExceptionResolver
    */
   private HttpMessageConverter messageConverter(final MediaType contentType,
       final Object error, final HttpServletRequest request) {
-    for (HttpMessageConverter converter : messageConverters) {
-      if (converter.canWrite(error.getClass(), contentType)) {
-        return converter;
+    if (contentType != null) {
+      for (HttpMessageConverter converter : messageConverters) {
+        if (converter.canWrite(error.getClass(), contentType)) {
+          return converter;
+        }
       }
     }
     throw new IllegalStateException("Message converter not found for: "

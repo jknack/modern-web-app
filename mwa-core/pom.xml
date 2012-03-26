@@ -45,6 +45,12 @@
       <artifactId>spring-webmvc</artifactId>
     </dependency>
 
+    <!-- Jackson -->
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+    </dependency>
+
     <!-- Logging System -->
     <dependency>
       <groupId>${project.groupId}</groupId>
