@@ -16,7 +16,6 @@
     <module>mwa-view</module>
     <module>mwa-mustache</module>
     <module>mwa-logging</module>
-    <module>mwa-demo</module>
   </modules>
 
   <prerequisites>
