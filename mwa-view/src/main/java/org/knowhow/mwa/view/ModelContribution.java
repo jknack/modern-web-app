@@ -10,7 +10,7 @@ import javax.servlet.ServletContext;
  *
  * @author edgar.espina
  * @since 0.1
- * @see WebView
+ * @see ModernView
  */
 public interface ModelContribution {
 

@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.knowhow.mwa.view.WebView;
+import org.knowhow.mwa.view.ModernView;
 import org.springframework.util.Assert;
 
 import com.sampullara.mustache.Mustache;
@@ -16,7 +16,7 @@ import com.sampullara.mustache.Mustache;
  * @author edgar.espina
  * @since 0.1
  */
-public class MustacheView extends WebView {
+public class MustacheView extends ModernView {
 
   /**
    * The compiled template.

@@ -8,8 +8,8 @@ import java.nio.charset.Charset;
 import javax.servlet.ServletContext;
 
 import org.knowhow.mwa.view.ModelContribution;
-import org.knowhow.mwa.view.WebView;
-import org.knowhow.mwa.view.WebViewResolver;
+import org.knowhow.mwa.view.ModernView;
+import org.knowhow.mwa.view.ModernViewResolver;
 import org.springframework.web.servlet.ViewResolver;
 
 import com.sampullara.mustache.Mustache;
@@ -24,7 +24,7 @@ import com.sampullara.util.FutureWriter;
  * @author edgar.espina
  * @since 0.1
  */
-public class MustacheViewResolver extends WebViewResolver {
+public class MustacheViewResolver extends ModernViewResolver {
 
   /**
    * The default content type.
@@ -95,7 +95,7 @@ public class MustacheViewResolver extends WebViewResolver {
    * Configure a new {@link MustacheView}. {@inheritDoc}
    */
   @Override
-  protected void buildView(final WebView view) throws Exception {
+  protected void buildView(final ModernView view) throws Exception {
     /** Build a mustache template. */
     ((MustacheView) view).setMustache(engine.parseFile(view.getUrl()));
   }
