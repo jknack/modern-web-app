@@ -256,6 +256,13 @@
         <version>${mustache.java-version}</version>
       </dependency>
 
+      <!-- Web Resource Optimizer -->
+      <dependency>
+        <groupId>ro.isdc.wro4j</groupId>
+        <artifactId>wro4j-extensions</artifactId>
+        <version>${wro4j-version}</version>
+      </dependency>
+
       <!-- TODO: move embedded db driver to test deps -->
       <dependency>
         <groupId>com.h2database</groupId>
@@ -441,10 +448,9 @@
                 <phase>generate-sources</phase>
                 <configuration>
                   <target>
-                    <mkdir dir="${querydsl-jpa-apt-dir}"/>
-                    <get src="${querydsl-jpa-apt-remote-file}"
-                        dest="${querydsl-jpa-apt-path}"
-                        usetimestamp="true" />
+                    <mkdir dir="${querydsl-jpa-apt-dir}" />
+                    <get src="${querydsl-jpa-apt-remote-file}" dest="${querydsl-jpa-apt-path}"
+                      usetimestamp="true" />
                   </target>
                 </configuration>
                 <goals>
@@ -573,6 +579,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <querydsl-version>2.3.3</querydsl-version>
     <mongo-java-driver-version>2.7.3</mongo-java-driver-version>
     <morphia-version>0.99</morphia-version>
+    <wro4j-version>1.4.4</wro4j-version>
 
     <!-- Encoding UTF-8 -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
