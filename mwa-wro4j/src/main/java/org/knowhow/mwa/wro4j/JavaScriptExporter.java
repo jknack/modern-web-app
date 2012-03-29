@@ -57,7 +57,7 @@ public class JavaScriptExporter extends WroContribution {
     StringBuilder buffer = new StringBuilder();
     String contextPath = (String) model.get(CONTEXT_PATH);
     if (useCache()) {
-      buffer.append(script(contextPath, "/bundle" + view + ".js", version));
+      buffer.append(script(contextPath, "bundle/" + view + ".js", version));
     } else {
       List<Resource> resources = group.getResources();
       for (Resource resource : resources) {
@@ -81,7 +81,7 @@ public class JavaScriptExporter extends WroContribution {
    */
   private String script(final String contextPath, final String path,
       final String version) {
-    String script = "<script type='text/javascript' src='%s'></script>";
+    String script = "<script type='text/javascript' src='%s'></script>\n";
     StringBuilder file = new StringBuilder(contextPath)
         .append("/")
         .append(path);

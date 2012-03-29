@@ -53,6 +53,7 @@ import ro.isdc.wro.util.Transformer;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Sets;
 
 /**
  * Build a {@link WroFilter} who takes sensible defaults for dev or production
@@ -137,20 +138,32 @@ public class WebResourceOptimizer {
   private final Properties placeholders = new Properties();
 
   /**
+   * Are we in dev?
+   */
+  private boolean dev;
+
+  /**
+   * This proccessors are off in dev.
+   */
+  private final Set<String> noDevProccessors = Sets.newHashSet("cssCompressor",
+      "yuiCssMin", "yuiJsMin", "yuiJsMinAdvanced", "dojoShrinksafe",
+      "uglifyJs", "googleClosureSimple", "googleClosureAdvanced");
+
+  /**
    * Creates a new {@link WebResourceOptimizer}.
    *
    * @param environment The environment object. Required.
    */
   public WebResourceOptimizer(final Environment environment) {
     Validate.notNull(environment, "The environmnt is required.");
-    boolean debug =
+    dev =
         Application.DEV.matches(environment.getProperty("application.mode"));
-    configProperties.setProperty("debug", String.valueOf(debug).toString());
+    configProperties.setProperty("debug", String.valueOf(dev).toString());
     boolean gzipEnabled;
     boolean disableCache;
     long cacheUpdatePeriod = 0;
     long modelUpdatePeriod;
-    if (debug) {
+    if (dev) {
       gzipEnabled = Boolean.FALSE;
       disableCache = Boolean.TRUE;
       // Update wro.xml every second
@@ -179,7 +192,7 @@ public class WebResourceOptimizer {
         })
         .setIgnoreMissingVariables(false));
     configProperties.setProperty(ConfigConstants.debug.name(),
-        String.valueOf(debug));
+        String.valueOf(dev));
     configProperties.setProperty(ConfigConstants.gzipResources.name(),
         String.valueOf(gzipEnabled));
     configProperties.setProperty(ConfigConstants.cacheUpdatePeriod.name(),
@@ -390,6 +403,9 @@ public class WebResourceOptimizer {
    * @param value The property's value.
    */
   private void append(final String name, final String value) {
+    if (dev && noDevProccessors.contains(value)) {
+      return;
+    }
     Iterable<String> existingValues = Splitter.on(",")
         .omitEmptyStrings()
         .trimResults()
