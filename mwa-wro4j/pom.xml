@@ -21,6 +21,13 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- MWA View -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>mwa-view</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- Servlet API -->
     <dependency>
       <groupId>javax.servlet</groupId>
