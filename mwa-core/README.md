@@ -3,7 +3,7 @@
 ## Introduction
 MWA let you startup for application with minimal setup.
 
-## Creates a Maven Project
+## Create a Maven Project
 * mkdir your-project-name
 * cd your-project-name
 * create a new file: pom.xml  
@@ -60,9 +60,5 @@ Edit pom.xml file and add the mwa-core dependencies.
          return new Class<?>[] {};
        }
     }
-## Create a Maven Project
-* mkdir your-project-name
-* cd your-project-name
-* create a new file: pom.xml  
-* open the file: pom.xml and put this content:
 
+## Startup the application
