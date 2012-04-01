@@ -30,8 +30,8 @@ MWA let you startup for application with minimal setup.
        <version>1.0</version>
        <packaging>war</packaging>
      </project>
-     
-     
+
+
 * Create some folders
   * src/main/java
   * src/main/webapp
