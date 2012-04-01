@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.concurrent.ExecutorService;
 
 import javax.servlet.ServletContext;
 
@@ -101,8 +102,7 @@ public class MustacheViewResolver extends ModernViewResolver {
   }
 
   /**
-   * Configure Mustache.
-   * {@inheritDoc}
+   * Configure Mustache. {@inheritDoc}
    */
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -131,9 +131,12 @@ public class MustacheViewResolver extends ModernViewResolver {
       engine.setSuperclass(superClass.getName());
     }
     /** Use parallel processing */
+    ExecutorService executorService = FutureWriter.getExecutorService();
     logger.debug("Use parallel processing: " + parallelProcessing);
     if (!parallelProcessing) {
-      FutureWriter.setExecutorService(null);
+      if (executorService != null) {
+        FutureWriter.setExecutorService(null);
+      }
     }
   }
 
