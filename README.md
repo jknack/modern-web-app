@@ -1,25 +1,24 @@
 # A Modern Web Application Architecture
 
-## Software Requirements
-* Java 6
-* Maven 3
-* Eclipse Indigo JavaEE
-* Tomcat 7.0.26
+## MWA Introduction
 
-## Architecture, Design and Principles
-* [Core]: Built with Servlet 3.0 and Spring 3.1 or higher.
-* [Core]: No web.xml through ServletContainerInitializer.
-* [Core]: No XML for Dependency Injection.
-* [Core]: Modules through Spring @Configuration classes.
-* [Core]: Simply but effective application bootstrap.
-* [Core]: Application configuration with: properties files, environment, profiles, logging, etc.
-* [Core]: JSON Support.
-* [Persistence]: JPA 2.0 Support.
-* [Persistence]: MongoDB, Morphia Support.
-* [Persistence]: QueryDSL Support.
-* [Programming-Model]: REST Support.
-* [Programming-Model]: Extensible Spring View and ViewResolver component.
-* [Programming-Model]: Model contributions for better view and model interaction.
+### What is MWA?
+ * A set of best and modern practices for building Java Web Applications using Maven 3, Servlet 3.0 and Spring 3.1+.
+ * It applies sensible defaults for Spring 3.1+ MVC applications.
+ * You don't have to learn anything specific about MWA.
+ * It reduces startup and configuration time of new applications.
+ * Organize your project and code by promoting the use of Modules.
 
+### What is NOT MWA?
+ * It's NOT a framework.
+ * If you know Maven and Spring, you're ready to go.
+
+### MWA Modules
+ * #### [mwa-core] (#mwa-core)
+ * #### [mwa-logging] (#mwa-logginh)
+
+### <a name="mwa-core">MWA Core</a>
+
+### <a name="mwa-logging">MWA Logging</a>
+ 
 ## Getting Started
-* Check the wiki
