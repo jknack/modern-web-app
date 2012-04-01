@@ -433,7 +433,7 @@
       <properties>
         <querydsl-jpa-apt-file>querydsl-jpa-${querydsl-version}-apt-one-jar.jar</querydsl-jpa-apt-file>
         <querydsl-jpa-apt-remote-file>http://repo1.maven.org/maven2/com/mysema/querydsl/querydsl-jpa/${querydsl-version}/${querydsl-jpa-apt-file}</querydsl-jpa-apt-remote-file>
-        <querydsl-jpa-apt-dir>${java.io.tmpdir}/querydsl-jpa-apt</querydsl-jpa-apt-dir>
+        <querydsl-jpa-apt-dir>${settings.localRepository}/com/mysema/querydsl/querydsl-jpa/${querydsl-version}</querydsl-jpa-apt-dir>
         <querydsl-jpa-apt-path>${querydsl-jpa-apt-dir}/${querydsl-jpa-apt-file}</querydsl-jpa-apt-path>
         <querydsl-jpa-output-dir>target/querydsl-jpa</querydsl-jpa-output-dir>
       </properties>
