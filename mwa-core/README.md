@@ -8,6 +8,8 @@ MWA let you startup for application with minimal setup.
 * cd your-project-name
 * create a new file: pom.xml  
 * open the file: pom.xml and put this content:  
+
+
      <?xml version="1.0" encoding="UTF-8"?>
      <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -30,6 +32,8 @@ MWA let you startup for application with minimal setup.
 
 ## Use mwa-core
 Edit pom.xml file and add the mwa-core dependencies.
+
+
     <dependencies>
       <!-- Servlet API -->
       <dependency>
