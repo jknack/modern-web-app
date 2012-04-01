@@ -29,6 +29,13 @@ The same is true for the Spring Dispatcher Servlet, there is only **one** and it
 ### JSR-330 for DI
 MWA promote the use of the JSR-330 API for doing DI, but you can use the custom Spring annotations if you want to.
 
+### Environment API
+MWA promote the use of the [Environment API](http://static.springsource.org/spring/docs/current/javadoc-api/org/springframework/core/env/Environment.html) for dealing with application configuration.
+
+### Application's mode
+The application's mode controls how some application components should behave at runtime. MWA, reconize one mode as special: "dev".  
+Some modules depends on the application's mode and configure in one way or another depending if the app is running in "dev" or not.
+
 ### Modules
 A module is a collection of reusable code and configuration for new and existing applications.
 
@@ -38,7 +45,7 @@ A module is a collection of reusable code and configuration for new and existing
 * The module's namespace or package is added as a source of bean definitions. What does it means? The module's package is scanned for discovering beans.
 
 ### Available modules
-* #### [mwa-core] (#mwa-core)
-* #### [mwa-jpa] (#mwa-jpa)
+* [mwa-core] (https://github.com/edgarespina/modern-web-app/tree/master/mwa-core)
+* [mwa-jpa] (https://github.com/edgarespina/modern-web-app/tree/master/mwa-jpa)
 
 ## Getting Started
