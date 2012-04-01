@@ -7,7 +7,7 @@ MWA let you startup for application with minimal setup.
 * mkdir your-project-name
 * cd your-project-name
 * create a new file: pom.xml  
-* open the file: pom.xml and put this content:  
+* open the file: pom.xml and put this content:
 
 
      <?xml version="1.0" encoding="UTF-8"?>
@@ -25,9 +25,11 @@ MWA let you startup for application with minimal setup.
        <version>1.0</version>
        <packaging>war</packaging>
      </project>
+
 * Create some folders
   * src/main/java
   * src/main/webapp
+
 * run **mvn eclipse:clean eclipse:eclipse**
 
 ## Use mwa-core
