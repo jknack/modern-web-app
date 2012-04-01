@@ -18,7 +18,6 @@ MWA let you startup for application with minimal setup.
          <artifactId>modern-web-app</artifactId>
          <version>0.1.0-SNAPSHOT</version>
        </parent>
-        
        <modelVersion>4.0.0</modelVersion>
        <groupId>your group id</groupId>
        <artifactId>your project name</artifactId>
@@ -28,7 +27,10 @@ MWA let you startup for application with minimal setup.
 
 * Create some folders
   * src/main/java
+  * src/main/resources
   * src/main/webapp
+  * src/test/java
+  * src/test/resources
 
 * run **mvn eclipse:clean eclipse:eclipse**
 
@@ -52,6 +54,33 @@ Edit pom.xml file and add the mwa-core dependencies.
       </dependency>
     </dependencies>
 
+## Configure logging and application's properties
+* Create the file: **application.properties** in src/test/resources
+
+
+     #############################################################  
+     #         Application environment  
+     #############################################################  
+     # The profile to use: dev or anything else. Default is: dev.  
+     application.mode=dev  
+     application.name=${project.artifactId}  
+     application.version=${project.version}  
+     
+
+* Create a file: *logback-test.xml* in src/test/resources  
+
+
+     <configuration scanPeriod="1 seconds" scan="true">
+       <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+         <encoder>
+           <pattern>%d{HH:mm:ss.SSS} [%thread] %-4level %logger - %msg%n</pattern>
+         </encoder>
+       </appender>
+       <root level="INFO">
+         <appender-ref ref="STDOUT" />
+       </root>
+     </configuration>
+
 ## Create Main.java
     package your.package;
     
@@ -63,4 +92,5 @@ Edit pom.xml file and add the mwa-core dependencies.
        }
     }
 
-## Startup the application
+## Run
+* mvn jetty:run
