@@ -22,19 +22,22 @@ MWA promote the use of Servlet 3.0 for Java Web Applications (you'll need a Serv
 ### No XML for dependency injection
 MWA promote the use Java Annotation over XML for Spring bean definition and dependency injection. You wont find XML for configuring Spring in MWA.
 
-### The Spring Application Context
+### Only one Spring Application Context
 In order to simpplify the startup and configuration time, MWA creates a single/unique Spring Application Context (a.k.a as Root Context).  
 The same is true for the Spring Dispatcher Servlet, there is only **one** and it's binded to the **root context**.
 
 ### JSR-330 for DI
 MWA promote the use of the JSR-330 API for doing DI, but you can use the custom Spring annotations if you want to.
 
-### Environment API
-MWA promote the use of the [Environment API](http://static.springsource.org/spring/docs/current/javadoc-api/org/springframework/core/env/Environment.html) for dealing with application configuration.
+### Logging system
+MWA use slf4j with logback as native implementation.
 
-### Application's mode
-The application's mode controls how some application components should behave at runtime. MWA, reconize one mode as special: "dev".  
-Some modules depends on the application's mode and configure in one way or another depending if the app is running in "dev" or not.
+### Application properties, application's mode and the Environment API
+MWA use a single source of properties: **application.properties**. But, you can name the file as you want or have one or more *.properties files for your application.
+
+The application's mode controls how some application components should behave at runtime. MWA, reconize one mode as special: "dev".
+
+Finally, all the application properties are accessible through the use of the [Environment API](http://static.springsource.org/spring/docs/current/javadoc-api/org/springframework/core/env/Environment.html) for dealing with application configuration.
 
 ### Modules
 A module is a collection of reusable code and configuration for new and existing applications.
