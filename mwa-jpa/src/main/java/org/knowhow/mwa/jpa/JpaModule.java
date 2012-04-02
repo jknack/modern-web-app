@@ -28,7 +28,6 @@ import org.springframework.orm.jpa.support.SharedEntityManagerBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 /**
@@ -147,16 +146,6 @@ public class JpaModule {
   }
 
   /**
-   * Publish a JSR-303 validator factory.
-   *
-   * @return A new JSR-303 validator factory.
-   */
-  @Bean
-  public LocalValidatorFactoryBean validatorFactory() {
-    return new LocalValidatorFactoryBean();
-  }
-
-  /**
    * Perform cleanup tasks.
    *
    * @throws Exception If something goes wrong during shutdown.
@@ -164,16 +153,6 @@ public class JpaModule {
   @PreDestroy
   public void destroy() throws Exception {
     cleanupDrivers();
-  }
-
-  /**
-   * Publish a {@link JSR303HandlerExceptionResolver JSR-303} message resolver.
-   *
-   * @return A new {@link JSR303HandlerExceptionResolver} message resolver.
-   */
-  @Bean
-  public HandlerExceptionResolver jsr303ExceptionResolver() {
-    return new JSR303HandlerExceptionResolver();
   }
 
   /**

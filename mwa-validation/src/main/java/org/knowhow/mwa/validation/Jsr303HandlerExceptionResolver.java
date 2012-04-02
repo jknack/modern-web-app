@@ -1,4 +1,4 @@
-package org.knowhow.mwa.jpa;
+package org.knowhow.mwa.validation;
 
 import org.knowhow.mwa.handler.BindHandlerExceptionResolver;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -11,13 +11,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
  * @author edgar.espina
  * @since 0.1
  */
-public class JSR303HandlerExceptionResolver extends
+public class Jsr303HandlerExceptionResolver extends
     BindHandlerExceptionResolver {
 
   /**
-   * Creates a new {@link JSR303HandlerExceptionResolver}.
+   * Creates a new {@link Jsr303HandlerExceptionResolver}.
    */
-  public JSR303HandlerExceptionResolver() {
+  public Jsr303HandlerExceptionResolver() {
     super(MethodArgumentNotValidException.class);
   }
 
