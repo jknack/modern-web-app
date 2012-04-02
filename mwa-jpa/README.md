@@ -69,6 +69,40 @@ public class Main extends Startup {
 ```
 
 ## Usage
+* Publish persistent classes (class annotated with @Entity, @Embedded, etc.)
+
+MyDomainModule.java:
+
+```java
+package sample.domain;
+
+import org.knowhow.mwa.jpa.JpaConfigurer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * My domain module.
+ *
+ * @author edgar.espina
+ * @since 0.1
+ */
+@Configuration
+public class MyDomainModule {
+
+  /**
+   * Publish persistent classes required by {@link JpaModule}.
+   *
+   * @return All persistent classes required by {@link JpaModule}.
+   * @throws Exception If the persisten classes cannot be detected.
+   */
+  @Bean
+  public JpaConfigurer jpaConfigurer() throws Exception {
+    // Publish the demo.domain package as source of persistent classes.
+    return new JpaConfigurer(getClass().getPackage());
+  }
+}
+
+```
 MyService.java:
 
 ```java
@@ -87,10 +121,13 @@ MyService.java:
     }
   }
 ```
-## Advanced
+## Export your DDL
+  TODO:
+
+## Advanced configuration
   TODO: Complete this section.
 
-## Dependencies
+## External dependencies
 * Spring 3.1+: orm, jdbc and tx.
 * Hibernate 4+
 * BoneCP for high performance connection pools.
