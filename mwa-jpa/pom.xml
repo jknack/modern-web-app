@@ -39,11 +39,6 @@
       <artifactId>bonecp</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-validator</artifactId>
-    </dependency>
-
     <!-- Spring ORM, JDBC & TRX -->
     <dependency>
       <groupId>javax.inject</groupId>
