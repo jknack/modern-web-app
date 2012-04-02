@@ -1,5 +1,5 @@
 # The JPA Module
-The JpaModule configures your application with JPA 2.0 Support through Hibernate 4+
+The JpaModule configures your application with JPA 2.0 Support.
 
 ## Features
 * A datasource for development or production like environment.
@@ -9,7 +9,7 @@ The JpaModule configures your application with JPA 2.0 Support through Hibernate
 * Resource cleanup at application shutdown.
 
 ## Configuration
-1. Add maven dependency:
+* Add maven dependency:
 
 pom.xml:
 
@@ -22,7 +22,7 @@ pom.xml:
     </dependency>
 ```
 
-2. Add the "db" property
+* Add the "db" property
 
 application.properties:
 
@@ -39,7 +39,7 @@ db=fs
 #db.password=
 ```
 
-3. Register the JpaModule:
+* Register the JpaModule:
 
 Main.java:
 
@@ -87,3 +87,11 @@ MyService.java:
     }
   }
 ```
+## Advanced
+  TODO: Complete this section.
+
+## Dependencies
+* Spring 3.1+: orm, jdbc and tx.
+* Hibernate 4+
+* BoneCP for high performance connection pools.
+* H2 for embedded/development database.
