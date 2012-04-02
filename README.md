@@ -49,6 +49,7 @@ A module is a collection of reusable code and configuration for new and existing
 
 ### Available modules
 * [mwa-core] (https://github.com/edgarespina/modern-web-app/tree/master/mwa-core)
-* [mwa-jpa] (https://github.com/edgarespina/modern-web-app/tree/master/mwa-jpa)
+* [mwa-logging] (https://github.com/edgarespina/modern-web-app/tree/master/mwa-logging)
+* [mwa-mongo] (https://github.com/edgarespina/modern-web-app/tree/master/mwa-mongo)
 
 ## Getting Started
