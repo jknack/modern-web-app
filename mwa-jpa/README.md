@@ -67,8 +67,6 @@ public class Main extends Startup {
   }
 }
 ```
-
-## Usage
 * Publish persistent classes (class annotated with @Entity, @Embedded, etc.)
 
 MyDomainModule.java:
@@ -103,6 +101,8 @@ public class MyDomainModule {
 }
 
 ```
+
+## Usage
 MyService.java:
 
 ```java
