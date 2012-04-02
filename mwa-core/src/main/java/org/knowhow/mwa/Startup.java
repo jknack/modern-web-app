@@ -237,11 +237,13 @@ public abstract class Startup implements WebApplicationInitializer {
       final AnnotationConfigWebApplicationContext context,
       final Class<?>[] modules) {
     Set<String> packageToScan = new LinkedHashSet<String>();
-    packageToScan.add(Startup.class.getPackage().getName());
+    Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
+    classes.add(WebDefaults.class);
     for (Class<?> module : modules) {
       packageToScan.add(module.getPackage().getName());
+      classes.add(module);
     }
-    context.register(modules);
+    context.register(classes.toArray(new Class[classes.size()]));
     context.scan(packageToScan.toArray(new String[packageToScan.size()]));
   }
 
