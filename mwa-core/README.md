@@ -9,7 +9,7 @@ MWA let you startup for application with minimal setup.
 * create a new file: pom.xml  
 * open the file: pom.xml and put this content:
 
-
+```xml
      <?xml version="1.0" encoding="UTF-8"?>
      <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -24,6 +24,7 @@ MWA let you startup for application with minimal setup.
        <version>1.0</version>
        <packaging>war</packaging>
      </project>
+```
 
 * Create some folders
   * src/main/java
@@ -37,7 +38,7 @@ MWA let you startup for application with minimal setup.
 ## Use mwa-core
 Edit pom.xml file and add the mwa-core dependencies.
 
-
+```xml
     <dependencies>
       <!-- Servlet API -->
       <dependency>
@@ -53,11 +54,12 @@ Edit pom.xml file and add the mwa-core dependencies.
         <version>0.1.0-SNAPSHOT</version>
       </dependency>
     </dependencies>
+```
 
 ## Configure logging and application's properties
 * Create the file: **application.properties** in src/test/resources
 
-
+```
      #############################################################  
      #         Application environment  
      #############################################################  
@@ -65,11 +67,11 @@ Edit pom.xml file and add the mwa-core dependencies.
      application.mode=dev  
      application.name=${project.artifactId}  
      application.version=${project.version}  
-     
+```
 
 * Create a file: *logback-test.xml* in src/test/resources  
 
-
+```xml
      <configuration scanPeriod="1 seconds" scan="true">
        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
          <encoder>
@@ -80,8 +82,10 @@ Edit pom.xml file and add the mwa-core dependencies.
          <appender-ref ref="STDOUT" />
        </root>
      </configuration>
+```
 
 ## Create Main.java
+```java
     package your.package;
     
     import org.knowhow.mwa.Startup;
@@ -91,6 +95,7 @@ Edit pom.xml file and add the mwa-core dependencies.
          return new Class<?>[] {};
        }
     }
+```
 
 ## Run
 * mvn jetty:run
