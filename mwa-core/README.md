@@ -98,4 +98,5 @@ public class Main extends Startup {
 ```
 
 ## Run
-* mvn jetty:run
+* mvn jetty:run or
+* Using Eclipse WTP (TODO: Add Screenshots)
