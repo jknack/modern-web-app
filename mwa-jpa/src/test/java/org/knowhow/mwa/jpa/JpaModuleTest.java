@@ -60,7 +60,6 @@ public class JpaModuleTest {
     expect(env.getProperty(JpaModule.DB_SCHEMA, "update")).andReturn(mode);
 
     JpaConfigurer configurer = createMock(JpaConfigurer.class);
-    expect(configurer.getPackages()).andReturn(new String[] {"com.test" });
 
     PowerMock.mockStatic(DataSources.class);
     expect(DataSources.build(env)).andReturn(dataSource);

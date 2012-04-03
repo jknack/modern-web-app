@@ -129,7 +129,8 @@ public class JpaModule {
     emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
     emf.setJpaPropertyMap(properties);
     emf.setDataSource(dataSource(env));
-    emf.setPackagesToScan(configurer.getPackages());
+    emf.setPackagesToScan("__dont_scan_again");
+    emf.setPersistenceUnitPostProcessors(configurer);
     return emf;
   }
 
