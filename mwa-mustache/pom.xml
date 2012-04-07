@@ -14,24 +14,11 @@
   <name>Mustache Module</name>
 
   <dependencies>
-    <!-- MWA Core -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
     <!-- Servlet API -->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>
-    </dependency>
-
-    <!-- Mustache: Template Engine -->
-    <dependency>
-      <groupId>com.github.spullara.mustache.java</groupId>
-      <artifactId>builder</artifactId>
     </dependency>
 
     <!-- MWA View -->
@@ -41,12 +28,10 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Logging System -->
+    <!-- Mustache: Template Engine -->
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-logging</artifactId>
-      <type>pom</type>
-      <version>${project.version}</version>
+      <groupId>com.github.spullara.mustache.java</groupId>
+      <artifactId>builder</artifactId>
     </dependency>
 
     <!-- Unit test -->

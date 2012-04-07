@@ -14,13 +14,6 @@
   <name>View     Module</name>
 
   <dependencies>
-    <!-- MWA Core -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
     <!-- Servlet API -->
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -28,12 +21,14 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- Spring -->
+    <!-- MWA Core -->
     <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>mwa-core</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
+    <!-- Spring WebMVC-->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>

@@ -14,20 +14,6 @@
   <name>Wro4j  Module</name>
 
   <dependencies>
-    <!-- MWA Core -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <!-- MWA View -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-view</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
     <!-- Servlet API -->
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -35,11 +21,10 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- Logging System -->
+    <!-- MWA View -->
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-logging</artifactId>
-      <type>pom</type>
+      <artifactId>mwa-view</artifactId>
       <version>${project.version}</version>
     </dependency>
 

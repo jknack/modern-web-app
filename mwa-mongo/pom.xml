@@ -14,22 +14,18 @@
   <name>Mongo    Module</name>
 
   <dependencies>
+    <!-- Servlet API -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- MWA Core -->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>mwa-core</artifactId>
       <version>${project.version}</version>
-    </dependency>
-
-    <!-- Spring Data, Mongo -->
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-nodep</artifactId>
     </dependency>
 
     <!-- Spring Data & Mongo -->
