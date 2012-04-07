@@ -3,16 +3,19 @@ package org.knowhow.mwa.mongo;
 import java.net.UnknownHostException;
 
 import org.apache.commons.lang3.Validate;
+import org.knowhow.mwa.handler.MessageConverterHandlerExceptionResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.authentication.UserCredentials;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.core.MongoExceptionTranslator;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import com.google.common.base.Strings;
 import com.mongodb.Mongo;
@@ -45,6 +48,29 @@ import com.mongodb.MongoURI;
 public class MongoModule {
 
   /**
+   * Deal with {@link DataAccessException}.
+   */
+  private static class DataAccessExceptionHandlerResolver extends
+      MessageConverterHandlerExceptionResolver {
+
+    /**
+     * Default constructor.
+     */
+    public DataAccessExceptionHandlerResolver() {
+      super(DataAccessException.class);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Object convert(final Exception exception) {
+      Throwable cause = exception.getCause();
+      return asMap(cause == null ? exception : cause);
+    }
+  }
+
+  /**
    * The logging system.
    */
   private static final Logger logger = LoggerFactory
@@ -72,6 +98,7 @@ public class MongoModule {
     String noUserUri = uri.toString();
     int atSign = noUserUri.indexOf("@");
     if (atSign > 0) {
+      // Hide user and pass
       noUserUri = MongoURI.MONGODB_PREFIX + noUserUri.substring(atSign + 1);
     }
     logger.info("Starting {}", noUserUri);
@@ -134,5 +161,15 @@ public class MongoModule {
   @Bean
   public MongoExceptionTranslator mongoExceptionTranslator() {
     return new MongoExceptionTranslator();
+  }
+
+  /**
+   * Publish a {@link DataAccessException} message resolver.
+   *
+   * @return A new {@link DataAccessException} message resolver.
+   */
+  @Bean
+  public HandlerExceptionResolver dataAccessExceptionResolver() {
+    return new DataAccessExceptionHandlerResolver();
   }
 }

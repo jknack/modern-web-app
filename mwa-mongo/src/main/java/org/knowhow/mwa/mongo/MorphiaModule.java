@@ -19,7 +19,7 @@ import com.mongodb.MongoURI;
  * classes.
  * </p>
  * <p>
- * Also, it configure a Morphia {@link Datastore} ready for use.
+ * Also, it configure a Morphia {@link Datastore} ready to use.
  * </p>
  *
  * @author edgar.espina
