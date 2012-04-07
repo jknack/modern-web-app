@@ -1,4 +1,4 @@
-package org.knowhow.mwa.mongo;
+package org.knowhow.mwa.morphia;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

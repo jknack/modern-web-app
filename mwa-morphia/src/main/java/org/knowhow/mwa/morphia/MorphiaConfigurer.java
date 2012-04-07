@@ -1,4 +1,4 @@
-package org.knowhow.mwa.mongo;
+package org.knowhow.mwa.morphia;
 
 import org.knowhow.mwa.ClassPathScanner;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -26,9 +26,8 @@ public class MorphiaConfigurer extends ClassPathScanner {
    * Creates a new {@link MorphiaConfigurer}.
    *
    * @param packagesToScan The packages to scan. Required.
-   * @throws Exception If the packages cannot be detected.
    */
-  public MorphiaConfigurer(final String... packagesToScan) throws Exception {
+  public MorphiaConfigurer(final String... packagesToScan) {
     super(packagesToScan);
   }
 
@@ -36,9 +35,8 @@ public class MorphiaConfigurer extends ClassPathScanner {
    * Creates a new {@link MorphiaConfigurer}.
    *
    * @param packagesToScan The packages to scan. Required.
-   * @throws Exception If the packages cannot be detected.
    */
-  public MorphiaConfigurer(final Package... packagesToScan) throws Exception {
+  public MorphiaConfigurer(final Package... packagesToScan) {
     super(packagesToScan);
   }
 

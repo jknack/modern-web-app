@@ -30,9 +30,8 @@ public class JpaConfigurer extends ClassPathScanner implements
    * Creates a new {@link JpaConfigurer}.
    *
    * @param packagesToScan The packages to scan. Required.
-   * @throws Exception If the packages cannot be detected.
    */
-  public JpaConfigurer(final String... packagesToScan) throws Exception {
+  public JpaConfigurer(final String... packagesToScan) {
     super(packagesToScan);
   }
 
@@ -40,9 +39,8 @@ public class JpaConfigurer extends ClassPathScanner implements
    * Creates a new {@link JpaConfigurer}.
    *
    * @param packagesToScan The packages to scan. Required.
-   * @throws Exception If the packages cannot be detected.
    */
-  public JpaConfigurer(final Package... packagesToScan) throws Exception {
+  public JpaConfigurer(final Package... packagesToScan) {
     super(packagesToScan);
   }
 

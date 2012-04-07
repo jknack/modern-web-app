@@ -1,4 +1,4 @@
-package org.knowhow.mwa.mongo;
+package org.knowhow.mwa.morphia;
 
 import com.google.code.morphia.annotations.Embedded;
 

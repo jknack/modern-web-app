@@ -9,9 +9,9 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>mwa-mongo</artifactId>
+  <artifactId>mwa-morphia</artifactId>
   <packaging>jar</packaging>
-  <name>Mongo    Module</name>
+  <name>Morphia  Module</name>
 
   <dependencies>
     <!-- Servlet API -->
@@ -24,19 +24,14 @@
     <!-- MWA Core -->
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-core</artifactId>
+      <artifactId>mwa-mongo</artifactId>
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Spring Data & Mongo -->
+    <!-- Morphia -->
     <dependency>
-      <groupId>org.mongodb</groupId>
-      <artifactId>mongo-java-driver</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.data</groupId>
-      <artifactId>spring-data-mongodb</artifactId>
+      <groupId>com.google.code.morphia</groupId>
+      <artifactId>morphia</artifactId>
     </dependency>
 
     <!-- Unit test -->
@@ -49,18 +44,6 @@
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-easymock</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

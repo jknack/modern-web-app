@@ -61,9 +61,8 @@ public abstract class ClassPathScanner {
    * Creates a new {@link ClassPathScanner}.
    *
    * @param packagesToScan The packages to scan. Required.
-   * @throws Exception If the packages cannot be detected.
    */
-  public ClassPathScanner(final String... packagesToScan) throws Exception {
+  public ClassPathScanner(final String... packagesToScan) {
     checkArgument(packagesToScan.length != 0,
         "The package to scan are required.");
     this.classes = scan(packagesToScan);
@@ -73,9 +72,8 @@ public abstract class ClassPathScanner {
    * Creates a new {@link ClassPathScanner}.
    *
    * @param packagesToScan The packages to scan. Required.
-   * @throws Exception If the packages cannot be detected.
    */
-  public ClassPathScanner(final Package... packagesToScan) throws Exception {
+  public ClassPathScanner(final Package... packagesToScan) {
     checkArgument(packagesToScan.length != 0,
         "The package to scan are required.");
     String[] packageNames = new String[packagesToScan.length];
@@ -100,15 +98,18 @@ public abstract class ClassPathScanner {
    *
    * @param packagesToScan The list of packages.
    * @return All the matching classes.
-   * @throws Exception If the packages cannot be detected.
    */
-  private Set<Class<?>> scan(final String[] packagesToScan) throws Exception {
-    Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
-    ClassLoader loader = getClass().getClassLoader();
-    for (String classname : list(packagesToScan)) {
-      classes.add(loader.loadClass(classname));
+  private Set<Class<?>> scan(final String[] packagesToScan) {
+    try {
+      Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
+      ClassLoader loader = getClass().getClassLoader();
+      for (String classname : list(packagesToScan)) {
+        classes.add(loader.loadClass(classname));
+      }
+      return classes;
+    } catch (Exception ex) {
+      throw new IllegalStateException("Fail during package scanning", ex);
     }
-    return classes;
   }
 
   /**

@@ -1,4 +1,4 @@
-package org.knowhow.mwa.mongo;
+package org.knowhow.mwa.morphia;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
+import org.knowhow.mwa.mongo.MongoModule;
 
 import com.google.code.morphia.Datastore;
 import com.google.code.morphia.Morphia;

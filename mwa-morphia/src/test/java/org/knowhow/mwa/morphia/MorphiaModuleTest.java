@@ -1,4 +1,4 @@
-package org.knowhow.mwa.mongo;
+package org.knowhow.mwa.morphia;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
