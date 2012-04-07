@@ -19,6 +19,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -30,6 +31,11 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePropertySource;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.core.type.filter.TypeFilter;
+import org.springframework.stereotype.Component;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
@@ -232,19 +238,55 @@ public abstract class Startup implements WebApplicationInitializer {
    *
    * @param context The String application context.
    * @param modules The list of modules.
+   * @throws ServletException If something goes wrong.
    */
   private void registerModules(
       final AnnotationConfigWebApplicationContext context,
-      final Class<?>[] modules) {
-    Set<String> packageToScan = new LinkedHashSet<String>();
-    Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
-    classes.add(WebDefaults.class);
-    for (Class<?> module : modules) {
-      packageToScan.add(module.getPackage().getName());
-      classes.add(module);
+      final Class<?>[] modules) throws ServletException {
+    try {
+      Set<String> packageToScan = new LinkedHashSet<String>();
+      Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
+      classes.add(WebDefaults.class);
+      for (Class<?> module : modules) {
+        packageToScan.add(module.getPackage().getName());
+        classes.add(module);
+      }
+      if (packageToScan.size() > 0) {
+        /**
+         * DO NOT scan sub-packages.
+         */
+        ClassPathScanner scanner =
+            new ClassPathScanner(packageToScan.toArray(new String[packageToScan
+                .size()])) {
+              @Override
+              protected TypeFilter[] typeFilters() {
+                /**
+                 * @Configuration must be manully added.
+                 */
+                TypeFilter filter = new TypeFilter() {
+                  @Override
+                  public boolean match(final MetadataReader metadataReader,
+                      final MetadataReaderFactory metadataReaderFactory)
+                      throws IOException {
+                    AnnotationTypeFilter component =
+                        new AnnotationTypeFilter(Component.class);
+                    AnnotationTypeFilter configuration =
+                        new AnnotationTypeFilter(Configuration.class);
+                    return component.match(metadataReader,
+                        metadataReaderFactory)
+                        && !configuration.match(metadataReader,
+                            metadataReaderFactory);
+                  }
+                };
+                return new TypeFilter[] {filter};
+              }
+            };
+        classes.addAll(scanner.getClasses());
+      }
+      context.register(classes.toArray(new Class[classes.size()]));
+    } catch (Exception ex) {
+      throw new ServletException("Cannot register modules.", ex);
     }
-    context.register(classes.toArray(new Class[classes.size()]));
-    context.scan(packageToScan.toArray(new String[packageToScan.size()]));
   }
 
   /**
