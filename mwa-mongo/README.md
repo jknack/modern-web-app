@@ -3,9 +3,11 @@ The MongoModule configures your application with MongoDB Support.
 
 ## Features
 * A Mongo uri:
-```
+
+```properties
 mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
 ```
+
 * A Mongo database connection.
 * A MongoDbFactory service from Spring Data.
 * A MongoTemplate service from Spring Data.
@@ -90,6 +92,8 @@ MyService.java:
 ```
 If you want to see the full list of operation, please check [MongoTemplate](http://static.springsource.org/spring-data/data-mongo/docs/current/api/org/springframework/data/mongodb/core/MongoTemplate.html)
 
+## Morphia configuration
+Check the [Morphia Module](https://github.com/edgarespina/modern-web-app/tree/master/mwa-morphia)
 
 ## External dependencies
 * Spring 3.1+: data
