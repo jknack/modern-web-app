@@ -44,7 +44,7 @@ db=fs
 Main.java:
 
 ```java
-package ar.jug;
+package mwa.demo;
 
 import org.knowhow.mwa.Startup;
 import org.knowhow.mwa.jpa.JpaModule;
@@ -72,7 +72,7 @@ public class Main extends Startup {
 MyDomainModule.java:
 
 ```java
-package sample.domain;
+package mwa.demo.domain;
 
 import org.knowhow.mwa.jpa.JpaConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -95,7 +95,7 @@ public class MyDomainModule {
    */
   @Bean
   public JpaConfigurer jpaConfigurer() throws Exception {
-    // Publish the demo.domain package as source of persistent classes.
+    // Publish the mwa.demo.domain package as source of persistent classes.
     return new JpaConfigurer(getClass().getPackage());
   }
 }
