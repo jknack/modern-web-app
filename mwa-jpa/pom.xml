@@ -21,10 +21,10 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- MWA Core -->
+    <!-- MWA Validation -->
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-core</artifactId>
+      <artifactId>mwa-validation</artifactId>
       <version>${project.version}</version>
     </dependency>
 

@@ -14,11 +14,17 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 public class ValidationModule {
 
   /**
+   * The validator factory bean's name.
+   */
+  public static final String VALIDATOR_FACTORY_BEAN_NAME =
+      "__validatorFactoryBean";
+
+  /**
    * Publish a JSR-303 validator factory.
    *
    * @return A new JSR-303 validator factory.
    */
-  @Bean
+  @Bean(name = VALIDATOR_FACTORY_BEAN_NAME)
   public LocalValidatorFactoryBean localValidatorFactoryBean() {
     return new LocalValidatorFactoryBean();
   }

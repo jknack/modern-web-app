@@ -1,16 +1,29 @@
 package org.knowhow.mwa.morphia;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.Set;
+
+import javax.validation.ValidatorFactory;
+
 import org.apache.commons.lang3.Validate;
+import org.knowhow.mwa.mongo.MongoModule;
+import org.knowhow.mwa.validation.ValidationModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import org.knowhow.mwa.mongo.MongoModule;
-
+import com.google.code.morphia.AbstractEntityInterceptor;
 import com.google.code.morphia.Datastore;
 import com.google.code.morphia.Morphia;
+import com.google.code.morphia.mapping.Mapper;
+import com.google.code.morphia.mapping.validation.ConstraintViolationException;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoURI;
 
@@ -33,10 +46,51 @@ import com.mongodb.MongoURI;
 public class MorphiaModule {
 
   /**
+   * A JSR-303 entity interceptor.
+   *
+   * @author edgar.espina
+   */
+  private static final class Jsr303Interceptor extends
+      AbstractEntityInterceptor {
+    /**
+     * The validator factory. Required.
+     */
+    private ValidatorFactory validatorFactory;
+
+    /**
+     * Creates a new {@link Jsr303Interceptor}.
+     *
+     * @param validatorFactory The validator factory. Required.
+     */
+    public Jsr303Interceptor(final ValidatorFactory validatorFactory) {
+      this.validatorFactory =
+          checkNotNull(validatorFactory, "The validator factory is required.");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void prePersist(final Object ent, final DBObject dbObj,
+        final Mapper mapr) {
+      @SuppressWarnings("rawtypes")
+      final Set validate = validatorFactory.getValidator().validate(ent);
+      if (!validate.isEmpty()) {
+        throw new ConstraintViolationException(validate);
+      }
+    }
+  }
+
+  /**
    * The logging system.
    */
   private static final Logger logger = LoggerFactory
       .getLogger(MorphiaModule.class);
+
+  /**
+   * The local validator factory's bean.
+   */
+  @Autowired(required = false)
+  @Qualifier(ValidationModule.VALIDATOR_FACTORY_BEAN_NAME)
+  private LocalValidatorFactoryBean validationFactory;
 
   /**
    * Publish a {@link Morphia} POJOs mapper for Mongo datatabases.
@@ -51,6 +105,11 @@ public class MorphiaModule {
     for (Class<?> document : configurer.getClasses()) {
       logger.debug("Adding morphia class: {}", document.getName());
       morphia.map(document);
+    }
+
+    if (validationFactory != null) {
+      morphia.getMapper().addInterceptor(
+          new Jsr303Interceptor(validationFactory));
     }
     return morphia;
   }
