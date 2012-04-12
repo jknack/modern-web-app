@@ -105,8 +105,6 @@ MyService.java:
     }
   }
 ```
-If you want to see the full list of operation, please check [MongoTemplate](http://static.springsource.org/spring-data/data-mongo/docs/current/api/org/springframework/data/mongodb/core/MongoTemplate.html)
-
 
 ## External dependencies
 * Spring-Data for Mongo 2+
