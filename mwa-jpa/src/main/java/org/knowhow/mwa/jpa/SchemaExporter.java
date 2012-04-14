@@ -80,8 +80,11 @@ public class SchemaExporter {
    */
   public void export(final Database database, final File output,
       final String... packagesToScan) throws Exception {
-    export(database, output, new JpaConfigurer(packagesToScan));
+    JpaConfigurer configurer = new JpaConfigurer();
+    configurer.addPackages(packagesToScan);
+    export(database, output, configurer);
   }
+
   /**
    * Export the schema database to a file using a {@link JpaConfigurer}.
    *
@@ -100,7 +103,7 @@ public class SchemaExporter {
 
     Configuration configuration = new Configuration();
     // Add the persistent classes here.
-    for (Class<?> persistenceClass : configurer.getClasses()) {
+    for (Class<?> persistenceClass : configurer.scan()) {
       logger.info("Adding class: {}", persistenceClass.getName());
       configuration.addAnnotatedClass(persistenceClass);
     }

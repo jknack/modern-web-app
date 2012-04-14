@@ -1,12 +1,16 @@
 package org.knowhow.mwa;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.commons.lang3.Validate;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -15,8 +19,6 @@ import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.util.ClassUtils;
-
-import com.google.common.collect.Sets;
 
 /**
  * <p>
@@ -29,136 +31,173 @@ import com.google.common.collect.Sets;
  * @author edgar.espina
  * @since 0.1
  */
-public abstract class ClassPathScanner {
+public class ClassPathScanner {
 
   /**
    * The classes pattern.
    */
-  private static final String RESOURCE_PATTERN = "/*.class";
-
-  /**
-   * The recursive classes pattern.
-   */
-  private static final String RECURSIVE_RESOURCE_PATTERN = "**/*.class";
-
-  /**
-   * The Spring resource discover.
-   */
-  private ResourcePatternResolver resourcePatternResolver =
-      new PathMatchingResourcePatternResolver();
+  private static final String DEFAULT_RESOURCE_PATTERN = "/*.class";
 
   /**
    * The classes set.
    */
-  private final Set<Class<?>> classes;
+  private Set<Class<?>> classes = null;
 
   /**
-   * The resource pattern.
+   * The lock.
    */
-  private String resourcePattern = RESOURCE_PATTERN;
+  private final ReadWriteLock lock = new ReentrantReadWriteLock();
+
+  /**
+   * The candidate packages.
+   */
+  private Set<String> packages = new LinkedHashSet<String>();
+
+  /**
+   * The resource pattern to use when scanning the classpath.
+   * This value will be appended to each base package name.
+   */
+  private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
+
+  /**
+   * The type filters.
+   */
+  private final Set<TypeFilter> filters = new LinkedHashSet<TypeFilter>();
 
   /**
    * Creates a new {@link ClassPathScanner}.
-   *
-   * @param packagesToScan The packages to scan. Required.
    */
-  public ClassPathScanner(final String... packagesToScan) {
-    checkArgument(packagesToScan.length != 0,
-        "The package to scan are required.");
-    this.classes = scan(packagesToScan);
+  public ClassPathScanner() {
   }
 
   /**
-   * Creates a new {@link ClassPathScanner}.
+   * Add a package to the scanner.
    *
-   * @param packagesToScan The packages to scan. Required.
+   * @param candidatePackage The candidate package. Required.
+   * @return This scanner.
    */
-  public ClassPathScanner(final Package... packagesToScan) {
-    checkArgument(packagesToScan.length != 0,
-        "The package to scan are required.");
-    String[] packageNames = new String[packagesToScan.length];
-    for (int i = 0; i < packagesToScan.length; i++) {
-      packageNames[i] = packagesToScan[i].getName();
+  public ClassPathScanner addPackage(final String candidatePackage) {
+    Validate.notEmpty(candidatePackage, "The package to scan is required.");
+    packages.add(candidatePackage);
+    return this;
+  }
+
+  /**
+   * Add a package to the scanner.
+   *
+   * @param candidatePackage The candidate package. Required.
+   * @return This scanner.
+   */
+  public ClassPathScanner addPackage(final Package candidatePackage) {
+    addPackage(checkNotNull(candidatePackage,
+        "The package to scan is required.").getName());
+    return this;
+  }
+
+  /**
+   * Add packages to the scanner.
+   *
+   * @param packages The candidate packages. Required.
+   * @return This scanner.
+   */
+  public ClassPathScanner addPackages(final String... packages) {
+    checkArgument(packages.length != 0,
+        "The packages to scan are required.");
+    for (String candidate : packages) {
+      addPackage(candidate);
     }
-    this.classes = scan(packageNames);
+    return this;
   }
 
   /**
-   * Scan sub-packages.
+   * Add packages to the scanner.
    *
-   * @return This {@link ClassPathScanner}.
+   * @param packages The candidate packages. Required.
+   * @return This scanner.
+   */
+  public ClassPathScanner addPackages(final Package... packages) {
+    checkArgument(packages.length != 0,
+        "The packages to scan are required.");
+    for (Package candidate : packages) {
+      addPackage(candidate);
+    }
+    return this;
+  }
+
+  /**
+   * Enable recursive scanning.
+   *
+   * @return This scanner.
    */
   public ClassPathScanner includeSubPackages() {
-    resourcePattern = RECURSIVE_RESOURCE_PATTERN;
+    this.resourcePattern = "/**/*.class";
+    return this;
+  }
+
+  /**
+   * Append a type filter.
+   *
+   * @param filters The filter list. Required.
+   * @return This scanner.
+   */
+  public ClassPathScanner addFilters(final TypeFilter... filters) {
+    checkArgument(filters.length != 0, "The class filter are required.");
+    for (TypeFilter filter : filters) {
+      this.filters.add(filter);
+    }
     return this;
   }
 
   /**
    * Scan and collect class resources.
    *
-   * @param packagesToScan The list of packages.
    * @return All the matching classes.
    */
-  private Set<Class<?>> scan(final String[] packagesToScan) {
+  public Set<Class<?>> scan() {
+    lock.readLock().lock();
     try {
-      Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
-      ClassLoader loader = getClass().getClassLoader();
-      for (String classname : list(packagesToScan)) {
-        classes.add(loader.loadClass(classname));
+      if (classes == null) {
+        lock.readLock().unlock();
+        lock.writeLock().lock();
+        try {
+          // re-check state
+          if (classes == null) {
+            classes = new LinkedHashSet<Class<?>>();
+            ClassLoader loader = getClass().getClassLoader();
+            for (String classname : list()) {
+              classes.add(loader.loadClass(classname));
+            }
+          }
+          lock.readLock().lock();
+        } finally {
+          lock.writeLock().unlock();
+        }
       }
       return classes;
     } catch (Exception ex) {
       throw new IllegalStateException("Fail during package scanning", ex);
+    } finally {
+      lock.readLock().unlock();
     }
-  }
-
-  /**
-   * The package list.
-   *
-   * @return The package list.
-   */
-  public Set<String> getPackages() {
-    Set<String> packages = new LinkedHashSet<String>();
-    for (Class<?> klass : classes) {
-      packages.add(klass.getPackage().getName());
-    }
-    return packages;
-  }
-
-  /**
-   * The types to look for.
-   *
-   * @return Thes type to look for.
-   */
-  protected abstract TypeFilter[] typeFilters();
-
-  /**
-   * All the matching classes.
-   *
-   * @return All the matching classes.
-   */
-  public Set<Class<?>> getClasses() {
-    return this.classes;
   }
 
   /**
    * Perform Spring-based scanning for classes.
    *
-   * @param packagesToScan The candidate packages.
    * @return The matching class names.
    * @throws IOException If the disk fails.
    */
-  private Set<String> list(final String[] packagesToScan) throws IOException {
+  private Set<String> list() throws IOException {
     Set<String> classes = new HashSet<String>();
-    for (String candidate : Sets.newHashSet(packagesToScan)) {
+    ResourcePatternResolver resolver =
+        new PathMatchingResourcePatternResolver();
+    MetadataReaderFactory readerFactory =
+        new CachingMetadataReaderFactory(resolver);
+    for (String candidate : packages) {
       String pattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
           + ClassUtils.convertClassNameToResourcePath(candidate)
           + resourcePattern;
-      Resource[] resources = this.resourcePatternResolver
-          .getResources(pattern);
-      MetadataReaderFactory readerFactory =
-          new CachingMetadataReaderFactory(
-              this.resourcePatternResolver);
+      Resource[] resources = resolver.getResources(pattern);
       for (Resource resource : resources) {
         if (resource.isReadable()) {
           MetadataReader reader = readerFactory
@@ -186,7 +225,7 @@ public abstract class ClassPathScanner {
    */
   private boolean matchesFilter(final MetadataReader reader,
       final MetadataReaderFactory readerFactory) throws IOException {
-    for (TypeFilter filter : typeFilters()) {
+    for (TypeFilter filter : filters) {
       if (filter.match(reader, readerFactory)) {
         return true;
       }

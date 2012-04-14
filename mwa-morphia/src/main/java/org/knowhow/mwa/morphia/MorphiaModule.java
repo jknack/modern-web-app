@@ -102,7 +102,7 @@ public class MorphiaModule {
   public Morphia morphia(final MorphiaConfigurer configurer) {
     Validate.notNull(configurer, "The morphia configurer is required.");
     Morphia morphia = new Morphia();
-    for (Class<?> document : configurer.getClasses()) {
+    for (Class<?> document : configurer.scan()) {
       logger.debug("Adding morphia class: {}", document.getName());
       morphia.map(document);
     }
