@@ -1,15 +1,11 @@
 package org.knowhow.mwa.jpa;
 
-import java.util.Set;
-
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
 
 import org.knowhow.mwa.ClassPathScanner;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
-import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
 
 /**
  * <p>
@@ -24,8 +20,7 @@ import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
  * @author edgar.espina
  * @since 0.1
  */
-public class JpaConfigurer extends ClassPathScanner implements
-    PersistenceUnitPostProcessor {
+public class JpaConfigurer extends ClassPathScanner {
 
   /**
    * Creates a new {@link JpaConfigurer}.
@@ -36,15 +31,4 @@ public class JpaConfigurer extends ClassPathScanner implements
         new AnnotationTypeFilter(MappedSuperclass.class, false));
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void postProcessPersistenceUnitInfo(
-      final MutablePersistenceUnitInfo pui) {
-    Set<Class<?>> classes = scan();
-    for (Class<?> entityClass : classes) {
-      pui.addManagedClassName(entityClass.getName());
-    }
-  }
 }

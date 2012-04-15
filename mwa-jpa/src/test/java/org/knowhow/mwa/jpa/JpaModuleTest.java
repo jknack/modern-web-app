@@ -67,7 +67,8 @@ public class JpaModuleTest {
     PowerMock.replay(DataSources.class);
     replay(env, configurer);
 
-    new JpaModule().entityManagerFactory(env, configurer);
+    new JpaModule()
+        .entityManagerFactory(env, new JpaConfigurer[] {configurer });
 
     verify(env, configurer);
     PowerMock.verify(DataSources.class);
