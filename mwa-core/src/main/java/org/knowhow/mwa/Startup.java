@@ -1,6 +1,7 @@
 package org.knowhow.mwa;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashSet;
@@ -8,6 +9,7 @@ import java.util.Set;
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
 
+import javax.inject.Named;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
@@ -16,13 +18,16 @@ import org.knowhow.mwa.Application.Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.springframework.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -32,6 +37,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringValueResolver;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
@@ -39,6 +45,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.DispatcherServlet;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 
 /**
  * <p>
@@ -64,6 +71,110 @@ import com.google.common.base.Strings;
  * @see WebApplicationInitializer
  */
 public abstract class Startup implements WebApplicationInitializer {
+
+  /**
+   * Configure @Named for resolving properties from the environment.
+   *
+   * @author edgar.espina
+   * @since 0.1
+   */
+  private static class ExtendedAutowireCandidateResolver extends
+      QualifierAnnotationAutowireCandidateResolver implements
+      StringValueResolver {
+
+    /**
+     * The list of annotation type to resolve.
+     */
+    private final Set<Class<? extends Annotation>> valueAnnotationTypes;
+
+    /**
+     * The application environment.
+     */
+    private Environment environment;
+
+    /**
+     * Creates a new {@link ExtendedAutowireCandidateResolver}.
+     *
+     * @param environment The application environment.
+     * @param beanFactory The application bean factory.
+     */
+    @SuppressWarnings("unchecked")
+    public ExtendedAutowireCandidateResolver(final Environment environment,
+        final DefaultListableBeanFactory beanFactory) {
+      this.valueAnnotationTypes = Sets.newHashSet(Value.class, Named.class);
+      this.environment = environment;
+      beanFactory.setAutowireCandidateResolver(this);
+      beanFactory.addEmbeddedValueResolver(this);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Object findValue(final Annotation[] annotationsToSearch) {
+      for (Annotation annotation : annotationsToSearch) {
+        if (isInstance(annotation)) {
+          Object value = AnnotationUtils.getValue(annotation);
+          if (value == null) {
+            throw new IllegalStateException(
+                "Value/Named annotation must have a value attribute");
+          }
+          return value;
+        }
+      }
+      return null;
+    }
+
+    /**
+     * Returns true if the given annotation is one of Value or Named.
+     *
+     * @param annotation The annotation instance.
+     * @return True if the given annotation is one of Value or Named.
+     */
+    private boolean isInstance(final Annotation annotation) {
+      for (Class<? extends Annotation> valueType : valueAnnotationTypes) {
+        if (valueType.isInstance(annotation)) {
+          String value = (String) AnnotationUtils.getValue(annotation);
+          if (valueType == Named.class) {
+            return environment.getProperty(value) != null;
+          } else {
+            // force to use ${} in @Value
+            return value.startsWith("${") && value.endsWith("}");
+          }
+        }
+      }
+      return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String resolveStringValue(final String value) {
+      return environment.getProperty(value, value);
+    }
+  }
+
+  /**
+   * Extend {@link AnnotationConfigWebApplicationContext} with more features.
+   *
+   * @author edgar.espina
+   * @see ExtendedAutowireCandidateResolver
+   */
+  private static class ModernWebAppContext extends
+      AnnotationConfigWebApplicationContext {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void customizeBeanFactory(
+        final DefaultListableBeanFactory beanFactory) {
+      super.customizeBeanFactory(beanFactory);
+      // Override the autowire candidate resolver
+      new ExtendedAutowireCandidateResolver(getEnvironment(), beanFactory);
+    }
+  }
+
   /**
    * The logging system.
    */
@@ -98,7 +209,7 @@ public abstract class Startup implements WebApplicationInitializer {
     configureJuli();
 
     final AnnotationConfigWebApplicationContext rootContext =
-        new AnnotationConfigWebApplicationContext();
+        new ModernWebAppContext();
     servletContext.addListener(new ContextLoaderListener(rootContext));
 
     // Configure the environment
@@ -116,6 +227,7 @@ public abstract class Startup implements WebApplicationInitializer {
             Strings.isNullOrEmpty(name) ? contextPath : name,
             defaultAppVersion(version),
             Strings.isNullOrEmpty(mode) ? Application.DEV : Mode.valueOf(mode));
+    // Activate the default profile
     env.setActiveProfiles(application.mode().name());
 
     logger.debug("Starting application: {}", application);
@@ -184,10 +296,10 @@ public abstract class Startup implements WebApplicationInitializer {
         env.getPropertySources().addFirst(asPropertySource(propertyFile));
       }
       // Enable @Value
-      PropertySourcesPlaceholderConfigurer propertyConfigurer =
+      PropertySourcesPlaceholderConfigurer placeholderConfigurer =
           new PropertySourcesPlaceholderConfigurer();
-      propertyConfigurer.setEnvironment(env);
-      rootContext.addBeanFactoryPostProcessor(propertyConfigurer);
+      placeholderConfigurer.setEnvironment(env);
+      rootContext.addBeanFactoryPostProcessor(placeholderConfigurer);
       return env;
     } catch (IOException ex) {
       throw new ServletException("The environment cannot be configured.", ex);
