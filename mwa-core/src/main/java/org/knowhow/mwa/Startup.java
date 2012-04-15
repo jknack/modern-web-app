@@ -247,6 +247,8 @@ public abstract class Startup implements WebApplicationInitializer {
       @Override
       public void postProcessBeanFactory(
           final ConfigurableListableBeanFactory beanFactory) {
+        beanFactory.registerSingleton("contextPath",
+            servletContext.getContextPath());
         beanFactory.registerSingleton("mwa.application", application);
       }
     });

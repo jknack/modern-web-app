@@ -6,19 +6,25 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.knowhow.mwa.handler.BindHandlerExceptionResolver;
 import org.knowhow.mwa.handler.MessageConverterHandlerExceptionResolver;
+import org.resthub.web.springmvc.router.RouterHandlerAdapter;
+import org.resthub.web.springmvc.router.RouterHandlerMapping;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.bind.support.ConfigurableWebBindingInitializer;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.ViewNameMethodReturnValueHandler;
 import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
@@ -34,8 +40,7 @@ import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolv
  * @since 0.1
  */
 @Configuration
-@EnableWebMvc
-class WebDefaults extends WebMvcConfigurerAdapter {
+class WebDefaults extends WebMvcConfigurationSupport {
 
   /**
    * Bind a method name to a view name.
@@ -127,6 +132,51 @@ class WebDefaults extends WebMvcConfigurerAdapter {
   public void configureDefaultServletHandling(
       final DefaultServletHandlerConfigurer configurer) {
     configurer.enable();
+  }
+
+  /**
+   * Configure web methods from 'routes' file.
+   *
+   * @param contextPath The servlet context path.
+   * @return A {@link RouterHandlerMapping}.
+   */
+  @Bean
+  public RouterHandlerMapping routerHandlerMapping(
+      @Named("contextPath") final String contextPath) {
+    RouterHandlerMapping routerMapping = new RouterHandlerMapping();
+    routerMapping.setRouteFile("classpath:/routes");
+    routerMapping.setInterceptors(getInterceptors());
+    routerMapping.setOrder(0);
+    routerMapping.setServletPrefix(contextPath);
+    return routerMapping;
+  }
+
+  /**
+   * Configure web methods from routes.conf.
+   *
+   * @return A {@link RouterHandlerMapping}.
+   */
+  @Bean
+  public RouterHandlerAdapter routerHandlerAdater() {
+    ConfigurableWebBindingInitializer webBindingInitializer =
+        new ConfigurableWebBindingInitializer();
+    webBindingInitializer.setConversionService(mvcConversionService());
+    webBindingInitializer.setValidator(mvcValidator());
+
+    List<HandlerMethodArgumentResolver> argumentResolvers =
+        new ArrayList<HandlerMethodArgumentResolver>();
+    addArgumentResolvers(argumentResolvers);
+
+    List<HandlerMethodReturnValueHandler> returnValueHandlers =
+        new ArrayList<HandlerMethodReturnValueHandler>();
+    addReturnValueHandlers(returnValueHandlers);
+
+    RouterHandlerAdapter adapter = new RouterHandlerAdapter();
+    List<HttpMessageConverter<?>> converters = getMessageConverters();
+    adapter.setMessageConverters(converters
+        .toArray(new HttpMessageConverter[converters.size()]));
+    adapter.setWebBindingInitializer(webBindingInitializer);
+    return adapter;
   }
 
   /**

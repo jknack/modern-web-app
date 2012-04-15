@@ -253,6 +253,13 @@
         <version>${guava-version}</version>
       </dependency>
 
+      <!-- SpringMVC Router -->
+      <dependency>
+        <groupId>org.resthub</groupId>
+        <artifactId>springmvc-router</artifactId>
+        <version>${springmvc-router-version}</version>
+      </dependency>
+
       <!-- Mustache: Template Engine -->
       <dependency>
         <groupId>com.github.spullara.mustache.java</groupId>
@@ -571,6 +578,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
   <properties>
     <spring-version>3.1.1.RELEASE</spring-version>
     <spring-data-version>1.0.1.RELEASE</spring-data-version>
+    <springmvc-router-version>0.6</springmvc-router-version>
     <hibernate-version>4.1.0.Final</hibernate-version>
     <hibernate-validator-version>4.3.0.Alpha1</hibernate-validator-version>
     <jackson-version>1.9.5</jackson-version>
