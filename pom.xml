@@ -422,7 +422,7 @@
             <version>${maven-checkstyle-plugin-version}</version>
             <configuration>
               <consoleOutput>true</consoleOutput>
-              <configLocation>https://raw.github.com/edgarespina/modern-web-app/master/checkstyle.xml</configLocation>
+              <configLocation>checkstyle.xml</configLocation>
               <failsOnError>true</failsOnError>
             </configuration>
             <executions>
@@ -434,6 +434,13 @@
                 </goals>
               </execution>
             </executions>
+            <dependencies>
+              <dependency>
+                <groupId>org.knowhow</groupId>
+                <artifactId>mwa-checkstyle</artifactId>
+                <version>0.1.0</version>
+              </dependency>
+            </dependencies>
           </plugin>
         </plugins>
       </build>
