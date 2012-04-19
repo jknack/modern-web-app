@@ -11,6 +11,7 @@
 
   <modules>
     <module>mwa-core</module>
+    <module>mwa-checkstyle</module>
     <module>mwa-validation</module>
     <module>mwa-jpa</module>
     <module>mwa-mongo</module>
