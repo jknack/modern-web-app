@@ -11,7 +11,6 @@
 
   <modules>
     <module>mwa-core</module>
-    <module>mwa-checkstyle</module>
     <module>mwa-validation</module>
     <module>mwa-jpa</module>
     <module>mwa-mongo</module>
@@ -417,13 +416,30 @@
               </excludes>
             </configuration>
           </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Code Quality -->
+    <profile>
+      <id>code-quality</id>
+      <properties>
+        <checkstyle-file>${basedir}/src/etc/modules/checkstyle.xml</checkstyle-file>
+      </properties>
+      <activation>
+        <file>
+          <exists>${checkstyle-file}</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
             <version>${maven-checkstyle-plugin-version}</version>
             <configuration>
               <consoleOutput>true</consoleOutput>
-              <configLocation>checkstyle.xml</configLocation>
+              <configLocation>${checkstyle-file}</configLocation>
               <failsOnError>true</failsOnError>
             </configuration>
             <executions>
