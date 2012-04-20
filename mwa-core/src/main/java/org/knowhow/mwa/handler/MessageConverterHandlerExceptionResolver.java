@@ -51,7 +51,7 @@ public class MessageConverterHandlerExceptionResolver
   /**
    * The exception type.
    */
-  private Class<? extends Exception> exceptionClass;
+  protected final Class<? extends Exception> exceptionClass;
 
   /**
    * The logging system.
@@ -97,7 +97,7 @@ public class MessageConverterHandlerExceptionResolver
       final HttpServletResponse response, final Object handler,
       final Exception ex) {
     try {
-      if (exceptionClass.isInstance(ex)) {
+      if (canHandle(ex)) {
         handle(convert(ex), request, response);
         logger.warn(buildLogMessage(ex, request), ex);
         return new ModelAndView();
@@ -107,6 +107,16 @@ public class MessageConverterHandlerExceptionResolver
           + "] resulted in Exception", handlerException);
     }
     return null;
+  }
+
+  /**
+   * True if the exception should be handled.
+   *
+   * @param ex The candidata exception.
+   * @return True if the exception should be handled.
+   */
+  protected boolean canHandle(final Exception ex) {
+    return exceptionClass.isInstance(ex);
   }
 
   /**

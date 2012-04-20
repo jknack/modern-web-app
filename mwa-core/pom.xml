@@ -50,11 +50,6 @@
       <artifactId>spring-webmvc</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.resthub</groupId>
-      <artifactId>springmvc-router</artifactId>
-    </dependency>
-
     <!-- Jackson -->
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
