@@ -2,6 +2,7 @@ package org.knowhow.mwa.morphia;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.ValidatorFactory;
@@ -95,16 +96,21 @@ public class MorphiaModule {
   /**
    * Publish a {@link Morphia} POJOs mapper for Mongo datatabases.
    *
-   * @param configurer The persistent class provider. Required.
+   * @param configurers The persistent class provider. Required.
    * @return A {@link Morphia} POJOs mapper for Mongo datatabases.
    */
   @Bean
-  public Morphia morphia(final MorphiaConfigurer configurer) {
-    Validate.notNull(configurer, "The morphia configurer is required.");
+  public Morphia morphia(final MorphiaConfigurer[] configurers) {
+    Validate.notEmpty(configurers, "The morphia configurers are required.");
     Morphia morphia = new Morphia();
-    for (Class<?> document : configurer.getClasses()) {
-      logger.debug("Adding morphia class: {}", document.getName());
-      morphia.map(document);
+    Set<String> processed = new HashSet<String>();
+    for (MorphiaConfigurer configurer : configurers) {
+      for (Class<?> candidate : configurer.scan()) {
+        if (processed.add(candidate.getName())) {
+          logger.debug("Adding morphia class: {}", candidate.getName());
+          morphia.map(candidate);
+        }
+      }
     }
 
     if (validationFactory != null) {

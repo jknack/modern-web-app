@@ -17,7 +17,8 @@ public class JpaConfigurerTest {
 
   @Test
   public void scan() throws Exception {
-    Set<Class<?>> classes = new JpaConfigurer(getClass().getPackage()).getClasses();
+    Set<Class<?>> classes =
+        new JpaConfigurer().addPackage(getClass().getPackage()).scan();
     assertNotNull(classes);
     classes.remove(TestEntity.class);
     classes.remove(TestEmbedded.class);

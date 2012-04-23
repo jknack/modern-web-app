@@ -6,9 +6,6 @@ import javax.persistence.MappedSuperclass;
 
 import org.knowhow.mwa.ClassPathScanner;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.core.type.filter.TypeFilter;
-import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
-import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
 
 /**
  * <p>
@@ -23,46 +20,15 @@ import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
  * @author edgar.espina
  * @since 0.1
  */
-public class JpaConfigurer extends ClassPathScanner implements
-    PersistenceUnitPostProcessor {
+public class JpaConfigurer extends ClassPathScanner {
 
   /**
    * Creates a new {@link JpaConfigurer}.
-   *
-   * @param packagesToScan The packages to scan. Required.
    */
-  public JpaConfigurer(final String... packagesToScan) {
-    super(packagesToScan);
-  }
-
-  /**
-   * Creates a new {@link JpaConfigurer}.
-   *
-   * @param packagesToScan The packages to scan. Required.
-   */
-  public JpaConfigurer(final Package... packagesToScan) {
-    super(packagesToScan);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected TypeFilter[] typeFilters() {
-    return new TypeFilter[] {
-        new AnnotationTypeFilter(Entity.class, false),
+  public JpaConfigurer() {
+    addFilters(new AnnotationTypeFilter(Entity.class, false),
         new AnnotationTypeFilter(Embeddable.class, false),
-        new AnnotationTypeFilter(MappedSuperclass.class, false) };
+        new AnnotationTypeFilter(MappedSuperclass.class, false));
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void postProcessPersistenceUnitInfo(
-      final MutablePersistenceUnitInfo pui) {
-    for (Class<?> entityClass : getClasses()) {
-      pui.addManagedClassName(entityClass.getName());
-    }
-  }
 }

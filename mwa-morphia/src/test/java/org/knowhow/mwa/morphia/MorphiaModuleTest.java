@@ -32,11 +32,12 @@ public class MorphiaModuleTest {
         Sets.newHashSet(TestEntity.class, TestEmbedded.class);
 
     MorphiaConfigurer configurer = createMock(MorphiaConfigurer.class);
-    expect(configurer.getClasses()).andReturn(classes);
+    expect(configurer.scan()).andReturn(classes);
 
     replay(configurer);
 
-    Morphia morphia = new MorphiaModule().morphia(configurer);
+    Morphia morphia =
+        new MorphiaModule().morphia(new MorphiaConfigurer[] {configurer });
     assertNotNull(morphia);
 
     verify(configurer);

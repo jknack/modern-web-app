@@ -17,8 +17,7 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.ViewNameMethodReturnValueHandler;
 import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
@@ -34,8 +33,7 @@ import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolv
  * @since 0.1
  */
 @Configuration
-@EnableWebMvc
-class WebDefaults extends WebMvcConfigurerAdapter {
+class WebDefaults extends WebMvcConfigurationSupport {
 
   /**
    * Bind a method name to a view name.

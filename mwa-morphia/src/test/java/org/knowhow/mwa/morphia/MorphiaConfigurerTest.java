@@ -17,7 +17,8 @@ public class MorphiaConfigurerTest {
 
   @Test
   public void scan() throws Exception {
-    Set<Class<?>> classes = new MorphiaConfigurer(getClass().getPackage()).getClasses();
+    Set<Class<?>> classes =
+        new MorphiaConfigurer().addPackage(getClass().getPackage()).scan();
     assertNotNull(classes);
     classes.remove(TestEntity.class);
     classes.remove(TestEmbedded.class);
