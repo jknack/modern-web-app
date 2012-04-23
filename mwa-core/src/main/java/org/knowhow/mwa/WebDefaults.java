@@ -144,7 +144,7 @@ class WebDefaults extends WebMvcConfigurationSupport {
       }
     }
     if (index >= 0) {
-      returnValueHandlers.set(index,
+      returnValueHandlers.add(index,
           new MethodNameToViewNameMethodReturnHandler());
       // Override
       requestMappingHandler.setReturnValueHandlers(returnValueHandlers);
