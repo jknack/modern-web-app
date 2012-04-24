@@ -368,6 +368,16 @@
             <version>${maven-war-plugin-version}</version>
             <configuration>
               <failOnMissingWebXml>false</failOnMissingWebXml>
+              <packagingExcludes>
+                WEB-INF/classes/application.properties,
+                WEB-INF/classes/logback-test.xml,
+                WEB-INF/classes/logback.xml,
+                WEB-INF/classes/${project.artifactId}.properties,
+                <!-- Exclude JCL and LOG4J since all logging should go through SLF4J.
+                  Note that we're excluding log4j-<version>.jar but keeping log4j-over-slf4j-<version>.jar -->
+                WEB-INF/lib/commons-logging-*.jar,
+                %regex[WEB-INF/lib/log4j-(?!over-slf4j).*.jar]
+              </packagingExcludes>
             </configuration>
           </plugin>
 
@@ -377,7 +387,6 @@
             <artifactId>jetty-maven-plugin</artifactId>
             <version>${jetty-maven-plugin-version}</version>
             <configuration>
-              <useTestScope>true</useTestScope>
               <webApp>
                 <contextPath>/${project.artifactId}</contextPath>
               </webApp>
@@ -394,14 +403,13 @@
               <path>/${project.artifactId}</path>
               <uriEncoding>${project.build.sourceEncoding}</uriEncoding>
               <charset>${project.build.sourceEncoding}</charset>
-              <useTestClasspath>true</useTestClasspath>
             </configuration>
           </plugin>
 
           <!-- Eclipse setup -->
           <plugin>
             <!-- Let's make the life easier and use the proper tool -->
-            <groupId>org.knowhow</groupId>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-eclipse-plugin</artifactId>
             <!-- Our custom version publish test resources in dev mode. -->
             <version>${maven-eclipse-plugin-version}</version>
