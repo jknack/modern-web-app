@@ -1,6 +1,5 @@
 package org.knowhow.mwa.view;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -130,10 +129,11 @@ public class HtmlTemplates extends AbstractModelContribution {
     private String[] relativePath(final String directory,
         final Resource resource) throws IOException {
       String fullpath = resource.getURI().getPath();
+      final String separator = "/";
       String relativePath = fullpath
-          .substring(fullpath.indexOf(directory) + File.separator.length());
+          .substring(fullpath.indexOf(directory) + separator.length());
       // Make it relative.
-      Iterable<String> path = Splitter.on(File.separator)
+      Iterable<String> path = Splitter.on(separator)
           .omitEmptyStrings()
           .trimResults()
           .split(relativePath);

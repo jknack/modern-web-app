@@ -11,7 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>mwa-view</artifactId>
   <packaging>jar</packaging>
-  <name>View     Module</name>
+  <name>View Module</name>
 
   <dependencies>
     <!-- Servlet API -->
