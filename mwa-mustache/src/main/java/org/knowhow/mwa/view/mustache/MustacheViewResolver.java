@@ -1,10 +1,9 @@
 package org.knowhow.mwa.view.mustache;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.concurrent.ExecutorService;
 
 import javax.servlet.ServletContext;
 
@@ -13,11 +12,9 @@ import org.knowhow.mwa.view.ModernView;
 import org.knowhow.mwa.view.ModernViewResolver;
 import org.springframework.web.servlet.ViewResolver;
 
-import com.sampullara.mustache.Mustache;
-import com.sampullara.mustache.MustacheBuilder;
-import com.sampullara.mustache.MustacheContext;
-import com.sampullara.mustache.MustacheException;
-import com.sampullara.util.FutureWriter;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
 
 /**
  * A Mustache's {@link ViewResolver view resolver}.
@@ -43,24 +40,9 @@ public class MustacheViewResolver extends ModernViewResolver {
   private static final String DEFAULT_SUFFIX = ".html";
 
   /**
-   * The mustache engine.
+   * The mustache factory.
    */
-  private MustacheBuilder engine;
-
-  /**
-   * True, for parallel template processing. Default is: false.
-   */
-  private boolean parallelProcessing = false;
-
-  /**
-   * The mustache superclass attribute.
-   */
-  private Class<? extends Mustache> superClass;
-
-  /**
-   * The template loader.
-   */
-  private MustacheContext mustacheContext;
+  private MustacheFactory mustacheFactory;
 
   /**
    * The encoding charset.
@@ -80,7 +62,6 @@ public class MustacheViewResolver extends ModernViewResolver {
     setContentType(DEFAULT_CONTENT_TYPE);
     setPrefix(DEFAULT_PREFIX);
     setSuffix(DEFAULT_SUFFIX);
-    setParallelProcessing(false);
   }
 
   /**
@@ -97,8 +78,17 @@ public class MustacheViewResolver extends ModernViewResolver {
    */
   @Override
   protected void buildView(final ModernView view) throws Exception {
-    /** Build a mustache template. */
-    ((MustacheView) view).setMustache(engine.parseFile(view.getUrl()));
+    Reader reader = null;
+    try {
+      String resourceName = view.getUrl();
+      reader = read(resourceName);
+      Mustache mustache = mustacheFactory.compile(reader, resourceName);
+      ((MustacheView) view).setMustache(mustache);
+    } finally {
+      if (reader != null) {
+        reader.close();
+      }
+    }
   }
 
   /**
@@ -107,37 +97,29 @@ public class MustacheViewResolver extends ModernViewResolver {
   @Override
   public void afterPropertiesSet() throws Exception {
     super.afterPropertiesSet();
-    if (this.mustacheContext == null) {
-      /** Bind the Servlet context. */
-      final ServletContext servletContext = getServletContext();
-      /** A mustache context for serving from web root. */
-      this.mustacheContext = new MustacheContext() {
-        @Override
-        public BufferedReader getReader(final String path)
-            throws MustacheException {
-          // Fix for Jetty:
-          final String absolutePath = path.startsWith("/") ? path : "/" + path;
-          logger.trace("Loading mustache file: " + absolutePath);
-          InputStream in = servletContext.getResourceAsStream(absolutePath);
-          if (in == null) {
-            throw new MustacheException("Page not found: " + absolutePath);
-          }
-          return new BufferedReader(new InputStreamReader(in, encoding));
-        }
-      };
-    }
-    engine = new MustacheBuilder(mustacheContext);
-    if (superClass != null) {
-      engine.setSuperclass(superClass.getName());
-    }
-    /** Use parallel processing */
-    ExecutorService executorService = FutureWriter.getExecutorService();
-    logger.debug("Use parallel processing: " + parallelProcessing);
-    if (!parallelProcessing) {
-      if (executorService != null) {
-        FutureWriter.setExecutorService(null);
+    mustacheFactory = new DefaultMustacheFactory() {
+      @Override
+      public Reader getReader(final String resourceName) {
+        return read(resourceName);
       }
+    };
+  }
+
+  /**
+   * Read the resource at the given path.
+   *
+   * @param path The resource's path.
+   * @return The reader.
+   */
+  private Reader read(String path) {
+    /** Build a mustache template. */
+    final ServletContext servletContext = getServletContext();
+    // Fix for Jetty:
+    if (!path.startsWith("/")) {
+      path = "/" + path;
     }
+    return new BufferedReader(new InputStreamReader(
+        servletContext.getResourceAsStream(path), encoding));
   }
 
   /**
@@ -145,36 +127,8 @@ public class MustacheViewResolver extends ModernViewResolver {
    *
    * @return The mustache template engine.
    */
-  public MustacheBuilder getTemplateEngine() {
-    return engine;
-  }
-
-  /**
-   * Set parallel template processing.
-   *
-   * @param parallelProcessing True, for parallel template processing. Default
-   *        is: false.
-   */
-  public void setParallelProcessing(final boolean parallelProcessing) {
-    this.parallelProcessing = parallelProcessing;
-  }
-
-  /**
-   * Set the superclass mustache property.
-   *
-   * @param superClass The mustache superclass. Optional.
-   */
-  public void setSuperClass(final Class<? extends Mustache> superClass) {
-    this.superClass = superClass;
-  }
-
-  /**
-   * Set the mustache context.
-   *
-   * @param mustacheContext The mustache context. Optional.
-   */
-  public void setMustacheContext(final MustacheContext mustacheContext) {
-    this.mustacheContext = mustacheContext;
+  public MustacheFactory getMustacheFactory() {
+    return mustacheFactory;
   }
 
   /**

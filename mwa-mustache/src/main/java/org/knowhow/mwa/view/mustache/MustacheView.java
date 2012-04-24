@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.knowhow.mwa.view.ModernView;
 import org.springframework.util.Assert;
 
-import com.sampullara.mustache.Mustache;
+import com.github.mustachejava.Mustache;
 
 /**
  * A mustache view implementation.

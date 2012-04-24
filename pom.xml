@@ -256,7 +256,7 @@
       <!-- Mustache: Template Engine -->
       <dependency>
         <groupId>com.github.spullara.mustache.java</groupId>
-        <artifactId>builder</artifactId>
+        <artifactId>compiler</artifactId>
         <version>${mustache.java-version}</version>
       </dependency>
 
@@ -588,8 +588,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
   <properties>
     <spring-version>3.1.1.RELEASE</spring-version>
     <spring-data-version>1.0.1.RELEASE</spring-data-version>
-    <hibernate-version>4.1.0.Final</hibernate-version>
-    <hibernate-validator-version>4.3.0.Alpha1</hibernate-validator-version>
+    <hibernate-version>4.1.2.Final</hibernate-version>
+    <hibernate-validator-version>4.3.0.Beta1</hibernate-validator-version>
     <jackson-version>1.9.5</jackson-version>
     <logback-version>1.0.0</logback-version>
     <slf4j-version>1.6.4</slf4j-version>
@@ -610,7 +610,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <commons-lang3-version>3.1</commons-lang3-version>
     <commons-collections-version>3.2</commons-collections-version>
     <guava-version>11.0</guava-version>
-    <mustache.java-version>0.6.2</mustache.java-version>
+    <mustache.java-version>0.7.3</mustache.java-version>
     <querydsl-version>2.3.3</querydsl-version>
     <mongo-java-driver-version>2.7.3</mongo-java-driver-version>
     <morphia-version>0.99</morphia-version>

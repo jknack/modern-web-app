@@ -31,7 +31,7 @@
     <!-- Mustache: Template Engine -->
     <dependency>
       <groupId>com.github.spullara.mustache.java</groupId>
-      <artifactId>builder</artifactId>
+      <artifactId>compiler</artifactId>
     </dependency>
 
     <!-- Unit test -->
