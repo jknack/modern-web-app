@@ -18,6 +18,7 @@
     <module>mwa-view</module>
     <module>mwa-mustache</module>
     <module>mwa-wro4j</module>
+    <module>mwa-mail</module>
     <module>mwa-logging</module>
   </modules>
 
@@ -272,7 +273,13 @@
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
         <version>${h2-version}</version>
-        <scope>test</scope>
+      </dependency>
+
+      <!-- Mail -->
+      <dependency>
+        <groupId>javax.mail</groupId>
+        <artifactId>mail</artifactId>
+        <version>${mail-version}</version>
       </dependency>
 
       <!-- Test dependencies -->
@@ -623,6 +630,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <mongo-java-driver-version>2.7.3</mongo-java-driver-version>
     <morphia-version>0.99</morphia-version>
     <wro4j-version>1.4.4</wro4j-version>
+    <mail-version>1.4.5-rc1</mail-version>
 
     <!-- Encoding UTF-8 -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
