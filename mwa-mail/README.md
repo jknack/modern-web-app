@@ -15,14 +15,18 @@ It let you send rich email message through a simple and intuitive manner.
 ```
 
 ### Required properties
-Add the *mail.smpt.host* property:
-
-```properties
-mail.smpt.host=mail.server.com
-
-```
+* mail.smtp.host: Set the mail server host, typically an SMTP host. Default is
+the default host of the underlying JavaMail Session.
 
 #### Optional configuration
+* mail.smtp.port: Set the mail server port. Default is: 25.
+
+* mail.user: Set the username for the account at the mail host.
+
+* mail.password: Set the password for the account at the mail host.
+
+* mail.smtp.starttls.enable: Use TLS to encrypt communication with SMTP server.
+
 * mail.smtp.sendpartial: If set to true, and this message has some valid and
 some invalid addresses, send the message anyway, reporting the partial failure
 with a SendFailedException. If set to true (the default).
@@ -46,7 +50,7 @@ Delivery Status Notification [RFC 1891](http://www.ietf.org/rfc/rfc1891.txt).
 or "base64" encodings are converted to use "8bit" encoding if they follow the
 RFC 2045 rules for 8bit text.
 
-## Activate the MailModule
+## Activating the module
 
 ```java
 import org.knowhow.mwa.mail.MailModule;
@@ -169,4 +173,25 @@ newMail(sender)
 
 sender.send(message);
 }
+```
+
+## Using GMail
+You've to set the following properties:
+
+```properties
+# Set the mail server host, typically an SMTP host.
+mail.smtp.host=smtp.gmail.com
+
+# Set the mail server port.
+mail.smtp.port=587
+
+# Set the username for the account at the mail host.
+mail.user=username@gmail.com
+
+# Set the password for the account at the mail host.
+mail.password=password
+
+# Use TLS to encrypt communication with SMTP server.
+mail.smtp.starttls.enable=true
+
 ```

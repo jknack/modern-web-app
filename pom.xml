@@ -460,7 +460,7 @@
             <executions>
               <execution>
                 <id>checkstyle</id>
-                <phase>generate-sources</phase>
+                <phase>verify</phase>
                 <goals>
                   <goal>checkstyle</goal>
                 </goals>
