@@ -15,8 +15,7 @@ It let you send rich email message through a simple and intuitive manner.
 ```
 
 ### Required properties
-* mail.smtp.host: Set the mail server host, typically an SMTP host. Default is
-the default host of the underlying JavaMail Session.
+* mail.smtp.host: Set the mail server host, typically an SMTP host.
 
 #### Optional configuration
 * mail.smtp.port: Set the mail server port. Default is: 25.
