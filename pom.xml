@@ -6,7 +6,7 @@
   <groupId>org.knowhow</groupId>
   <artifactId>modern-web-app</artifactId>
   <packaging>pom</packaging>
-  <version>0.1.2-SNAPSHOT</version>
+  <version>0.1.2</version>
   <name>A Modern Web App Archicture</name>
 
   <modules>
@@ -449,29 +449,12 @@
         <project.config.directory>config</project.config.directory>
       </properties>
       <build>
+        <resources>
+          <resource>
+            <directory>${project.config.directory}</directory>
+          </resource>
+        </resources>
         <plugins>
-          <!-- Add a config directory -->
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <version>${build-helper-maven-plugin-version}</version>
-            <executions>
-              <execution>
-                <id>add-resource</id>
-                <phase>generate-sources</phase>
-                <goals>
-                  <goal>add-resource</goal>
-                </goals>
-                <configuration>
-                  <resources>
-                    <resource>
-                      <directory>${project.config.directory}</directory>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
           <!-- Delete all the files under ${project.config.directory} -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -505,6 +488,7 @@
         </plugins>
       </build>
     </profile>
+
     <!-- Code Quality -->
     <profile>
       <id>checkstyle</id>
