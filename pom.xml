@@ -347,6 +347,12 @@
             </configuration>
           </plugin>
 
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>2.5</version>
+          </plugin>
+
           <!-- Source code -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -376,10 +382,6 @@
             <configuration>
               <failOnMissingWebXml>false</failOnMissingWebXml>
               <packagingExcludes>
-                WEB-INF/classes/application.properties,
-                WEB-INF/classes/logback-test.xml,
-                WEB-INF/classes/logback.xml,
-                WEB-INF/classes/${project.artifactId}.properties,
                 <!-- Exclude JCL and LOG4J since all logging should go through SLF4J. 
                   Note that we're excluding log4j-<version>.jar but keeping log4j-over-slf4j-<version>.jar -->
                 WEB-INF/lib/commons-logging-*.jar,
@@ -415,7 +417,7 @@
 
           <!-- Eclipse setup -->
           <plugin>
-            <!-- Let's make the life easier and use the proper tool -->
+            <!-- Let's make the life easier and use Eclipse WTP -->
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-eclipse-plugin</artifactId>
             <!-- Our custom version publish test resources in dev mode. -->
@@ -435,9 +437,77 @@
       </build>
     </profile>
 
+    <!-- Configure ${project.config.directory} -->
+    <profile>
+      <id>config-directory</id>
+      <activation>
+        <file>
+          <exists>config</exists>
+        </file>
+      </activation>
+      <properties>
+        <project.config.directory>config</project.config.directory>
+      </properties>
+      <build>
+        <plugins>
+          <!-- Add a config directory -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>${build-helper-maven-plugin-version}</version>
+            <executions>
+              <execution>
+                <id>add-resource</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>add-resource</goal>
+                </goals>
+                <configuration>
+                  <resources>
+                    <resource>
+                      <directory>${project.config.directory}</directory>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Delete all the files under ${project.config.directory} -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>${maven-antrun-plugin-version}</version>
+            <executions>
+              <execution>
+                <id>remove-config-files</id>
+                <phase>prepare-package</phase>
+                <configuration>
+                  <target>
+                    <fileset id="configFiles" dir="${project.config.directory}" />
+                    <pathconvert pathsep="," property="need.to.delete"
+                      refid="configFiles">
+                      <mapper>
+                        <flattenmapper />
+                      </mapper>
+                    </pathconvert>
+                    <delete verbose="true">
+                      <fileset dir="${project.build.directory}/classes"
+                        includes="${need.to.delete}" />
+                    </delete>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <!-- Code Quality -->
     <profile>
-      <id>code-quality</id>
+      <id>checkstyle</id>
       <activation>
         <file>
           <exists>${basedir}/src/etc/modules/checkstyle.xml</exists>
@@ -454,7 +524,7 @@
             <version>${maven-checkstyle-plugin-version}</version>
             <configuration>
               <consoleOutput>true</consoleOutput>
-              <configLocation>${checkstyle-file}</configLocation>
+              <configLocation>file://${checkstyle-file}</configLocation>
               <failsOnError>true</failsOnError>
             </configuration>
             <executions>
@@ -464,6 +534,87 @@
                 <goals>
                   <goal>checkstyle</goal>
                 </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- FindBugs -->
+    <profile>
+      <id>findbugs</id>
+      <activation>
+        <file>
+          <exists>${basedir}/src/etc/modules/findbugs</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>findbugs-maven-plugin</artifactId>
+            <version>${findbugs-maven-plugin-version}</version>
+            <configuration>
+              <trace>false</trace>
+              <effort>Max</effort>
+              <threshold>Low</threshold>
+              <xmlOutput>true</xmlOutput>
+              <failOnError>false</failOnError>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- Print FindBugs errors -->
+          <plugin>
+            <groupId>org.codehaus.gmaven</groupId>
+            <artifactId>gmaven-plugin</artifactId>
+            <version>${gmaven-plugin-version}</version>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>
+                  <source>
+                    <![CDATA[
+                    def findbugs = new
+                       File("${project.build.directory}/findbugs.xml")
+                    if (findbugs.exists()) {
+                      def xml = new XmlParser().parse(findbugs)
+                      def files = xml.file
+                      def total = 0
+                      log.error("FindBugs Report:")
+                      for (file in files) {
+                        def bugs = file.BugInstance
+                        def classname = file.'@classname'
+                        log.error(classname + ":")
+                        total = total + bugs.size()
+                        for (bug in bugs) {
+                          def message =
+                            bug.'@message'.replace(classname + ".", "#")
+                            log.error("  " + bug.'@category' + ":"
+                              + bug.'@lineNumber' + ": " + message)
+                            log.error("    "
+                              + "http://findbugs.sourceforge.net/bugDescriptions.html#"
+                              + bug.'@type')
+                        }
+                      }
+                      if (total > 0) {
+                        log.error("Bugs Found: " + total)
+                        fail()
+                      }
+                    }]]>
+                  </source>
+                </configuration>
               </execution>
             </executions>
           </plugin>
@@ -491,7 +642,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.7</version>
+            <version>${maven-antrun-plugin-version}</version>
             <executions>
               <execution>
                 <id>get-querydsl-jpa-apt-file</id>
@@ -512,7 +663,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>build-helper-maven-plugin</artifactId>
-            <version>1.4</version>
+            <version>${build-helper-maven-plugin}</version>
             <executions>
               <execution>
                 <id>add-source</id>
@@ -647,6 +798,9 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jetty-maven-plugin-version>8.1.3.v20120416</jetty-maven-plugin-version>
     <tomcat-maven-plugin-version>2.0-beta-1</tomcat-maven-plugin-version>
     <findbugs-maven-plugin-version>2.4.0</findbugs-maven-plugin-version>
+    <gmaven-plugin-version>1.4</gmaven-plugin-version>
+    <build-helper-maven-plugin-version>1.7</build-helper-maven-plugin-version>
+    <maven-antrun-plugin-version>1.7</maven-antrun-plugin-version>
 
     <!-- Maven Global properties -->
     <maven.build.timestamp.format>yyyyMMdd.hhmmss</maven.build.timestamp.format>
