@@ -6,8 +6,14 @@
   <groupId>org.knowhow</groupId>
   <artifactId>modern-web-app</artifactId>
   <packaging>pom</packaging>
-  <version>0.1.2.1</version>
+  <version>0.1.3</version>
   <name>A Modern Web App Archicture</name>
+
+  <url>https://github.com/edgarespina/modern-web-app</url>
+
+  <description>
+    MWA it's an effort for making Java Web Applications less verbose and more fun.
+  </description>
 
   <modules>
     <module>mwa-core</module>
@@ -382,8 +388,8 @@
             <configuration>
               <failOnMissingWebXml>false</failOnMissingWebXml>
               <packagingExcludes>
-                <!-- Exclude JCL and LOG4J since all logging should go through SLF4J. 
-                  Note that we're excluding log4j-<version>.jar but keeping log4j-over-slf4j-<version>.jar -->
+                <!-- Exclude JCL and LOG4J since all logging should go through 
+                  SLF4J. Note that we're excluding log4j-<version>.jar but keeping log4j-over-slf4j-<version>.jar -->
                 WEB-INF/lib/commons-logging-*.jar,
                 %regex[WEB-INF/lib/log4j-(?!over-slf4j).*.jar]
               </packagingExcludes>
@@ -541,8 +547,6 @@
             <version>${findbugs-maven-plugin-version}</version>
             <configuration>
               <trace>false</trace>
-              <effort>Max</effort>
-              <threshold>Low</threshold>
               <xmlOutput>true</xmlOutput>
               <failOnError>false</failOnError>
             </configuration>
@@ -571,7 +575,7 @@
                   <source>
                     <![CDATA[
                     def findbugs = new
-                       File("${project.build.directory}/findbugs.xml")
+                       File("${project.build.directory}", "findbugs.xml")
                     if (findbugs.exists()) {
                       def xml = new XmlParser().parse(findbugs)
                       def files = xml.file
@@ -790,8 +794,22 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <maven.build.timestamp.format>yyyyMMdd.hhmmss</maven.build.timestamp.format>
     <buildDate>${maven.build.timestamp}</buildDate>
   </properties>
-  <url>https://github.com/edgarespina/modern-web-app</url>
 
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>edgarespina</id>
+      <name>Edgar Espina</name>
+      <url>https://github.com/edgarespina</url>
+    </developer>
+  </developers>
   <scm>
     <connection>scm:git:git://github.com:edgarespina/modern-web-app.git</connection>
     <developerConnection>scm:git:git://github.com:edgarespina/modern-web-app.git</developerConnection>
