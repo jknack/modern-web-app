@@ -817,8 +817,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:git://github.com/edgarespina/modern-web-app.git</connection>
-    <developerConnection>scm:git:git://github.com/edgarespina/modern-web-app.git</developerConnection>
-    <url>http://github.com:edgarespina/modern-web-app.git</url>
+    <connection>scm:git:git@github.com:edgarespina/modern-web-app.git</connection>
+    <developerConnection>scm:git:git@github.com:edgarespina/modern-web-app.git</developerConnection>
+    <url>scm:git:git@github.com:edgarespina/modern-web-app.git</url>
   </scm>
 </project>
