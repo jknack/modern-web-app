@@ -462,6 +462,9 @@
       <build>
         <resources>
           <resource>
+            <directory>src/main/resources</directory>
+          </resource>
+          <resource>
             <directory>${project.config.directory}</directory>
           </resource>
         </resources>
