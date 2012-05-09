@@ -431,7 +431,6 @@
             <!-- Let's make the life easier and use Eclipse WTP -->
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-eclipse-plugin</artifactId>
-            <!-- Our custom version publish test resources in dev mode. -->
             <version>${maven-eclipse-plugin-version}</version>
             <configuration>
               <wtpversion>2.0</wtpversion>
@@ -656,7 +655,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>build-helper-maven-plugin</artifactId>
-            <version>${build-helper-maven-plugin}</version>
+            <version>${build-helper-maven-plugin-version}</version>
             <executions>
               <execution>
                 <id>add-source</id>
@@ -673,8 +672,9 @@
             </executions>
           </plugin>
           <plugin>
-            <groupId>com.github.edgarespina</groupId>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-eclipse-plugin</artifactId>
+            <version>${maven-eclipse-plugin-version}</version>
             <configuration>
               <additionalConfig>
                 <file>
