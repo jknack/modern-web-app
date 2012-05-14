@@ -98,14 +98,19 @@ public class Application {
   }
 
   /**
-   * The default mode name.
+   * The "dev" mode.
    */
-  private static final String DEV_NAME = "dev";
+  public static final String DEV_NAME = "dev";
+
+  /**
+   * The application's mode property name.
+   */
+  public static final String APPLICATION_MODE = "application.mode";
 
   /**
    * The default mode: dev.
    */
-  public static final Mode DEV = new Mode("dev");
+  public static final Mode DEV = new Mode(DEV_NAME);
 
   /**
    * The application's name. Required.

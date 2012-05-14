@@ -279,7 +279,7 @@
         <version>${wro4j-version}</version>
       </dependency>
 
-      <!-- TODO: move embedded db driver to test deps -->
+      <!-- H2 -->
       <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
@@ -773,7 +773,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <querydsl-version>2.3.3</querydsl-version>
     <mongo-java-driver-version>2.7.3</mongo-java-driver-version>
     <morphia-version>0.99</morphia-version>
-    <wro4j-version>1.4.4</wro4j-version>
+    <wro4j-version>1.4.6</wro4j-version>
     <mail-version>1.4.5-rc1</mail-version>
 
     <!-- Encoding UTF-8 -->

@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
@@ -26,6 +28,8 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -213,7 +217,8 @@ public abstract class Startup implements WebApplicationInitializer {
     servletContext.addListener(new ContextLoaderListener(rootContext));
 
     // Configure the environment
-    final ConfigurableEnvironment env = configureEnvironment(rootContext);
+    final ConfigurableEnvironment env =
+        configureEnvironment(servletContext, rootContext);
 
     /**
      * Creates the application object.
@@ -247,8 +252,6 @@ public abstract class Startup implements WebApplicationInitializer {
       @Override
       public void postProcessBeanFactory(
           final ConfigurableListableBeanFactory beanFactory) {
-        beanFactory.registerSingleton("contextPath",
-            servletContext.getContextPath());
         beanFactory.registerSingleton("mwa.application", application);
       }
     });
@@ -285,6 +288,7 @@ public abstract class Startup implements WebApplicationInitializer {
    * @throws ServletException If the properties files failst to load.
    */
   private ConfigurableEnvironment configureEnvironment(
+      final ServletContext servletContext,
       final ConfigurableWebApplicationContext rootContext)
       throws ServletException {
     try {
@@ -293,9 +297,16 @@ public abstract class Startup implements WebApplicationInitializer {
       Resource[] propertiesFiles = resourceLoader.getResources(properties());
       // Add to the environment
       final ConfigurableEnvironment env = rootContext.getEnvironment();
+      Map<String, Object> webproperties = new HashMap<String, Object>();
+      webproperties.put("contextPath", servletContext.getContextPath());
+      webproperties.put("servletContextName",
+          servletContext.getServletContextName());
+      MutablePropertySources propertySources = env.getPropertySources();
+      propertySources.addFirst(new MapPropertySource(servletContext
+          .getContextPath(), webproperties));
       for (Resource propertyFile : propertiesFiles) {
         logger.debug("Adding property file: {}", propertyFile);
-        env.getPropertySources().addFirst(asPropertySource(propertyFile));
+        propertySources.addFirst(asPropertySource(propertyFile));
       }
       // Enable @Value
       PropertySourcesPlaceholderConfigurer placeholderConfigurer =
@@ -356,13 +367,13 @@ public abstract class Startup implements WebApplicationInitializer {
     try {
       ClassPathScanner scanner = new ClassPathScanner();
       Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
-      classes.add(WebDefaults.class);
       for (Class<?> module : modules) {
         scanner.addPackage(module.getPackage());
         classes.add(module);
       }
       scanner.addFilters(new AnnotationTypeFilter(Component.class));
       classes.addAll(scanner.scan());
+      classes.add(WebDefaults.class);
       context.register(classes.toArray(new Class[classes.size()]));
     } catch (Exception ex) {
       throw new ServletException("Cannot register modules.", ex);

@@ -4,8 +4,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.github.edgarespina.mwa.validation.ValidationModule;
-
 /**
  * Unit test for {@link ValidationModule}.
  *
