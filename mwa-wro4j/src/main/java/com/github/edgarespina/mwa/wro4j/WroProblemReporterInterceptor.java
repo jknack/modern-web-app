@@ -90,7 +90,9 @@ public class WroProblemReporterInterceptor extends HandlerInterceptorAdapter {
   public void postHandle(final HttpServletRequest request,
       final HttpServletResponse response, final Object handler,
       final ModelAndView modelAndView) throws Exception {
-
+    if (modelAndView == null) {
+      return;
+    }
     Map<String, Object> model = modelAndView.getModel();
     /**
      * Prepare js and css resources.
