@@ -422,6 +422,32 @@ public class WroModule {
   }
 
   /**
+   * Publish a model variable with html scripts elements from a 'wro' file
+   * descriptor.
+   *
+   * @param wroModelFactory The {@link WroModelFactory}. Required.
+   * @return A new {@link CssExporter}.
+   */
+  @Bean
+  public JavaScriptExporter wroJavaScriptExporter(
+      final BaseWroManagerFactory wroModelFactory) {
+    return new JavaScriptExporter(wroModelFactory);
+  }
+
+  /**
+   * Publish a model variable with html links elements from a 'wro' file
+   * descriptor.
+   *
+   * @param wroModelFactory The {@link WroModelFactory}. Required.
+   * @return A new {@link CssExporter}.
+   */
+  @Bean
+  public CssExporter wroCssExporter(
+      final BaseWroManagerFactory wroModelFactory) {
+    return new CssExporter(wroModelFactory);
+  }
+
+  /**
    * Turn off some {@link ResourcePostProcessor} and
    * {@link ResourcePreProcessor} if they don't match the given environment.
    *

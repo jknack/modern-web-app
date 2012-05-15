@@ -5,12 +5,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.Assert;
+import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.context.support.ServletContextResourceLoader;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
@@ -50,7 +54,8 @@ import com.google.common.io.Resources;
  * @author edgar.espina
  * @since 0.1
  */
-public class HtmlTemplates extends AbstractModelContribution {
+public class HtmlTemplates extends AbstractModelContribution implements
+    ServletContextAware {
 
   /**
    * Load templates from file system.
@@ -240,23 +245,27 @@ public class HtmlTemplates extends AbstractModelContribution {
    * {@inheritDoc}
    */
   @Override
-  public void init(final ServletContext context) throws IOException {
-    this.loader = new DefaultTemplateLoader(context);
-    if (useCache()) {
-      // Wrap the default loader and add cache support
-      this.loader = new CacheTemplateLoader(this.loader);
-      // hit and load the cache immediately
-      this.loader.get(directory, extension);
-    }
+  public void contribute(final HttpServletRequest request,
+      final HttpServletResponse response, final ModelAndView modelAndView)
+      throws IOException {
+    modelAndView.getModel().putAll(loader.get(directory, extension));
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void contribute(final String view, final Map<String, Object> model)
-      throws IOException {
-    model.putAll(loader.get(directory, extension));
+  public void setServletContext(final ServletContext context) {
+    try {
+      this.loader = new DefaultTemplateLoader(context);
+      if (useCache()) {
+        // Wrap the default loader and add cache support
+        this.loader = new CacheTemplateLoader(this.loader);
+        // hit and load the cache immediately
+        this.loader.get(directory, extension);
+      }
+    } catch (IOException ex) {
+      throw new IllegalStateException("Unable to load templates.", ex);
+    }
   }
-
 }

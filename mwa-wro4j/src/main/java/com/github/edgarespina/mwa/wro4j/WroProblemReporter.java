@@ -102,14 +102,15 @@ public enum WroProblemReporter {
       } else {
         lang = "css";
         tool = "CSSLint";
+        String reason = "%s. %s Affected browsers: '%s'";
         for (CssLintError error : ex.getCssErrors()) {
           if (error != null) {
             Map<String, Object> model = new HashMap<String, Object>();
             CssRule rule = error.getRule();
             model.put("line", error.getLine());
             model.put("column", error.getCol());
-            model.put("reason", error.getMessage() + " Type: " + rule.getName()
-                + ". Browsers: " + rule.getBrowsers());
+            model.put("reason", String.format(reason, rule.getName(),
+                error.getMessage(), rule.getBrowsers().toLowerCase()));
             model.put("lang", "css");
             errors.add(model);
           }

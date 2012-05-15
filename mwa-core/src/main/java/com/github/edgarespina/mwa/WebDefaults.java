@@ -31,6 +31,8 @@ import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolv
 
 import com.github.edgarespina.mwa.handler.BindHandlerExceptionResolver;
 import com.github.edgarespina.mwa.handler.MessageConverterHandlerExceptionResolver;
+import com.github.edgarespina.mwa.view.ModelContribution;
+import com.github.edgarespina.mwa.view.ModelContributionInterceptor;
 
 /**
  * Apply sensible defaults Spring MVC options, like:
@@ -116,6 +118,9 @@ class WebDefaults extends WebMvcConfigurationSupport {
    */
   @Override
   protected void addInterceptors(final InterceptorRegistry registry) {
+    /**
+     * Register interceptors.
+     */
     for (HandlerInterceptor interceptor : lookFor(HandlerInterceptor.class)) {
       InterceptorRegistration registration =
           registry.addInterceptor(interceptor);
@@ -126,6 +131,12 @@ class WebDefaults extends WebMvcConfigurationSupport {
         registration.addPathPatterns(mapping.value());
       }
     }
+
+    /**
+     * Add model contributions.
+     */
+    registry.addInterceptor(new ModelContributionInterceptor(
+        lookFor(ModelContribution.class)));
   }
 
   /**
@@ -144,6 +155,8 @@ class WebDefaults extends WebMvcConfigurationSupport {
   /**
    * Look for bean of an specific type in the Application Context.
    *
+   * @param beanType The bean type to look for.
+   * @param <T> The bean generic type.
    * @return All the of the specific types found in the Application Context.
    */
   private <T> List<T> lookFor(final Class<T> beanType) {

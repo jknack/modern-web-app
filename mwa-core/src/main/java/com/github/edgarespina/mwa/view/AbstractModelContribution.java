@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
  * Base class for {@link ModelContribution}.
  *
  * @author edgar.espina
- * @since 0.1
+ * @since 0.1.0
  */
 public abstract class AbstractModelContribution implements ModelContribution {
 

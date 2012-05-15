@@ -4,7 +4,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -15,17 +20,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import ro.isdc.wro.config.Context;
 import ro.isdc.wro.manager.WroManager;
 import ro.isdc.wro.manager.factory.BaseWroManagerFactory;
-import ro.isdc.wro.model.WroModel;
 import ro.isdc.wro.model.factory.WroModelFactory;
-import ro.isdc.wro.model.group.Group;
-import ro.isdc.wro.model.group.processor.Injector;
-import ro.isdc.wro.model.group.processor.InjectorBuilder;
 import ro.isdc.wro.model.resource.Resource;
 import ro.isdc.wro.model.resource.SupportedResourceType;
 import ro.isdc.wro.model.resource.locator.factory.UriLocatorFactory;
@@ -59,6 +61,12 @@ public class WroProblemReporterInterceptor extends HandlerInterceptorAdapter {
   private Logger logger = LoggerFactory.getLogger(getClass());
 
   /**
+   * Track changes between resources.
+   */
+  private ConcurrentMap<String, String> changeSet =
+      new ConcurrentHashMap<String, String>();
+
+  /**
    * Creates a new {@link WroProblemReporter}.
    *
    * @param wroManagerFactory The {@link WroModelFactory} service. Required.
@@ -78,52 +86,63 @@ public class WroProblemReporterInterceptor extends HandlerInterceptorAdapter {
    * {@inheritDoc}
    */
   @Override
+  @SuppressWarnings("unchecked")
   public void postHandle(final HttpServletRequest request,
       final HttpServletResponse response, final Object handler,
-      final ModelAndView modelAndView)
-      throws Exception {
+      final ModelAndView modelAndView) throws Exception {
+
+    Map<String, Object> model = modelAndView.getModel();
+    /**
+     * Prepare js and css resources.
+     */
+    List<Resource> resources = new ArrayList<Resource>();
+    List<Resource> scripts =
+        (List<Resource>) model.get(JavaScriptExporter.RESOURCES);
+    List<Resource> css = (List<Resource>) model.get(CssExporter.RESOURCES);
+    resources.addAll(scripts);
+    resources.addAll(css);
+    if (resources.isEmpty()) {
+      return;
+    }
     try {
-      String viewName = modelAndView.getViewName();
       Context.set(Context.webContext(request, response, new WroFilterConfig(
           request.getServletContext())));
 
-      Injector injector = InjectorBuilder.create(wroManagerFactory).build();
       WroManager wroManager = wroManagerFactory.create();
       ProcessorsFactory processorsFactory = wroManager.getProcessorsFactory();
       UriLocatorFactory uriLocatorFactory = wroManager.getUriLocatorFactory();
 
-      WroModelFactory modelFactory = wroManagerFactory.getModelFactory();
-      injector.inject(modelFactory);
-
-      WroModel model = modelFactory.create();
-      Group group = model.getGroupByName(viewName);
-      if (group == null) {
-        logger.debug("No group found for view: {}", viewName);
-        return;
-      }
       Collection<ResourcePreProcessor> preProcessors =
           processorsFactory.getPreProcessors();
-      for (Resource resource : group.getResources()) {
-        for (ResourcePreProcessor processor : preProcessors) {
-          SupportedResourceType supportedResourceType =
-              AnnotationUtils.findAnnotation(processor.getClass(),
-                  SupportedResourceType.class);
-          boolean apply =
-              supportedResourceType == null
-                  || supportedResourceType.value() == resource.getType();
-          if (apply) {
-            try {
-              logger.debug("Verifying resource: {} with: {}",
-                  resource.getUri(), processor.getClass().getSimpleName());
-              StringReader reader =
-                  new StringReader(WroHelper.safeRead(uriLocatorFactory,
-                      resource));
-              processor.process(resource, reader, new StringWriter());
-            } catch (RuntimeException ex) {
+
+      for (Resource resource : resources) {
+        String uri = resource.getUri();
+        String input = WroHelper.safeRead(uriLocatorFactory, resource);
+        String hash = DigestUtils.md5DigestAsHex(input.getBytes());
+        String prevHash = changeSet.get(uri);
+        if (!hash.equals(prevHash)) {
+          changeSet.putIfAbsent(uri, hash);
+          for (ResourcePreProcessor processor : preProcessors) {
+            SupportedResourceType supportedResourceType =
+                AnnotationUtils.findAnnotation(processor.getClass(),
+                    SupportedResourceType.class);
+            boolean apply =
+                supportedResourceType == null
+                    || supportedResourceType.value() == resource.getType();
+            if (apply) {
               try {
-                WroProblemReporter.bestFor(ex).report(ex, request, response);
-              } catch (Exception inner) {
-                logger.trace("Cannot display report", inner);
+                logger.debug("Verifying resource: {} with: {}",
+                    resource.getUri(), processor.getClass().getSimpleName());
+                StringWriter writer = new StringWriter();
+                processor.process(resource, new StringReader(input), writer);
+                // Override input for the next processor.
+                input = writer.toString();
+              } catch (RuntimeException ex) {
+                try {
+                  WroProblemReporter.bestFor(ex).report(ex, request, response);
+                } catch (Exception inner) {
+                  logger.trace("Cannot display report", inner);
+                }
               }
             }
           }

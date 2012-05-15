@@ -6,8 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.util.Assert;
+import org.springframework.web.servlet.view.AbstractTemplateView;
 
-import com.github.edgarespina.mwa.view.ModernView;
 import com.github.mustachejava.Mustache;
 
 /**
@@ -16,7 +16,7 @@ import com.github.mustachejava.Mustache;
  * @author edgar.espina
  * @since 0.1
  */
-public class MustacheView extends ModernView {
+public class MustacheView extends AbstractTemplateView {
 
   /**
    * The compiled template.

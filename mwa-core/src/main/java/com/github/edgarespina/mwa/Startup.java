@@ -283,6 +283,7 @@ public abstract class Startup implements WebApplicationInitializer {
    * Publish application properties files into the environment. Additionally, it
    * enabled the use of {@link Value} annotation.
    *
+   * @param servletContext The servlet context.
    * @param rootContext The Spring application context.
    * @return The application environment.
    * @throws ServletException If the properties files failst to load.

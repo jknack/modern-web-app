@@ -26,7 +26,6 @@
     <module>mwa-jpa</module>
     <module>mwa-mongo</module>
     <module>mwa-morphia</module>
-    <module>mwa-view</module>
     <module>mwa-mustache</module>
     <module>mwa-wro4j</module>
     <module>mwa-mail</module>

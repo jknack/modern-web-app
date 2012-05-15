@@ -7,11 +7,11 @@ import java.nio.charset.Charset;
 
 import javax.servlet.ServletContext;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.web.servlet.ViewResolver;
+import org.springframework.web.servlet.view.AbstractTemplateViewResolver;
+import org.springframework.web.servlet.view.AbstractUrlBasedView;
 
-import com.github.edgarespina.mwa.view.ModelContribution;
-import com.github.edgarespina.mwa.view.ModernView;
-import com.github.edgarespina.mwa.view.ModernViewResolver;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
@@ -22,7 +22,8 @@ import com.github.mustachejava.MustacheFactory;
  * @author edgar.espina
  * @since 0.1
  */
-public class MustacheViewResolver extends ModernViewResolver {
+public class MustacheViewResolver extends AbstractTemplateViewResolver
+    implements InitializingBean {
 
   /**
    * The default content type.
@@ -55,9 +56,7 @@ public class MustacheViewResolver extends ModernViewResolver {
    * @param viewClass The mustache view class. Required.
    * @param contributions The model contributions. Cannot be null.
    */
-  public MustacheViewResolver(final Class<? extends MustacheView> viewClass,
-      final ModelContribution... contributions) {
-    super(contributions);
+  public MustacheViewResolver(final Class<? extends MustacheView> viewClass) {
     setViewClass(viewClass);
     setContentType(DEFAULT_CONTENT_TYPE);
     setPrefix(DEFAULT_PREFIX);
@@ -69,21 +68,24 @@ public class MustacheViewResolver extends ModernViewResolver {
    *
    * @param contributions The model contributions. Cannot be null.
    */
-  public MustacheViewResolver(final ModelContribution... contributions) {
-    this(MustacheView.class, contributions);
+  public MustacheViewResolver() {
+    this(MustacheView.class);
   }
 
   /**
-   * Configure a new {@link MustacheView}. {@inheritDoc}
+   * {@inheritDoc}
    */
   @Override
-  protected void buildView(final ModernView view) throws Exception {
+  protected AbstractUrlBasedView buildView(final String viewName)
+      throws Exception {
     Reader reader = null;
     try {
+      MustacheView view = (MustacheView) super.buildView(viewName);
       String resourceName = view.getUrl();
       reader = read(resourceName);
       Mustache mustache = mustacheFactory.compile(reader, resourceName);
-      ((MustacheView) view).setMustache(mustache);
+      view.setMustache(mustache);
+      return view;
     } finally {
       if (reader != null) {
         reader.close();
@@ -96,7 +98,6 @@ public class MustacheViewResolver extends ModernViewResolver {
    */
   @Override
   public void afterPropertiesSet() throws Exception {
-    super.afterPropertiesSet();
     mustacheFactory = new DefaultMustacheFactory() {
       @Override
       public Reader getReader(final String resourceName) {

@@ -23,7 +23,7 @@
     <!-- MWA View -->
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-view</artifactId>
+      <artifactId>mwa-core</artifactId>
       <version>${project.version}</version>
     </dependency>
 
