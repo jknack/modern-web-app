@@ -169,7 +169,7 @@ public class Views {
 ```
 
 MWA takes the view's name: **home** and look for a group in the wro file with
-the same name. If that group isn't found to fallback to the group named as:
+the same name. If that group isn't found it will look for a group named:
 **defaults**.
 
 Later, in your views you can include the js/css by doing:
