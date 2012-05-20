@@ -72,7 +72,7 @@ public class Main extends Startup {
 ```
 
 ## Configuring the Web Resource Optimizer
-* Directory structure
+### Directory structure
 
 ```text
  /src
@@ -90,7 +90,7 @@ public class Main extends Startup {
  pom.xml
 ```
 
-* Creating groups in: wro.xml
+### Creating groups in: wro.xml
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -105,15 +105,15 @@ public class Main extends Startup {
   </group>
 
   <group name="defaults">
-    <js>/js//libs/jquery.js</js>
-    <js>/js//libs/underscore.js</js>
-    <js>/js//libs/backbone.js</js>
+    <js>/js/libs/jquery.js</js>
+    <js>/js/libs/underscore.js</js>
+    <js>/js/libs/backbone.js</js>
   </group>
 </groups>
 
 ```
 
-* Selecting some processors
+### Selecting some processors
 
 The goal of a wro processor is to alter a css or js file in some way. There are
 two kind of processor: pre and post. A pre-processor works over a single file
@@ -147,7 +147,7 @@ These two processors are allowed in "dev", in "no-dev" environment they are off.
 Also, you see here the yuiCssCompressor and the googleClosureSimple. These two
 works as post-processor and are in a "no-dev" environment.
 
-* Using wro resources in your views
+### Using wro resources in your views
 One clear disadvantage of defining your js/css resources in the wro file is that
 you have to duplicate the same definitions in your views.
 
@@ -188,11 +188,11 @@ ${scripts}
 Please note that the ${...} expression depends on the view resolver you have
 configured. If you're using Mustache it will be: {{{cssLinks}}} or {{{scripts}}}
 
-* HTML problem reporter for jsHint, jsLint, cssLint and lessCss processors
+### HTML problem reporter for jsHint, jsLint, cssLint and lessCss processors
 
 TODO: add some screenshots here
 
-* Minimize, compress and merge js and css
+### Minimize, compress and merge js and css
 
 Changing the application's mode to a **no-dev** environment you will get js/css
 optimized resources.
