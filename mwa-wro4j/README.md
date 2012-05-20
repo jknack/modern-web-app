@@ -113,7 +113,8 @@ public class Main extends Startup {
 
 ```
 
-* Selecting wro processors
+* Selecting some processors
+
 The goal of a wro processor is to alter a css or js file in some way. There are
 two kind of processor: pre and post. A pre-processor works over a single file
 (like home.js), on the other hand a post-processor works over multiples files.
@@ -142,3 +143,56 @@ files excluding all the *.js files under the "libs" directory.
 The **cssLint** processor does exactly the same.
 
 These two processors are allowed in "dev", in "no-dev" environment they are off.
+
+Also, you see here the yuiCssCompressor and the googleClosureSimple. These two
+works as post-processor and are in a "no-dev" environment.
+
+* Using wro resources in your views
+One clear disadvantage of defining your js/css resources in the wro file is that
+you have to duplicate the same definitions in your views.
+
+MWA go one step further and publish those resources under two model variables:
+**cssLinks** and **scripts**.
+
+For example:
+
+```java
+...
+@Controller
+public class Views {
+
+  @RequestMapping
+  public String home() {
+    return "home";
+  }
+}
+```
+
+MWA takes the view's name: **home** and look for a group in the wro file with
+the same name. If that group isn't found to fallback to the group named as:
+**defaults**.
+
+Later, in your views you can include the js/css by doing:
+
+```html
+...
+<head>
+...
+${cssLinks}
+${scripts}
+...
+</head>
+...
+```
+
+Please note that the ${...} expression depends on the view resolver you have
+configured. If you're using Mustache it will be: {{{cssLinks}}} or {{{scripts}}}
+
+* HTML problem reporter for jsHint, jsLint, cssLint and lessCss processors
+
+TODO: add some screenshots here
+
+* Minimize, compress and merge js and css
+
+Changing the application's mode to a **no-dev** environment you will get js/css
+optimized resources.
