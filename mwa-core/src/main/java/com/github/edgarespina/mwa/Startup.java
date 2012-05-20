@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.logging.Handler;
 import java.util.logging.LogManager;
 
 import javax.inject.Named;
+import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
@@ -263,6 +265,11 @@ public abstract class Startup implements WebApplicationInitializer {
         "spring-dispatcher", new DispatcherServlet(rootContext));
     dispatcher.setLoadOnStartup(1);
     dispatcher.addMapping(dispatcherMapping());
+    // Add the forwarding filter
+    servletContext.addFilter("forwardingFilter", new ForwardingFilter(
+        rootContext))
+        .addMappingForUrlPatterns(
+            EnumSet.of(DispatcherType.REQUEST), false, dispatcherMapping());
     onStartup(servletContext, rootContext);
   }
 
@@ -346,10 +353,10 @@ public abstract class Startup implements WebApplicationInitializer {
 
   /**
    * The mapping for the Spring {@link DispatcherServlet dispatcher} servlet.
-   * Default is: '/'.
+   * Default is: '/*'.
    *
    * @return The mapping for the Spring {@link DispatcherServlet dispatcher}
-   *         servlet. Default is: '/'.
+   *         servlet. Default is: '/*'.
    */
   protected String dispatcherMapping() {
     return "/*";

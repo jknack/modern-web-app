@@ -1,12 +1,15 @@
 package com.github.edgarespina.mwa;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -81,6 +84,12 @@ class WebDefaults extends WebMvcConfigurationSupport {
   }
 
   /**
+   * The logging system.
+   */
+  private static final Logger logger = LoggerFactory
+      .getLogger(WebDefaults.class);
+
+  /**
    * Get message converters.
    */
   @Inject
@@ -103,6 +112,7 @@ class WebDefaults extends WebMvcConfigurationSupport {
         ((MessageConverterHandlerExceptionResolver) cer)
             .setMessageConverters(requestMappingHandler.getMessageConverters());
       }
+      logger.debug("Adding exception resolver: {}", cer.getClass().getName());
       exceptionResolvers.add(cer);
     }
     final DefaultHandlerExceptionResolver exceptionResolver =
@@ -127,9 +137,13 @@ class WebDefaults extends WebMvcConfigurationSupport {
       RequestMapping mapping =
           AnnotationUtils.findAnnotation(interceptor.getClass(),
               RequestMapping.class);
+      String[] patterns = {"/" };
       if (mapping != null && mapping.value().length > 0) {
-        registration.addPathPatterns(mapping.value());
+        patterns = mapping.value();
+        registration.addPathPatterns(patterns);
       }
+      logger.debug("Adding interceptor: {} to uri: {}", interceptor.getClass()
+          .getName(), Arrays.toString(patterns));
     }
 
     /**
