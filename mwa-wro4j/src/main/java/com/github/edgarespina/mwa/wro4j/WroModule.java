@@ -2,6 +2,9 @@ package com.github.edgarespina.mwa.wro4j;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,20 +15,18 @@ import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import ro.isdc.wro.config.Context;
 import ro.isdc.wro.config.jmx.WroConfiguration;
@@ -40,20 +41,21 @@ import ro.isdc.wro.model.group.DefaultGroupExtractor;
 import ro.isdc.wro.model.group.Group;
 import ro.isdc.wro.model.resource.Resource;
 import ro.isdc.wro.model.resource.locator.ClasspathUriLocator;
-import ro.isdc.wro.model.resource.locator.ServletContextUriLocator;
-import ro.isdc.wro.model.resource.locator.ServletContextUriLocator.LocatorStrategy;
 import ro.isdc.wro.model.resource.locator.UrlUriLocator;
 import ro.isdc.wro.model.resource.locator.factory.SimpleUriLocatorFactory;
 import ro.isdc.wro.model.resource.locator.factory.UriLocatorFactory;
+import ro.isdc.wro.model.resource.locator.wildcard.WildcardUriLocatorSupport;
 import ro.isdc.wro.model.resource.processor.ResourcePostProcessor;
 import ro.isdc.wro.model.resource.processor.ResourcePreProcessor;
 import ro.isdc.wro.model.resource.processor.factory.ProcessorsFactory;
 import ro.isdc.wro.model.resource.processor.factory.SimpleProcessorsFactory;
+import ro.isdc.wro.model.transformer.WildcardExpanderModelTransformer.NoMoreAttemptsIOException;
 import ro.isdc.wro.util.ObjectFactory;
 import ro.isdc.wro.util.Transformer;
 
 import com.github.edgarespina.mwa.Application;
 import com.github.edgarespina.mwa.Application.Mode;
+import com.github.edgarespina.mwa.FilterMapping;
 
 /**
  * <p>
@@ -235,42 +237,86 @@ public class WroModule {
         HttpServletRequest request = Context.get().getRequest();
         WroProblemReporter.bestFor(ex).report(ex, request, response);
       } else {
-        // Just fail
-        throw ex;
+        WroProblemReporter.DEFAULT.report(ex, null, response);
       }
     }
   }
 
   /**
-   * It delegate the work to {@link WroFilter}.
+   * A custom implementation of the servlet context uri locator that doesn't
+   * depend on the wro-context object.
+   *
+   * @author edgar.espina
+   * @since 0.1.3
    */
-  @RequestMapping({"/**/*.js", "/**/*.css" })
-  private static class WroInterceptor extends HandlerInterceptorAdapter {
+  private class ServletContextUriLocator extends WildcardUriLocatorSupport {
 
     /**
-     * The {@link WroFilter}. Required.
+     * The prefix uri.
      */
-    private WroFilter wroFilter;
+    private static final String PREFIX = "/";
 
     /**
-     * Creates a new {@link WroInterceptor}.
+     * The servelt context.
+     */
+    private final ServletContext servletContext;
+
+    /**
+     * The logging system.
+     */
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    /**
+     * Creates a new {@link ServletContextUriLocator}.
      *
-     * @param wroFilter The {@link WroFilter}. Required.
+     * @param servletContext The servlet context. Required.
      */
-    public WroInterceptor(final WroFilter wroFilter) {
-      this.wroFilter = checkNotNull(wroFilter, "The wroFilter is required.");
+    public ServletContextUriLocator(final ServletContext servletContext) {
+      this.servletContext =
+          checkNotNull(servletContext, "The servletContext is required.");
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean preHandle(final HttpServletRequest request,
-        final HttpServletResponse response, final Object handler)
-        throws Exception {
-      wroFilter.doFilter(request, response, null);
-      return false;
+    public InputStream locate(final String uri) throws IOException {
+      try {
+        if (getWildcardStreamLocator().hasWildcard(uri)) {
+          final String fullPath = FilenameUtils.getFullPath(uri);
+          final String realPath = servletContext.getRealPath(fullPath);
+          if (realPath == null) {
+            final String message =
+                "Could not determine realPath for resource: " + uri;
+            logger.error(message);
+            throw new IOException(message);
+          }
+          return getWildcardStreamLocator().locateStream(uri,
+              new File(realPath));
+        }
+      } catch (NoMoreAttemptsIOException ex) {
+        throw ex;
+      } catch (IOException ex) {
+        logger
+            .warn(
+                "Couldn't localize the stream containing wildcard. Original "
+                    + "error message: '{}'", ex.getMessage()
+                    + "\".\n Trying to locate the stream without the "
+                    + "wildcard.");
+      }
+      InputStream input = servletContext.getResourceAsStream(uri);
+      Validate.notNull(input, "Resource not found: " + uri);
+      return input;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean accept(final String uri) {
+      return uri.trim().startsWith(PREFIX);
+    }
+
   }
 
   /**
@@ -282,23 +328,31 @@ public class WroModule {
    * Intercept js and css resource and apply all the registered
    * {@link Processors}.
    *
-   * @param application The application object. Required.
-   * @param servletContext The {@link ServletContext}. Required.
+   * @param filter The wro filter. Required.
+   * @return An interceptor for js and css resources.
+   */
+  @Bean
+  public FilterMapping wroFilterMapping(final WroFilter filter) {
+    return FilterMapping.filter(
+        "/**/*.js",
+        "/**/*.css",
+        "**/*.js",
+        "**/*.css"
+        ).through(filter);
+  }
+
+  /**
+   * Intercept js and css resource and apply all the registered
+   * {@link Processors}.
+   *
    * @param configuration The {@link WroConfiguration}. Required.
    * @param wroManagerFactory The {@link WroModelFactory}. Required.
    * @return An interceptor for js and css resources.
-   * @throws ServletException If a web component cannot be created.
    */
   @Bean
-  public WroInterceptor wroInterceptor(final Application application,
-      final ServletContext servletContext,
-      final WroConfiguration configuration,
-      final WroManagerFactory wroManagerFactory) throws ServletException {
-    final ConfigurableWroFilter wroFilter =
-        new ExtendedWroFilter(configuration, wroManagerFactory);
-    wroFilter.init(new WroFilterConfig(servletContext));
-
-    return new WroInterceptor(wroFilter);
+  public WroFilter wroFilter(final WroConfiguration configuration,
+      final WroManagerFactory wroManagerFactory) {
+    return new ExtendedWroFilter(configuration, wroManagerFactory);
   }
 
   /**
@@ -359,6 +413,7 @@ public class WroModule {
    * Creates a new {@link UriLocatorFactory} service. Web resources can be on
    * the classpath, web path or in remote location.
    *
+   * @param servletContext The servlet context. Required.
    * @return A new {@link UriLocatorFactory} service. Web resources can be on
    *         the classpath, web path or in remote location.
    * @see ServletContextUriLocator
@@ -366,10 +421,10 @@ public class WroModule {
    * @see UrlUriLocatorl
    */
   @Bean
-  public UriLocatorFactory wroUriLocatorFactory() {
+  public UriLocatorFactory wroUriLocatorFactory(
+      final ServletContext servletContext) {
     return new SimpleUriLocatorFactory()
-        .addUriLocator(new ServletContextUriLocator()
-            .setLocatorStrategy(LocatorStrategy.SERVLET_CONTEXT_FIRST))
+        .addUriLocator(new ServletContextUriLocator(servletContext))
         .addUriLocator(new ClasspathUriLocator())
         .addUriLocator(new UrlUriLocator());
   }

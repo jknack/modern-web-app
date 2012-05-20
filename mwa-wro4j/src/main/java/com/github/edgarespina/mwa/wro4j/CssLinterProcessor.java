@@ -93,8 +93,8 @@ class CssLinterProcessor implements
     } finally {
       // don't change the processed content no matter what happens.
       writer.write(content);
-      reader.close();
-      writer.close();
+      IOUtils.closeQuietly(reader);
+      IOUtils.closeQuietly(writer);
       enginePool.returnObject(cssLint);
     }
   }

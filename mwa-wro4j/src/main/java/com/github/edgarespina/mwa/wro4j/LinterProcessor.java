@@ -62,19 +62,10 @@ final class LinterProcessor extends AbstractLinterProcessor implements
    */
   private LinterProcessor(final AbstractLinter linter,
       final LintOptions options) {
-    this(linter);
-    checkNotNull(options, "The lint options are required.");
-    setOptions(options.build());
-    this.options = options.build();
-  }
-
-  /**
-   * Creates a new {@link LinterProcessor}.
-   *
-   * @param linter The lint processor: jsHint or jsLint. Required.
-   */
-  private LinterProcessor(final AbstractLinter linter) {
     this.linter = checkNotNull(linter, "The linter is required.");
+    this.options =
+        checkNotNull(options, "The lint options are required.").build();
+    setOptions(this.options);
   }
 
   /**
@@ -130,15 +121,6 @@ final class LinterProcessor extends AbstractLinterProcessor implements
   }
 
   /**
-   * Creates a new JsHint processor.
-   *
-   * @return A new JsHint processor.
-   */
-  public static ResourcePreProcessor jsHint() {
-    return new LinterProcessor(new JsHint());
-  }
-
-  /**
    * Creates a new JsLint processor.
    *
    * @param options The lint options. Required.
@@ -148,12 +130,4 @@ final class LinterProcessor extends AbstractLinterProcessor implements
     return new LinterProcessor(new JsLint(), options);
   }
 
-  /**
-   * Creates a new JsLint processor.
-   *
-   * @return A new JsLint processor.
-   */
-  public static ResourcePreProcessor jsLint() {
-    return new LinterProcessor(new JsLint());
-  }
 }

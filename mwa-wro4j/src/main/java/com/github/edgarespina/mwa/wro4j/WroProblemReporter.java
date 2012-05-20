@@ -17,6 +17,7 @@ import org.apache.commons.io.IOUtils;
 import ro.isdc.wro.extensions.processor.support.csslint.CssLintError;
 import ro.isdc.wro.extensions.processor.support.csslint.CssRule;
 import ro.isdc.wro.extensions.processor.support.linter.LinterError;
+import ro.isdc.wro.model.group.InvalidGroupNameException;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -54,10 +55,63 @@ public enum WroProblemReporter {
   },
 
   /**
+   * Handle resoureces not found errors.
+   */
+  GROUP_NOT_FOUND {
+    @Override
+    public boolean apply(final RuntimeException ex) {
+      return ex instanceof InvalidGroupNameException;
+    }
+
+    @Override
+    public void report(final RuntimeException ex,
+        final HttpServletRequest request,
+        final HttpServletResponse response) {
+      try {
+        response.sendError(HttpServletResponse.SC_NOT_FOUND,
+            request.getRequestURI());
+      } catch (IOException ioex) {
+        throw new IllegalStateException(ex.getMessage(), ioex);
+      }
+    }
+  },
+
+  /**
+   * The less css problem reporter.
+   */
+  LESS_CSS {
+    /**
+     * The lessCss template.
+     */
+    private String lessCssTemplate = template("lesscss.html");
+
+    @Override
+    public boolean apply(final RuntimeException ex) {
+      return ex instanceof LessRuntimeException;
+    }
+
+    @Override
+    public void report(final RuntimeException ex,
+        final HttpServletRequest request,
+        final HttpServletResponse response) {
+      LessRuntimeException lessException = (LessRuntimeException) ex;
+      LessCssError error = lessException.getLessCssError();
+      Map<String, Object> model = new HashMap<String, Object>();
+      model.put("lang", "css");
+      model.put("firstLine", Math.max(1, error.getLine() - 1));
+      model.put("line", error.getLine());
+      model.put("column", error.getColumn());
+      model.put("reason", error.getMessage());
+      model.put("evidence", Joiner.on("\n").join(error.getExtract()));
+      model.put("filename", error.getFilename());
+      write(response, merge(lessCssTemplate, model));
+    }
+  },
+
+  /**
    * Handle jsHint, jsLint and cssLint errors.
    */
   LINT {
-
     /**
      * {@inheritDoc}
      */
@@ -73,7 +127,7 @@ public enum WroProblemReporter {
     public void report(final RuntimeException ex,
         final HttpServletRequest request,
         final HttpServletResponse response) {
-      write(response, html((RuntimeLinterException) ex));
+      write(response, lintHtml((RuntimeLinterException) ex));
     }
 
     /**
@@ -82,7 +136,7 @@ public enum WroProblemReporter {
      * @param ex The lint exception.
      * @return The HTMl content.
      */
-    private String html(final RuntimeLinterException ex) {
+    private String lintHtml(final RuntimeLinterException ex) {
       List<Map<String, Object>> errors = new ArrayList<Map<String, Object>>();
       String lang;
       String tool;
@@ -116,10 +170,20 @@ public enum WroProblemReporter {
           }
         }
       }
-      return html(tool, lang, ex.getFilename(), ex.getOptions(),
+      return lintHtml(tool, lang, ex.getFilename(), ex.getOptions(),
           ex.getContent(), errors);
     }
   };
+
+  /**
+   * The lint error template.
+   */
+  private String lintErrorTemplate = template("lint-error.html");
+
+  /**
+   * The lint template.
+   */
+  private String lintTemplate = template("lint.html");
 
   /**
    * True if the exception can be handled.
@@ -140,10 +204,9 @@ public enum WroProblemReporter {
    * @param errors The lint's errors.
    * @return A HTML content.
    */
-  protected String html(final String tool, final String lang,
+  protected String lintHtml(final String tool, final String lang,
       final String filename, final String[] options, final String content,
       final List<Map<String, Object>> errors) {
-    String errorTemplate = template("linter-error.html");
     List<String> evidence =
         Lists.newArrayList(Splitter.on("\n").split(content));
     StringBuilder errorList = new StringBuilder();
@@ -155,14 +218,13 @@ public enum WroProblemReporter {
       error.put("evidence", Joiner.on("\n").join(evidence.subList(from, to)));
       error.put("lang", lang);
       error.put("filename", filename);
-      errorList.append(merge(errorTemplate, error));
+      errorList.append(merge(lintErrorTemplate, error));
     }
-    String htmlTemplate = template("linter.html");
     Map<String, Object> model = new HashMap<String, Object>();
     model.put("options", Joiner.on(", ").join(options));
     model.put("tool", tool);
     model.put("errors", errorList);
-    return merge(htmlTemplate, model);
+    return merge(lintTemplate, model);
   }
 
   /**
@@ -177,11 +239,11 @@ public enum WroProblemReporter {
     try {
       writer = response.getWriter();
       writer.println(content);
-      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     } catch (IOException ioex) {
       throw new IllegalStateException("Unable to write report", ioex);
     } finally {
       IOUtils.closeQuietly(writer);
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
   }
 

@@ -6,10 +6,13 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -34,6 +37,62 @@ import com.github.edgarespina.mwa.view.ModelContribution;
  * @since 0.1.0
  */
 abstract class WroContribution extends AbstractModelContribution {
+
+  /**
+   * A {@link FilterConfig} for wro filter.
+   *
+   * @author edgar.espina
+   * @since 0.1.2
+   */
+  static final class WroFilterConfig implements FilterConfig {
+
+    /**
+     * The servlet's context.
+     */
+    private ServletContext servletContext;
+
+    /**
+     * Creates a new {@link WroFilterConfig}.
+     *
+     * @param servletContext The servlet's context.
+     */
+    public WroFilterConfig(final ServletContext servletContext) {
+      this.servletContext = servletContext;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getFilterName() {
+      return "wroFilter";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ServletContext getServletContext() {
+      return servletContext;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getInitParameter(final String name) {
+      return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Enumeration<String> getInitParameterNames() {
+      return null;
+    }
+
+  }
 
   /**
    * The default group name, if the candidate group cannot be found.
@@ -69,13 +128,14 @@ abstract class WroContribution extends AbstractModelContribution {
    * @param candidate The group candidate name.
    * @return The {@link WroModel} from wro.xml.
    */
-  protected Group lookupGroup(final HttpServletRequest request,
+  private Group lookupGroup(final HttpServletRequest request,
       final HttpServletResponse response, final String candidate) {
     try {
       Context.set(Context.webContext(request, response, new WroFilterConfig(
           request.getServletContext())));
       Set<String> names = new LinkedHashSet<String>();
       names.add(candidate);
+      names.add(candidate.replace("/", "_"));
       names.add(candidate.replace("-", "."));
       names.add(DEFAULT_GROUP);
       // TODO: Add a cache for no-dev.

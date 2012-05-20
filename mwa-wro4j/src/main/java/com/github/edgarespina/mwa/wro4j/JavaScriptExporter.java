@@ -23,7 +23,7 @@ final class JavaScriptExporter extends WroContribution {
   /**
    * The list of script resources.
    */
-  public static final String RESOURCES = "script-resources";
+  public static final String RESOURCES = "javascript-resources";
 
   /**
    * The default variable's name.

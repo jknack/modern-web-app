@@ -68,7 +68,7 @@ final class CssExporter extends WroContribution {
               + getBaseName(resource.getUri()) + ".css";
           // 1. Collect css.
           buffer.append("<link rel=\"stylesheet\" text=\"text/css\" href=\"")
-              .append(contextPath).append(uri).append("\">");
+              .append(contextPath).append(uri).append("\">\n");
           resources.add(resource);
         }
       }
