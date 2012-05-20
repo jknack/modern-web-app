@@ -117,7 +117,7 @@ public class MailModule {
    * @return A {@link JavaMailSender} service.
    */
   @Bean
-  public JavaMailSender mailSender(final Environment environment) {
+  public JavaMailSender javaMailSender(final Environment environment) {
     Validate.notNull(environment, "The environment is required.");
     Properties properties = new Properties();
     String host = environment.getRequiredProperty(SMTP_HOST);

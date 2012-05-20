@@ -31,8 +31,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
-import com.github.edgarespina.mwa.mail.MailModule;
-
 /**
  * Unit test for {@link MailModule}.
  *
@@ -67,7 +65,7 @@ public class MailModuleTest {
     PowerMock.replay(JavaMailSenderImpl.class);
     replay(env, mailSender);
 
-    JavaMailSender sender = new MailModule().mailSender(env);
+    JavaMailSender sender = new MailModule().javaMailSender(env);
     assertNotNull(sender);
     checkProperty(properties, SMTP_HOST, host);
     checkProperty(properties, SMTP_PORT, null);
@@ -116,7 +114,7 @@ public class MailModuleTest {
     PowerMock.replay(JavaMailSenderImpl.class);
     replay(env, mailSender);
 
-    JavaMailSender sender = new MailModule().mailSender(env);
+    JavaMailSender sender = new MailModule().javaMailSender(env);
     assertNotNull(sender);
     checkProperty(properties, SMTP_HOST, host);
     checkProperty(properties, SMTP_PORT, port);
