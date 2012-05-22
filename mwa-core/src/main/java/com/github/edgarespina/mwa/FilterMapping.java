@@ -63,7 +63,8 @@ public final class FilterMapping {
    * @return True if the request path matches one of the registered patterns.
    */
   public boolean matches(final HttpServletRequest request) {
-    return matches(request.getRequestURI());
+    String requestURI = request.getRequestURI();
+    return matches(requestURI.replace(request.getContextPath(), ""));
   }
 
   /**
@@ -105,7 +106,7 @@ public final class FilterMapping {
    */
   @Override
   public String toString() {
-    return filter.getClass().getSimpleName() + ":"
-        + Joiner.on(", ").join(patterns);
+    return filter.getClass().getSimpleName() + ":("
+        + Joiner.on(" OR").join(patterns) + ")";
   }
 }

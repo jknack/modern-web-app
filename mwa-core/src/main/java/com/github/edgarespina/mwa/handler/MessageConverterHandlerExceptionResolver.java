@@ -86,6 +86,7 @@ public class MessageConverterHandlerExceptionResolver
         checkNotNull(exceptionClass, "The exception class is required.");
     this.responseStatus =
         checkNotNull(responseStatus, "The response status is required.");
+    setOrder(HIGHEST_PRECEDENCE);
   }
 
   /**

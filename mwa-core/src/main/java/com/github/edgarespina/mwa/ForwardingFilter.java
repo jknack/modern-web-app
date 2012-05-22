@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -123,6 +124,11 @@ class ForwardingFilter extends GenericFilterBean {
     return new FilterChain() {
 
       /**
+       * The current filter mapping.
+       */
+      private final Iterator<FilterMapping> it = mappings.iterator();
+
+      /**
        * Execute the filter.
        *
        * @param request The http servlet request.
@@ -148,21 +154,18 @@ class ForwardingFilter extends GenericFilterBean {
       private void doFilter(final HttpServletRequest request,
           final HttpServletResponse response) throws IOException,
           ServletException {
-        int matches = 0;
-        for (FilterMapping current : mappings) {
+        if (it.hasNext()) {
+          FilterMapping current = it.next();
           if (current.matches(request)) {
-            matches++;
             logger.trace("Calling filter: {} for {}", current,
                 request.getRequestURI());
             current.getFilter().doFilter(request, response, this);
           } else {
             logger.trace("Ignoring filter: {} for {}", current,
                 request.getRequestURI());
+            doFilter(request, response);
           }
-        }
-        // Dispatch to the normal filter chain only if one of our servlets did
-        // not match.
-        if (matches == 0) {
+        } else {
           chain.doFilter(request, response);
         }
       }

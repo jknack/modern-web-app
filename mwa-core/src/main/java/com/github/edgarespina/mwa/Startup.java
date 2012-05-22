@@ -382,6 +382,7 @@ public abstract class Startup implements WebApplicationInitializer {
       scanner.addFilters(new AnnotationTypeFilter(Component.class));
       classes.addAll(scanner.scan());
       classes.add(WebDefaults.class);
+      classes.add(ExtendedMvcSupport.class);
       context.register(classes.toArray(new Class[classes.size()]));
     } catch (Exception ex) {
       throw new ServletException("Cannot register modules.", ex);

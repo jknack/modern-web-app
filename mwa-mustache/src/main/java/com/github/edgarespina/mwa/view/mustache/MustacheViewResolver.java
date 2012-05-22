@@ -1,6 +1,9 @@
 package com.github.edgarespina.mwa.view.mustache;
 
+import static org.apache.commons.lang3.Validate.notNull;
+
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
@@ -119,8 +122,9 @@ public class MustacheViewResolver extends AbstractTemplateViewResolver
     if (!path.startsWith("/")) {
       path = "/" + path;
     }
-    return new BufferedReader(new InputStreamReader(
-        servletContext.getResourceAsStream(path), encoding));
+    InputStream input = servletContext.getResourceAsStream(path);
+    notNull(input, "Resource not found: %s", path);
+    return new BufferedReader(new InputStreamReader(input, encoding));
   }
 
   /**
