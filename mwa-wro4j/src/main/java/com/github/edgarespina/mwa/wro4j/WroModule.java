@@ -31,6 +31,14 @@ import org.springframework.core.env.Environment;
 import ro.isdc.wro.config.Context;
 import ro.isdc.wro.config.jmx.WroConfiguration;
 import ro.isdc.wro.extensions.model.factory.SmartWroModelFactory;
+import ro.isdc.wro.extensions.processor.css.CssLintProcessor;
+import ro.isdc.wro.extensions.processor.css.YUICssCompressorProcessor;
+import ro.isdc.wro.extensions.processor.js.DojoShrinksafeCompressorProcessor;
+import ro.isdc.wro.extensions.processor.js.GoogleClosureCompressorProcessor;
+import ro.isdc.wro.extensions.processor.js.JsHintProcessor;
+import ro.isdc.wro.extensions.processor.js.JsLintProcessor;
+import ro.isdc.wro.extensions.processor.js.UglifyJsProcessor;
+import ro.isdc.wro.extensions.processor.js.YUIJsCompressorProcessor;
 import ro.isdc.wro.http.ConfigurableWroFilter;
 import ro.isdc.wro.http.WroFilter;
 import ro.isdc.wro.manager.factory.BaseWroManagerFactory;
@@ -49,6 +57,10 @@ import ro.isdc.wro.model.resource.processor.ResourcePostProcessor;
 import ro.isdc.wro.model.resource.processor.ResourcePreProcessor;
 import ro.isdc.wro.model.resource.processor.factory.ProcessorsFactory;
 import ro.isdc.wro.model.resource.processor.factory.SimpleProcessorsFactory;
+import ro.isdc.wro.model.resource.processor.impl.css.CssCompressorProcessor;
+import ro.isdc.wro.model.resource.processor.impl.css.CssMinProcessor;
+import ro.isdc.wro.model.resource.processor.impl.css.JawrCssMinifierProcessor;
+import ro.isdc.wro.model.resource.processor.impl.js.JSMinProcessor;
 import ro.isdc.wro.model.transformer.WildcardExpanderModelTransformer.NoMoreAttemptsIOException;
 import ro.isdc.wro.util.ObjectFactory;
 import ro.isdc.wro.util.Transformer;
@@ -325,6 +337,31 @@ public class WroModule {
   private static Logger logger = LoggerFactory.getLogger(WroModule.class);
 
   /**
+   * The list of excluded processors while the app is running in 'dev'.
+   */
+  private static final Class<?>[] NO_DEV_PROCESSORS = {
+      CssCompressorProcessor.class,
+      JawrCssMinifierProcessor.class,
+      CssMinProcessor.class,
+      JSMinProcessor.class,
+      YUICssCompressorProcessor.class,
+      YUIJsCompressorProcessor.class,
+      YUIJsCompressorProcessor.class,
+      DojoShrinksafeCompressorProcessor.class,
+      UglifyJsProcessor.class,
+      GoogleClosureCompressorProcessor.class
+  };
+
+  /**
+   * The list of excluded processors while the app is running in 'NO-dev'.
+   */
+  private static final Class<?>[] DEV_PROCESSORS = {
+      JsHintProcessor.class,
+      JsLintProcessor.class,
+      CssLintProcessor.class
+  };
+
+  /**
    * Intercept js and css resource and apply all the registered
    * {@link Processors}.
    *
@@ -542,7 +579,7 @@ public class WroModule {
   private static boolean applyProcessor(final Mode mode,
       final UriLocatorFactory uriLocatorFactory, final Environment environment,
       final Object processor) {
-    if (WroHelper.enabled(processor, mode)) {
+    if (enabled(processor, environment, mode)) {
       // Check for specific contract
       if (processor instanceof UriLocatorFactoryAware) {
         ((UriLocatorFactoryAware) processor)
@@ -557,6 +594,32 @@ public class WroModule {
           .getClass().getSimpleName(), mode);
       return false;
     }
+  }
+
+  /**
+   * True if the processor is enabled at the given mode.
+   *
+   * @param processor The candidate processor.
+   * @param environment The environment.
+   * @param mode The application's mode.
+   * @return True if the processor is enabled at the given mode.
+   */
+  static boolean enabled(final Object processor, final Environment environment,
+      final Mode mode) {
+    Class<?>[] exclusions = NO_DEV_PROCESSORS;
+    if (mode != Application.DEV) {
+      if (environment.getProperty("wro.optimize", Boolean.class, true)) {
+        exclusions = DEV_PROCESSORS;
+      } else {
+        logger.warn("Wro optimizations are off");
+      }
+    }
+    for (Class<?> exclusion : exclusions) {
+      if (exclusion.isInstance(processor)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
