@@ -40,8 +40,6 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePropertySource;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
@@ -242,7 +240,7 @@ public abstract class Startup implements WebApplicationInitializer {
     /**
      * Scan beans under each module's package.
      */
-    Class<?>[] modules = modules();
+    Class<?>[] modules = imports();
     if (modules.length > 0) {
       registerModules(rootContext, modules);
     }
@@ -373,17 +371,15 @@ public abstract class Startup implements WebApplicationInitializer {
       final AnnotationConfigWebApplicationContext context,
       final Class<?>[] modules) throws ServletException {
     try {
-      ClassPathScanner scanner = new ClassPathScanner();
       Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
       for (Class<?> module : modules) {
-        scanner.addPackage(module.getPackage());
         classes.add(module);
       }
-      scanner.addFilters(new AnnotationTypeFilter(Component.class));
-      classes.addAll(scanner.scan());
       classes.add(WebDefaults.class);
       classes.add(ExtendedMvcSupport.class);
       context.register(classes.toArray(new Class[classes.size()]));
+      // Scan all the packages of the main class recursively.
+      context.scan(getClass().getPackage().getName());
     } catch (Exception ex) {
       throw new ServletException("Cannot register modules.", ex);
     }
@@ -406,11 +402,11 @@ public abstract class Startup implements WebApplicationInitializer {
   }
 
   /**
-   * List the application's modules.
+   * Import external modules required by the application.
    *
-   * @return All the application's modules.
+   * @return All the imported modules.
    */
-  protected abstract Class<?>[] modules();
+  protected abstract Class<?>[] imports();
 
   /**
    * <p>

@@ -20,6 +20,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 class WebDefaults extends WebMvcConfigurationSupport {
 
   /**
+   * The default object mapper name.
+   */
+  public static final String OBJECT_MAPPER = "globalObjectMapper";
+
+  /**
    * Enable the default servlet. {@inheritDoc}
    */
   @Override
@@ -33,8 +38,8 @@ class WebDefaults extends WebMvcConfigurationSupport {
    *
    * @return A new object mapper.
    */
-  @Bean
-  public ObjectMapper defaultObjectMapper() {
+  @Bean(name = OBJECT_MAPPER)
+  public ObjectMapper globalObjectMapper() {
     return new ObjectMapper();
   }
 }

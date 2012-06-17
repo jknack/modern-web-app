@@ -114,6 +114,9 @@ enum BeanPostProcessors {
         final ApplicationContext context, final Object bean) {
       RequestMappingHandlerAdapter handlerMapping =
           (RequestMappingHandlerAdapter) bean;
+      // New applications should consider setting it to true.
+      handlerMapping.setIgnoreDefaultModelOnRedirect(true);
+
       // Add custom argument resolvers
       Set<HandlerMethodArgumentResolver> argumentResolvers =
           new LinkedHashSet<HandlerMethodArgumentResolver>(
@@ -136,7 +139,7 @@ enum BeanPostProcessors {
       MappingJacksonHttpMessageConverter jacksonMessageConverter =
           find(messageConverters, MappingJacksonHttpMessageConverter.class);
       ObjectMapper defaultObjectMapper =
-          context.getBean("defaultObjectMapper", ObjectMapper.class);
+          context.getBean(WebDefaults.OBJECT_MAPPER, ObjectMapper.class);
       jacksonMessageConverter.setObjectMapper(defaultObjectMapper);
       return bean;
     }
