@@ -27,6 +27,8 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import ro.isdc.wro.config.Context;
 import ro.isdc.wro.config.jmx.WroConfiguration;
@@ -537,6 +539,27 @@ public class WroModule {
   public CssExporter wroCssExporter(
       final BaseWroManagerFactory wroModelFactory) {
     return new CssExporter(wroModelFactory);
+  }
+
+  /**
+   * Translate wro error as HTML if the application is running in 'dev' mode.
+   *
+   * @param application The application. Required.
+   * @param filter The wroFileter. Required.
+   * @param uriLocatorFactory The uri locator. Required.
+   * @return A HTML reporter for 'dev'.
+   */
+  @Bean
+  public HandlerInterceptor wroProblemReporterInterceptor(
+      final Application application, final WroFilter filter,
+      final UriLocatorFactory uriLocatorFactory) {
+    if (application.mode() == Application.DEV) {
+      return new WroProblemReporterInterceptor(filter, uriLocatorFactory);
+    }
+    // Do nothing.
+    return new HandlerInterceptorAdapter() {
+
+    };
   }
 
   /**

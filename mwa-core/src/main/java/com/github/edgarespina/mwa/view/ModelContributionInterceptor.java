@@ -51,6 +51,10 @@ public class ModelContributionInterceptor extends HandlerInterceptorAdapter {
       final ModelAndView modelAndView) throws Exception {
     if (modelAndView != null) {
       String viewName = modelAndView.getViewName();
+      if (viewName.startsWith("redirect:")) {
+        // don't add contributions on redirect-call
+        return;
+      }
       Map<String, Object> model = modelAndView.getModel();
       model.put(ModelContribution.CONTEXT_PATH, request.getContextPath());
       model.put(ModelContribution.VIEW, viewName);

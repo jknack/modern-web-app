@@ -24,8 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -34,8 +32,6 @@ import ro.isdc.wro.http.WroFilter;
 import ro.isdc.wro.model.factory.WroModelFactory;
 import ro.isdc.wro.model.resource.Resource;
 import ro.isdc.wro.model.resource.locator.factory.UriLocatorFactory;
-
-import com.github.edgarespina.mwa.Application;
 
 /**
  * <p>
@@ -47,8 +43,6 @@ import com.github.edgarespina.mwa.Application;
  * @author edgar.espina
  * @since 0.1.2
  */
-@Profile(Application.DEV_NAME)
-@Component
 public class WroProblemReporterInterceptor extends HandlerInterceptorAdapter {
 
   /**
