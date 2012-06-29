@@ -706,7 +706,7 @@
                   <target>
                     <mkdir dir="${querydsl-jpa-apt-dir}" />
                     <get src="${querydsl-jpa-apt-remote-file}" dest="${querydsl-jpa-apt-path}"
-                      usetimestamp="true" />
+                      usetimestamp="true" skipexisting="true" />
                   </target>
                 </configuration>
                 <goals>
@@ -808,6 +808,11 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-release-plugin</artifactId>
             <version>${maven-release-plugin-version}</version>
+            <configuration>
+              <mavenExecutorId>forked-path</mavenExecutorId>
+              <useReleaseProfile>false</useReleaseProfile>
+              <arguments>-Psonatype-oss-release</arguments>
+            </configuration>
           </plugin>
 
           <!-- Source -->
