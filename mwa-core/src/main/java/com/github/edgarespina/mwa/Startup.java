@@ -241,9 +241,7 @@ public abstract class Startup implements WebApplicationInitializer {
      * Scan beans under each module's package.
      */
     Class<?>[] modules = imports();
-    if (modules.length > 0) {
-      registerModules(rootContext, modules);
-    }
+    registerModules(rootContext, modules);
 
     /**
      * Register the application object.
@@ -372,8 +370,10 @@ public abstract class Startup implements WebApplicationInitializer {
       final Class<?>[] modules) throws ServletException {
     try {
       Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
-      for (Class<?> module : modules) {
-        classes.add(module);
+      if (modules != null) {
+        for (Class<?> module : modules) {
+          classes.add(module);
+        }
       }
       classes.add(WebDefaults.class);
       classes.add(ExtendedMvcSupport.class);
@@ -406,7 +406,9 @@ public abstract class Startup implements WebApplicationInitializer {
    *
    * @return All the imported modules.
    */
-  protected abstract Class<?>[] imports();
+  protected Class<?>[] imports() {
+    return new Class[] {};
+  }
 
   /**
    * <p>
