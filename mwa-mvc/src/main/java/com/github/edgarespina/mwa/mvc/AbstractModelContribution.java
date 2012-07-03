@@ -1,4 +1,4 @@
-package com.github.edgarespina.mwa.view;
+package com.github.edgarespina.mwa.mvc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

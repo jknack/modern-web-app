@@ -10,6 +10,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.OrderComparator;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
@@ -22,8 +23,6 @@ import org.springframework.web.servlet.handler.MappedInterceptor;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 import com.github.edgarespina.mwa.handler.MessageConverterHandlerExceptionResolver;
-import com.github.edgarespina.mwa.view.ModelContribution;
-import com.github.edgarespina.mwa.view.ModelContributionInterceptor;
 
 /**
  * All the changes made by MWA are here.
@@ -79,20 +78,18 @@ enum BeanPostProcessors {
       AbstractHandlerMapping handlerMapping = (AbstractHandlerMapping) bean;
       List<HandlerInterceptor> candidates =
           Beans.lookFor(context, HandlerInterceptor.class);
-      // Add model contributions.
-      candidates.add(new ModelContributionInterceptor(Beans.lookFor(context,
-          ModelContribution.class)));
+      OrderComparator.sort(candidates);
       Object[] interceptors = new Object[candidates.size()];
-      for (int i = 0; i < interceptors.length; i++) {
+      for (int i = interceptors.length - 1, j = 0; i >= 0; i--, j++) {
         HandlerInterceptor interceptor = candidates.get(i);
         RequestMapping mapping =
             AnnotationUtils.findAnnotation(interceptor.getClass(),
                 RequestMapping.class);
         if (mapping != null && mapping.value().length > 0) {
-          interceptors[i] =
+          interceptors[j] =
               new MappedInterceptor(mapping.value(), interceptor);
         } else {
-          interceptors[i] = interceptor;
+          interceptors[j] = interceptor;
         }
       }
       handlerMapping.setInterceptors(interceptors);

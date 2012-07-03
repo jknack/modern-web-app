@@ -354,8 +354,8 @@ public abstract class Startup implements WebApplicationInitializer {
    * @return The mapping for the Spring {@link DispatcherServlet dispatcher}
    *         servlet. Default is: '/*'.
    */
-  protected String dispatcherMapping() {
-    return "/*";
+  protected String[] dispatcherMapping() {
+    return new String[] {"/*" };
   }
 
   /**

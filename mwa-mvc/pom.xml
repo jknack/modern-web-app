@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <groupId>com.github.edgarespina</groupId>
@@ -8,9 +9,9 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>mwa-wro4j</artifactId>
+  <artifactId>mwa-mvc</artifactId>
   <packaging>jar</packaging>
-  <name>Wro4j Module</name>
+  <name>MVC Module</name>
 
   <dependencies>
     <!-- Servlet API -->
@@ -20,22 +21,16 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- MWA MVC -->
+    <!-- MWA Core -->
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-mvc</artifactId>
+      <artifactId>mwa-core</artifactId>
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Web Resource Optimizer -->
     <dependency>
-      <groupId>ro.isdc.wro4j</groupId>
-      <artifactId>wro4j-extensions</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.lesscss</groupId>
-      <artifactId>lesscss</artifactId>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
     </dependency>
 
     <!-- Unit test -->

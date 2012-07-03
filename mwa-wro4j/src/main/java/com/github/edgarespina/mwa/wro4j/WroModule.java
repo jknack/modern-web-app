@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -70,6 +71,7 @@ import ro.isdc.wro.util.Transformer;
 import com.github.edgarespina.mwa.Application;
 import com.github.edgarespina.mwa.Application.Mode;
 import com.github.edgarespina.mwa.FilterMapping;
+import com.github.edgarespina.mwa.mvc.MvcModule;
 
 /**
  * <p>
@@ -99,6 +101,7 @@ import com.github.edgarespina.mwa.FilterMapping;
  * @see Processors
  */
 @Configuration
+@Import(MvcModule.class)
 public class WroModule {
 
   /**

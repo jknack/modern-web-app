@@ -1,4 +1,4 @@
-package com.github.edgarespina.mwa.view;
+package com.github.edgarespina.mwa.mvc;
 
 import java.io.IOException;
 

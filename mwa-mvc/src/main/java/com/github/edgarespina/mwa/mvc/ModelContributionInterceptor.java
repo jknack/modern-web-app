@@ -1,4 +1,4 @@
-package com.github.edgarespina.mwa.view;
+package com.github.edgarespina.mwa.mvc;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.PriorityOrdered;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -19,7 +20,8 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
  * @author edgar.espina
  * @since 0.1.2
  */
-public class ModelContributionInterceptor extends HandlerInterceptorAdapter {
+public class ModelContributionInterceptor extends HandlerInterceptorAdapter
+    implements PriorityOrdered {
 
   /**
    * The logging system.
@@ -66,5 +68,10 @@ public class ModelContributionInterceptor extends HandlerInterceptorAdapter {
         contribution.contribute(request, response, modelAndView);
       }
     }
+  }
+
+  @Override
+  public int getOrder() {
+    return HIGHEST_PRECEDENCE;
   }
 }

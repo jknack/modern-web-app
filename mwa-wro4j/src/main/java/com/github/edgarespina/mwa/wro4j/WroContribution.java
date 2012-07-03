@@ -27,8 +27,8 @@ import ro.isdc.wro.model.group.InvalidGroupNameException;
 import ro.isdc.wro.model.group.processor.Injector;
 import ro.isdc.wro.model.group.processor.InjectorBuilder;
 
-import com.github.edgarespina.mwa.view.AbstractModelContribution;
-import com.github.edgarespina.mwa.view.ModelContribution;
+import com.github.edgarespina.mwa.mvc.AbstractModelContribution;
+import com.github.edgarespina.mwa.mvc.ModelContribution;
 
 /**
  * Base class for {@link ModelContribution} based on Wro4j.

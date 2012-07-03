@@ -81,6 +81,7 @@
     <module>mwa-morphia</module>
     <module>mwa-wro4j</module>
     <module>mwa-mail</module>
+    <module>mwa-mvc</module>
     <module>mwa-logging</module>
   </modules>
 
