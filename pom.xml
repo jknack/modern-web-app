@@ -39,7 +39,6 @@
     <commons-lang3-version>3.1</commons-lang3-version>
     <commons-collections-version>3.2</commons-collections-version>
     <guava-version>11.0</guava-version>
-    <mustache.java-version>0.7.6</mustache.java-version>
     <querydsl-version>2.5.0</querydsl-version>
     <mongo-java-driver-version>2.7.3</mongo-java-driver-version>
     <morphia-version>0.99</morphia-version>
@@ -80,7 +79,6 @@
     <module>mwa-jpa</module>
     <module>mwa-mongo</module>
     <module>mwa-morphia</module>
-    <module>mwa-mustache</module>
     <module>mwa-wro4j</module>
     <module>mwa-mail</module>
     <module>mwa-logging</module>
@@ -316,13 +314,6 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${guava-version}</version>
-      </dependency>
-
-      <!-- Mustache: Template Engine -->
-      <dependency>
-        <groupId>com.github.spullara.mustache.java</groupId>
-        <artifactId>compiler</artifactId>
-        <version>${mustache.java-version}</version>
       </dependency>
 
       <!-- Web Resource Optimizer -->
