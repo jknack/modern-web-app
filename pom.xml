@@ -5,7 +5,7 @@
   <groupId>com.github.edgarespina</groupId>
   <artifactId>modern-web-app</artifactId>
   <packaging>pom</packaging>
-  <version>0.1.9</version>
+  <version>0.1.10-SNAPSHOT</version>
   <name>A Modern Web App Archicture</name>
 
   <url>https://github.com/edgarespina/modern-web-app</url>
