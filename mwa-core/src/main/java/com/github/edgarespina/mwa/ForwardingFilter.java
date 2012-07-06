@@ -1,13 +1,10 @@
 package com.github.edgarespina.mwa;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Collections.enumeration;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -16,7 +13,6 @@ import java.util.Set;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -25,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.OrderComparator;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -81,13 +78,15 @@ class ForwardingFilter extends GenericFilterBean {
   @Override
   protected void initFilterBean() throws ServletException {
     this.mappings = lookFor(FilterMapping.class);
+    // Order filters by precedence.
+    OrderComparator.sort(this.mappings);
     Set<Filter> initialized = new HashSet<Filter>();
     for (FilterMapping mapping : mappings) {
       Filter filter = mapping.getFilter();
       if (initialized.add(filter)) {
-        String filterName = filter.getClass().getSimpleName();
-        logger.trace("Initializing filter: {}", filterName);
-        filter.init(wrapFilterConfig(getServletContext(), filterName));
+        FilterConfig config = mapping.asFilterConfig(getServletContext());
+        logger.trace("Initializing filter: {}", config.getFilterName());
+        filter.init(config);
       }
     }
   }
@@ -168,39 +167,6 @@ class ForwardingFilter extends GenericFilterBean {
         } else {
           chain.doFilter(request, response);
         }
-      }
-    };
-  }
-
-  /**
-   * Creates a new filter config.
-   *
-   * @param servletContext The servlet context.
-   * @param filterName The filter's name.
-   * @return A new filter config.
-   */
-  private static FilterConfig wrapFilterConfig(
-      final ServletContext servletContext, final String filterName) {
-    return new FilterConfig() {
-      @Override
-      public ServletContext getServletContext() {
-        return servletContext;
-      }
-
-      @Override
-      public Enumeration<String> getInitParameterNames() {
-        List<String> noParams = Collections.emptyList();
-        return enumeration(noParams);
-      }
-
-      @Override
-      public String getInitParameter(final String name) {
-        return null;
-      }
-
-      @Override
-      public String getFilterName() {
-        return filterName;
       }
     };
   }
