@@ -1,5 +1,7 @@
 package com.github.edgarespina.mwa.mvc;
 
+import static org.apache.commons.lang3.Validate.notNull;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -7,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -16,6 +19,11 @@ import org.springframework.web.servlet.ModelAndView;
  * @since 0.1.8
  */
 public class GoogleAnalyticsContribution extends AbstractModelContribution {
+
+  /**
+   * The tracking code property.
+   */
+  public static final String TRACKING_CODE = "ga.trackingCode";
 
   /**
    * The google analytics snippet.
@@ -50,9 +58,28 @@ public class GoogleAnalyticsContribution extends AbstractModelContribution {
   /**
    * Creates a new {@link GoogleAnalyticsContribution}.
    *
+   * @param env The environment. Required.
+   */
+  public GoogleAnalyticsContribution(final Environment env) {
+    notNull(env, "The environment is required.");
+    init(env.getProperty(TRACKING_CODE, ""));
+  }
+
+  /**
+   * Creates a new {@link GoogleAnalyticsContribution}.
+   *
    * @param trackingCode The tracking code. Optional for dev.
    */
   public GoogleAnalyticsContribution(final String trackingCode) {
+    init(trackingCode);
+  }
+
+  /**
+   * Initialize the tracking code and ga code snippet.
+   *
+   * @param trackingCode
+   */
+  private void init(final String trackingCode) {
     this.snippet =
         StringUtils.isBlank(trackingCode) ? "" : snippet(trackingCode);
     this.trackingCode = StringUtils.trimToNull(trackingCode);
