@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -128,8 +129,9 @@ abstract class WroContribution extends AbstractModelContribution {
    * @param candidate The group candidate name.
    * @return The {@link WroModel} from wro.xml.
    */
-  private Group lookupGroup(final HttpServletRequest request,
+  private Map<String, Group> lookupGroups(final HttpServletRequest request,
       final HttpServletResponse response, final String candidate) {
+    Map<String, Group> groups = new HashMap<String, Group>();
     try {
       Context.set(Context.webContext(request, response, new WroFilterConfig(
           request.getServletContext())));
@@ -145,13 +147,21 @@ abstract class WroContribution extends AbstractModelContribution {
       WroModel model = modelFactory.create();
       for (String name : names) {
         try {
-          return model.getGroupByName(name);
+          Group group = model.getGroupByName(name);
+          groups.put(name, group);
         } catch (InvalidGroupNameException ex) {
-          // It's ok, just go on.
+          // It's ok, just move on.
           logger.trace("Group not found: {}", name);
         }
       }
-      throw new InvalidGroupNameException(names.toString());
+      if (groups.isEmpty()) {
+        throw new InvalidGroupNameException("group(s) not found: "
+            + names.toString());
+      }
+      for (String name : additionalGroups()) {
+        groups.put(name, model.getGroupByName(name));
+      }
+      return groups;
     } finally {
       Context.unset();
     }
@@ -165,8 +175,9 @@ abstract class WroContribution extends AbstractModelContribution {
       final HttpServletResponse response, final ModelAndView modelAndView)
       throws IOException {
     try {
-      Group group = lookupGroup(request, response, modelAndView.getViewName());
-      doContribution(group, modelAndView);
+      String group = modelAndView.getViewName();
+      Map<String, Group> groups = lookupGroups(request, response, group);
+      doContribution(groups.remove(group), modelAndView, groups);
     } catch (InvalidGroupNameException ex) {
       Map<String, Object> model = modelAndView.getModel();
       model.put(varName(), "");
@@ -176,14 +187,26 @@ abstract class WroContribution extends AbstractModelContribution {
   }
 
   /**
+   * Instruct which group should be loaded by this contribution.
+   *
+   * @return The group names.
+   */
+  protected Set<String> additionalGroups() {
+    return Collections.emptySet();
+  }
+
+  /**
    * Add wro contribution to the model.
    *
    * @param group The group behind the view.
    * @param modelAndView The model and view.
+   * @param additionalGroups Additional groups, defined by
+   *        {@link #additionalGroups()}.
    * @throws IOException If something goes wrong.
    */
   protected abstract void doContribution(final Group group,
-      final ModelAndView modelAndView) throws IOException;
+      final ModelAndView modelAndView, Map<String, Group> additionalGroups)
+      throws IOException;
 
   /**
    * The name of the model attribute.

@@ -1,11 +1,10 @@
 package com.github.edgarespina.mwa.wro4j;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
-import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
 import org.lesscss.LessCompiler;
@@ -14,10 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ro.isdc.wro.config.Context;
-import ro.isdc.wro.model.resource.Resource;
 import ro.isdc.wro.model.resource.ResourceType;
 import ro.isdc.wro.model.resource.SupportedResourceType;
-import ro.isdc.wro.model.resource.processor.ResourcePreProcessor;
+import ro.isdc.wro.model.resource.processor.ResourcePostProcessor;
 import ro.isdc.wro.util.StopWatch;
 
 /**
@@ -27,7 +25,7 @@ import ro.isdc.wro.util.StopWatch;
  * @since 0.1.2
  */
 @SupportedResourceType(ResourceType.CSS)
-class LessCssProcessor implements ResourcePreProcessor {
+public class LessCssProcessor implements ResourcePostProcessor {
 
   /**
    * The logging system.
@@ -41,25 +39,27 @@ class LessCssProcessor implements ResourcePreProcessor {
   public LessCssProcessor() {
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public void process(final Resource resource, final Reader reader,
-      final Writer writer) throws IOException {
+  public void process(final Reader reader, final Writer writer)
+      throws IOException {
     final StopWatch stopWatch = new StopWatch();
-
     stopWatch.start("lessify");
+    Context context = Context.get();
+    HttpServletRequest request = context.getRequest();
+    String uri = request.getRequestURI();
     try {
-      ServletContext servletContext = Context.get().getServletContext();
-      String uri = resource.getUri();
-      File path = new File(servletContext.getRealPath(uri));
-      logger.trace("Resolving: {} to {}", uri, path);
-      writer.write(new LessCompiler().compile(path));
+      LessCompiler less = new LessCompiler();
+      String content = IOUtils.toString(reader);
+      writer.write(less.compile(content));
     } catch (LessException ex) {
       throw new LessRuntimeException(LessCssError.of(
-          resource.getUri(), ex.getCause()), ex.getCause());
+          uri, ex.getCause()), ex.getCause());
     } finally {
+      // Rhino throws an exception when trying to exit twice. Make sure we don't
+      // get any exception
+      if (org.mozilla.javascript.Context.getCurrentContext() != null) {
+        org.mozilla.javascript.Context.exit();
+      }
       IOUtils.closeQuietly(reader);
       IOUtils.closeQuietly(writer);
       stopWatch.stop();

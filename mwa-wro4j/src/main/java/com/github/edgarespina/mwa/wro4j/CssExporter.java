@@ -48,7 +48,8 @@ final class CssExporter extends WroContribution {
    */
   @Override
   protected void doContribution(final Group group,
-      final ModelAndView modelAndView) throws IOException {
+      final ModelAndView modelAndView,
+      final Map<String, Group> additionalGroups) throws IOException {
     Map<String, Object> model = modelAndView.getModel();
     String view = modelAndView.getViewName();
     StringBuilder buffer = new StringBuilder();

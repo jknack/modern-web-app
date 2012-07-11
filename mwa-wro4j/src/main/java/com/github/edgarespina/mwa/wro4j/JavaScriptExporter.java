@@ -45,7 +45,8 @@ final class JavaScriptExporter extends WroContribution {
    */
   @Override
   protected void doContribution(final Group group,
-      final ModelAndView modelAndView) throws IOException {
+      final ModelAndView modelAndView,
+      final Map<String, Group> additionalGroups) throws IOException {
     String view = modelAndView.getViewName();
     Map<String, Object> model = modelAndView.getModel();
     StringBuilder buffer = new StringBuilder();
