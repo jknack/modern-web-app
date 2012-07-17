@@ -2,10 +2,9 @@ package com.github.edgarespina.mwa.mvc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.EnvironmentAware;
-import org.springframework.core.env.Environment;
 
-import com.github.edgarespina.mwa.Application;
+import com.github.edgarespina.mwa.Mode;
+import com.github.edgarespina.mwa.ModeAware;
 
 /**
  * Base class for {@link ModelContribution}.
@@ -14,7 +13,7 @@ import com.github.edgarespina.mwa.Application;
  * @since 0.1.0
  */
 public abstract class AbstractModelContribution implements ModelContribution,
-    EnvironmentAware {
+    ModeAware {
 
   /**
    * True for enabled the cache. Default is: false.
@@ -34,17 +33,9 @@ public abstract class AbstractModelContribution implements ModelContribution,
     this.useCache = cache;
   }
 
-  /**
-   * Set the use cache flag if it's not been set before.
-   *
-   * {@inheritDoc}
-   */
-  @Override
-  public void setEnvironment(final Environment environment) {
+  public void setMode(final Mode mode) {
     if (useCache == null) {
-      useCache =
-          !Application.DEV.matches(environment
-              .getProperty(Application.APPLICATION_MODE));
+      useCache = !mode.isDev();
     }
   }
 
