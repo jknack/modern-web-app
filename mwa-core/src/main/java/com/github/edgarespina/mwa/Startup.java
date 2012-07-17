@@ -2,8 +2,6 @@ package com.github.edgarespina.mwa;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -47,8 +45,6 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import com.github.edgarespina.mwa.Application.Mode;
-import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
 /**
@@ -220,22 +216,10 @@ public abstract class Startup implements WebApplicationInitializer {
     final ConfigurableEnvironment env =
         configureEnvironment(servletContext, rootContext);
 
-    /**
-     * Creates the application object.
-     */
-    String contextPath = servletContext.getContextPath();
-    String name = env.getProperty("application.name");
-    String mode = env.getProperty("application.mode");
-    String version = env.getProperty("application.version");
-    final Application application =
-        new Application(contextPath,
-            Strings.isNullOrEmpty(name) ? contextPath : name,
-            defaultAppVersion(version),
-            Strings.isNullOrEmpty(mode) ? Application.DEV : Mode.valueOf(mode));
+    servletContext.getContextPath();
+    Mode mode = Mode.valueOf(env.getRequiredProperty("application.mode"));
     // Activate the default profile
-    env.setActiveProfiles(application.mode().name());
-
-    logger.debug("Starting application: {}", application);
+    env.setActiveProfiles(mode.name());
 
     /**
      * Scan beans under each module's package.
@@ -244,15 +228,9 @@ public abstract class Startup implements WebApplicationInitializer {
     registerModules(rootContext, modules);
 
     /**
-     * Register the application object.
+     * Special beans.
      */
-    rootContext.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
-      @Override
-      public void postProcessBeanFactory(
-          final ConfigurableListableBeanFactory beanFactory) {
-        beanFactory.registerSingleton("mwa.application", application);
-      }
-    });
+    rootContext.addBeanFactoryPostProcessor(registerMode(mode));
 
     /**
      * Creates the Spring MVC dispatcher servlet.
@@ -324,20 +302,6 @@ public abstract class Startup implements WebApplicationInitializer {
   }
 
   /**
-   * Build the application version number using the provided version and the
-   * current date.
-   *
-   * @param version The version number. Optional.
-   * @return A unique application version.
-   */
-  private String defaultAppVersion(final String version) {
-    String startupTime =
-        new SimpleDateFormat(".yyyyMMdd.hhmmss").format(new Date());
-    return Strings.isNullOrEmpty(version) ? startupTime : version + "."
-        + startupTime;
-  }
-
-  /**
    * Add application's filters, listener and servlets.
    *
    * @param servletContext The servlet's context.
@@ -370,13 +334,12 @@ public abstract class Startup implements WebApplicationInitializer {
       final Class<?>[] modules) throws ServletException {
     try {
       Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
-      if (modules != null) {
+      if (modules != null && modules.length > 0) {
         for (Class<?> module : modules) {
           classes.add(module);
         }
       }
       classes.add(WebDefaults.class);
-      classes.add(ExtendedMvcSupport.class);
       context.register(classes.toArray(new Class[classes.size()]));
       // Scan all the packages of the main class recursively.
       context.scan(getClass().getPackage().getName());
@@ -430,5 +393,21 @@ public abstract class Startup implements WebApplicationInitializer {
    */
   protected String properties() {
     return "application.properties";
+  }
+
+  /**
+   * Register the application mode in the spring context.
+   *
+   * @param mode The application's mode.
+   * @return A new {@link BeanFactoryPostProcessor}.
+   */
+  private static BeanFactoryPostProcessor registerMode(final Mode mode) {
+    return new BeanFactoryPostProcessor() {
+      @Override
+      public void postProcessBeanFactory(
+          final ConfigurableListableBeanFactory beanFactory) {
+        beanFactory.registerSingleton("#mode", mode);
+      }
+    };
   }
 }

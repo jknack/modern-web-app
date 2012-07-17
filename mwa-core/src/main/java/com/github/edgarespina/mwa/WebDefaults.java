@@ -1,10 +1,18 @@
 package com.github.edgarespina.mwa;
 
+import java.beans.PropertyDescriptor;
+
 import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.beans.PropertyValues;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
  * Apply sensible defaults Spring MVC options, like:
@@ -17,12 +25,61 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
  * @since 0.1
  */
 @Configuration
-class WebDefaults extends WebMvcConfigurationSupport {
+@EnableWebMvc
+class WebDefaults extends WebMvcConfigurerAdapter implements
+    InstantiationAwareBeanPostProcessor,
+    ApplicationContextAware {
+
+  /**
+   * The application's context.
+   */
+  private ApplicationContext applicationContext;
 
   /**
    * The default object mapper name.
    */
-  public static final String OBJECT_MAPPER = "globalObjectMapper";
+  static final String OBJECT_MAPPER = "globalObjectMapper";
+
+  @Override
+  public Object postProcessBeforeInitialization(final Object bean,
+      final String beanName) {
+    return BeanPostProcessors.get(bean).processBeforeInitialization(
+        applicationContext, bean);
+  }
+
+  @Override
+  public Object postProcessAfterInitialization(final Object bean,
+      final String beanName) {
+    return BeanPostProcessors.get(bean).processAfterInitialization(
+        applicationContext, bean);
+  }
+
+  @Override
+  public void setApplicationContext(
+      final ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
+  }
+
+  @Override
+  public Object postProcessBeforeInstantiation(final Class<?> beanClass,
+      final String beanName) {
+    return null;
+  }
+
+  @Override
+  public boolean postProcessAfterInstantiation(final Object bean,
+      final String beanName) {
+    BeanPostProcessors.get(bean).processAfterInstantiation(
+        applicationContext, bean);
+    return true;
+  }
+
+  @Override
+  public PropertyValues postProcessPropertyValues(final PropertyValues pvs,
+      final PropertyDescriptor[] pds, final Object bean,
+      final String beanName) {
+    return pvs;
+  }
 
   /**
    * Enable the default servlet. {@inheritDoc}
@@ -41,5 +98,31 @@ class WebDefaults extends WebMvcConfigurationSupport {
   @Bean(name = OBJECT_MAPPER)
   public ObjectMapper globalObjectMapper() {
     return new ObjectMapper();
+  }
+
+  /**
+   * Configure {@link ModeAware} beans.
+   *
+   * @param mode The application's mode.
+   * @return A bean mode aware processor.
+   */
+  @Bean
+  public BeanPostProcessor modeAwareBeanPostProcessor(final Mode mode) {
+    return new BeanPostProcessor() {
+      @Override
+      public Object postProcessBeforeInitialization(final Object bean,
+          final String beanName) {
+        if (bean instanceof ModeAware) {
+          ((ModeAware) bean).setMode(mode);
+        }
+        return bean;
+      }
+
+      @Override
+      public Object postProcessAfterInitialization(final Object bean,
+          final String beanName) {
+        return bean;
+      }
+    };
   }
 }
