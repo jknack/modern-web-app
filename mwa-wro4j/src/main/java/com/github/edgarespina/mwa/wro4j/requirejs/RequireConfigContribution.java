@@ -1,4 +1,4 @@
-package com.github.edgarespina.mwa.wro4j;
+package com.github.edgarespina.mwa.wro4j.requirejs;
 
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 import static org.apache.commons.io.FilenameUtils.getName;
@@ -17,10 +17,11 @@ import ro.isdc.wro.manager.factory.BaseWroManagerFactory;
 import ro.isdc.wro.model.group.Group;
 import ro.isdc.wro.model.resource.Resource;
 
+import com.github.edgarespina.mwa.wro4j.WroContribution;
 import com.google.common.collect.Sets;
 
 /**
- * Publish a module attribute that define a require.js bootstrapping function.
+ * Publish a model attribute that define a require.js bootstrapping function.
  * It takes care of dev/no-dev environments.
  * This contribution read a wro.xml file and use wro groups to build
  * require.config instructions.
@@ -29,7 +30,7 @@ import com.google.common.collect.Sets;
  * @author edgar.espina
  * @since 0.2.2
  */
-public class RequireJSContribution extends WroContribution {
+public class RequireConfigContribution extends WroContribution {
 
   /**
    * Require.js default timeout.
@@ -43,7 +44,7 @@ public class RequireJSContribution extends WroContribution {
    * @author edgar.espina@globant.com
    * @since 0.6
    */
-  public static enum LoadOn {
+  public static enum Loader {
     /**
      * No wait, load inmediately.
      */
@@ -108,7 +109,7 @@ public class RequireJSContribution extends WroContribution {
   /**
    * Should the require.js call wait for dom ready or not?
    */
-  private LoadOn loadOn = LoadOn.INMEDIATELY;
+  private Loader loader = Loader.INMEDIATELY;
 
   /**
    * Creates a new {@link RequireJSContributionFixed} and publish require
@@ -116,7 +117,7 @@ public class RequireJSContribution extends WroContribution {
    *
    * @param wroManagerFactory The {@link BaseWroManagerFactory}. Required.
    */
-  public RequireJSContribution(
+  public RequireConfigContribution(
       final BaseWroManagerFactory wroManagerFactory) {
     super(wroManagerFactory);
     this.variableName = VARIABLE_NAME;
@@ -177,7 +178,7 @@ public class RequireJSContribution extends WroContribution {
     }
     buffer.append("\n});\n");
     // 4. load the main module
-    buffer.append(loadOn.load(view)).append("\n");
+    buffer.append(loader.load(view)).append("\n");
     buffer.append("</script>\n");
     // 5. Publish as a model attribute.
     modelAndView.getModel().put(variableName, buffer.toString());
@@ -192,7 +193,7 @@ public class RequireJSContribution extends WroContribution {
    *        loading a script. The default is 7 seconds.
    * @return This {@link RequireJSContributionFixed}.
    */
-  public RequireJSContribution waitSeconds(final int waitSeconds) {
+  public RequireConfigContribution waitSeconds(final int waitSeconds) {
     this.waitSeconds = waitSeconds;
     return this;
   }
@@ -200,12 +201,12 @@ public class RequireJSContribution extends WroContribution {
   /**
    * Should the require.js call wait for dom ready or not?
    *
-   * @param loadOn The load-on strategy. Required.
+   * @param loader The load-on strategy. Required.
    * @return This require contribution.
    */
-  public RequireJSContribution withLoadOn(final LoadOn loadOn) {
-    Validate.notNull(loadOn, "The load-on strategy is required.");
-    this.loadOn = loadOn;
+  public RequireConfigContribution loader(final Loader loader) {
+    Validate.notNull(loader, "The loader strategy is required.");
+    this.loader = loader;
     return this;
   }
 

@@ -1,11 +1,6 @@
 package com.github.edgarespina.mwa.wro4j;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
-import org.springframework.context.EnvironmentAware;
-import org.springframework.core.env.Environment;
-
-import ro.isdc.wro.WroRuntimeException;
 import ro.isdc.wro.extensions.processor.js.AbstractLinterProcessor;
 import ro.isdc.wro.extensions.processor.js.JsHintProcessor;
 import ro.isdc.wro.extensions.processor.js.JsLintProcessor;
@@ -20,8 +15,6 @@ import ro.isdc.wro.model.resource.SupportedResourceType;
 import ro.isdc.wro.model.resource.locator.factory.UriLocatorFactory;
 import ro.isdc.wro.model.resource.processor.ResourcePreProcessor;
 
-import com.github.edgarespina.mwa.Application;
-
 /**
  * Similar to {@link JsLintProcessor} and/or {@link JsHintProcessor}. The main
  * difference is the HTML report generated at runtime if the application is
@@ -32,7 +25,7 @@ import com.github.edgarespina.mwa.Application;
  */
 @SupportedResourceType(ResourceType.JS)
 final class LinterProcessor extends AbstractLinterProcessor implements
-    UriLocatorFactoryAware, EnvironmentAware {
+    UriLocatorFactoryAware {
 
   /**
    * The underlying "lint" processor: jsHint or jsLint.
@@ -43,11 +36,6 @@ final class LinterProcessor extends AbstractLinterProcessor implements
    * The uri locator factory. It resolve js/css resources location.
    */
   private UriLocatorFactory uriLocatorFactory;
-
-  /**
-   * True if application's mode is "dev".
-   */
-  private boolean debug;
 
   /**
    * The lint options.
@@ -84,13 +72,9 @@ final class LinterProcessor extends AbstractLinterProcessor implements
   @Override
   protected void onLinterException(final LinterException ex,
       final Resource resource) {
-    if (debug) {
-      throw new RuntimeLinterException(resource.getUri(), WroHelper.safeRead(
-          uriLocatorFactory, resource),
-          options, ex.getErrors().toArray(new LinterError[0]));
-    } else {
-      throw new WroRuntimeException("Linter error", ex);
-    }
+    throw new RuntimeLinterException(resource.getUri(), WroHelper.safeRead(
+        uriLocatorFactory, resource),
+        options, ex.getErrors().toArray(new LinterError[0]));
   }
 
   /**
@@ -99,15 +83,6 @@ final class LinterProcessor extends AbstractLinterProcessor implements
   @Override
   public void setUriLocatorFactory(final UriLocatorFactory uriLocatorFactory) {
     this.uriLocatorFactory = uriLocatorFactory;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void setEnvironment(final Environment environment) {
-    debug = Application.DEV.matches(environment
-        .getProperty(Application.APPLICATION_MODE));
   }
 
   /**

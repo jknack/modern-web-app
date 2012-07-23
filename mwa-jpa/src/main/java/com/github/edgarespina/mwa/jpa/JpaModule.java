@@ -5,9 +5,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -25,8 +24,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
-import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
 import org.springframework.orm.jpa.support.SharedEntityManagerBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -113,7 +110,7 @@ public class JpaModule {
    * annotation}.
    *
    * @param env The application environment. Required.
-   * @param configurers The list of JPA configurer. Required.
+   * @param rootPackages The package to be scanned. Required.
    * @return A {@link EntityManagerFactory object} available for use. Spring
    *         managed beans can use the {@link EntityManager service} using the
    *         {@link PersistenceContext annotation}.
@@ -121,7 +118,7 @@ public class JpaModule {
    */
   @Bean
   public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-      final Environment env, final JpaConfigurer[] configurers)
+      final Environment env, final List<Package> rootPackages)
       throws ClassNotFoundException {
     logger.info("Starting service: {}",
         EntityManagerFactory.class.getSimpleName());
@@ -134,22 +131,11 @@ public class JpaModule {
     emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
     emf.setJpaPropertyMap(properties);
     emf.setDataSource(dataSource(env));
-    emf.setPackagesToScan("__DONT_SCAN_");
-    emf.setPersistenceUnitPostProcessors(new PersistenceUnitPostProcessor() {
-      @Override
-      public void postProcessPersistenceUnitInfo(
-          final MutablePersistenceUnitInfo pui) {
-        Set<String> entityNames = new HashSet<String>();
-        for (JpaConfigurer configurer : configurers) {
-          Set<Class<?>> entities = configurer.scan();
-          for (Class<?> entity : entities) {
-            if (entityNames.add(entity.getName())) {
-              pui.addManagedClassName(entity.getName());
-            }
-          }
-        }
-      }
-    });
+    String[] packageToScan = new String[rootPackages.size()];
+    for (int i = 0; i < packageToScan.length; i++) {
+      packageToScan[i] = rootPackages.get(i).getName();
+    }
+    emf.setPackagesToScan(packageToScan);
     return emf;
   }
 

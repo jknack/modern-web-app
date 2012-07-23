@@ -7,6 +7,8 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Arrays;
+
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
@@ -17,10 +19,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.env.Environment;
 import org.springframework.orm.jpa.JpaTransactionManager;
-
-import com.github.edgarespina.mwa.jpa.DataSources;
-import com.github.edgarespina.mwa.jpa.JpaConfigurer;
-import com.github.edgarespina.mwa.jpa.JpaModule;
 
 /**
  * Unit test for {@link JpaModule}.
@@ -63,18 +61,17 @@ public class JpaModuleTest {
     String mode = "create";
     expect(env.getProperty(JpaModule.DB_SCHEMA, "update")).andReturn(mode);
 
-    JpaConfigurer configurer = createMock(JpaConfigurer.class);
-
     PowerMock.mockStatic(DataSources.class);
     expect(DataSources.build(env)).andReturn(dataSource);
 
     PowerMock.replay(DataSources.class);
-    replay(env, configurer);
+    replay(env);
 
     new JpaModule()
-        .entityManagerFactory(env, new JpaConfigurer[] {configurer });
+        .entityManagerFactory(env,
+            Arrays.asList(JpaConfigurerTest.class.getPackage()));
 
-    verify(env, configurer);
+    verify(env);
     PowerMock.verify(DataSources.class);
   }
 

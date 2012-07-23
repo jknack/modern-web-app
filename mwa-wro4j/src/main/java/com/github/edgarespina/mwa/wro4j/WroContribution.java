@@ -37,7 +37,7 @@ import com.github.edgarespina.mwa.mvc.ModelContribution;
  * @author edgar.espina
  * @since 0.1.0
  */
-abstract class WroContribution extends AbstractModelContribution {
+public abstract class WroContribution extends AbstractModelContribution {
 
   /**
    * A {@link FilterConfig} for wro filter.

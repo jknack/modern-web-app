@@ -1,5 +1,6 @@
 package com.github.edgarespina.mwa.wro4j;
 
+import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertyResolver;
 
 import ro.isdc.wro.extensions.processor.css.SassCssProcessor;
@@ -31,6 +32,9 @@ import ro.isdc.wro.model.resource.processor.impl.js.JSMinProcessor;
 import ro.isdc.wro.model.resource.processor.impl.js.SemicolonAppenderPreProcessor;
 import ro.isdc.wro.model.resource.processor.support.CssCompressor;
 
+import com.github.edgarespina.mwa.Mode;
+import com.github.edgarespina.mwa.wro4j.ConditionalProcessor.Condition;
+import com.github.edgarespina.mwa.wro4j.requirejs.RequireJsProcessor;
 import com.google.javascript.jscomp.CompilationLevel;
 
 /**
@@ -41,6 +45,27 @@ import com.google.javascript.jscomp.CompilationLevel;
  * @since 0.1.2
  */
 public final class Processors {
+
+  /**
+   * Return true if the application is running in dev mode.
+   */
+  public static final Condition DEV = new Condition() {
+    @Override
+    public boolean process(final Mode mode, final Environment environment) {
+      return mode.isDev();
+    }
+  };
+
+  /**
+   * Return true if the application is running in no-dev mode.
+   */
+  public static final Condition NO_DEV = new Condition() {
+    @Override
+    public boolean process(final Mode mode, final Environment environment) {
+      return !mode.isDev();
+    }
+  };
+
   /**
    * Not allowed.
    */
@@ -106,8 +131,8 @@ public final class Processors {
    *
    * @return A new {@link CssCompressorProcessor}.
    */
-  public static CssCompressorProcessor cssCompressor() {
-    return new CssCompressorProcessor();
+  public static ResourcePostProcessor cssCompressor() {
+    return new ConditionalProcessor(new CssCompressorProcessor(), NO_DEV);
   }
 
   /**
@@ -148,8 +173,8 @@ public final class Processors {
    *
    * @return A new {@link JawrCssMinifierProcessor}.
    */
-  public static JawrCssMinifierProcessor jawrCssMinifier() {
-    return new JawrCssMinifierProcessor();
+  public static ResourcePostProcessor jawrCssMinifier() {
+    return new ConditionalProcessor(new JawrCssMinifierProcessor(), NO_DEV);
   }
 
   /**
@@ -157,8 +182,8 @@ public final class Processors {
    *
    * @return A new {@link CssMinProcessor}.
    */
-  public static CssMinProcessor cssMinProcessor() {
-    return new CssMinProcessor();
+  public static ResourcePostProcessor cssMinProcessor() {
+    return new ConditionalProcessor(new CssMinProcessor(), NO_DEV);
   }
 
   /**
@@ -166,8 +191,8 @@ public final class Processors {
    *
    * @return A new {@link JSMinProcessor}.
    */
-  public static JSMinProcessor jsMinProcessor() {
-    return new JSMinProcessor();
+  public static ResourcePostProcessor jsMinProcessor() {
+    return new ConditionalProcessor(new JSMinProcessor(), NO_DEV);
   }
 
   /**
@@ -301,8 +326,8 @@ public final class Processors {
    *
    * @return A new {@link YUICssCompressorProcessor}.
    */
-  public static YUICssCompressorProcessor yuiCssCompressor() {
-    return new YUICssCompressorProcessor();
+  public static ResourcePostProcessor yuiCssCompressor() {
+    return new ConditionalProcessor(new YUICssCompressorProcessor(), NO_DEV);
   }
 
   /**
@@ -310,8 +335,9 @@ public final class Processors {
    *
    * @return A new {@link YUIJsCompressorProcessor}.
    */
-  public static YUIJsCompressorProcessor yuJsMin() {
-    return YUIJsCompressorProcessor.noMungeCompressor();
+  public static ResourcePostProcessor yuJsMin() {
+    return new ConditionalProcessor(
+        YUIJsCompressorProcessor.noMungeCompressor(), NO_DEV);
   }
 
   /**
@@ -320,8 +346,9 @@ public final class Processors {
    *
    * @return A new {@link YUIJsCompressorProcessor}.
    */
-  public static YUIJsCompressorProcessor yuiJsMinAdvanced() {
-    return YUIJsCompressorProcessor.doMungeCompressor();
+  public static ResourcePostProcessor yuiJsMinAdvanced() {
+    return new ConditionalProcessor(
+        YUIJsCompressorProcessor.doMungeCompressor(), NO_DEV);
   }
 
   /**
@@ -330,8 +357,9 @@ public final class Processors {
    *
    * @return A new {@link DojoShrinksafeCompressorProcessor}.
    */
-  public static DojoShrinksafeCompressorProcessor dojoShrinksafeCompressor() {
-    return new DojoShrinksafeCompressorProcessor();
+  public static ResourcePostProcessor dojoShrinksafeCompressor() {
+    return new ConditionalProcessor(new DojoShrinksafeCompressorProcessor(),
+        NO_DEV);
   }
 
   /**
@@ -447,7 +475,7 @@ public final class Processors {
    *
    * @return A new {@link LessCssProcessor}.
    */
-  public static LessCssProcessor lessCss() {
+  public static ResourcePostProcessor lessCss() {
     return new LessCssProcessor();
   }
 
@@ -466,9 +494,9 @@ public final class Processors {
    *
    * @return A new {@link GoogleClosureCompressorProcessor}.
    */
-  public static GoogleClosureCompressorProcessor googleClosureSimple() {
-    return new GoogleClosureCompressorProcessor(
-        CompilationLevel.SIMPLE_OPTIMIZATIONS);
+  public static ResourcePostProcessor googleClosureSimple() {
+    return new ConditionalProcessor(new GoogleClosureCompressorProcessor(
+        CompilationLevel.SIMPLE_OPTIMIZATIONS), NO_DEV);
   }
 
   /**
@@ -477,9 +505,9 @@ public final class Processors {
    *
    * @return A new {@link GoogleClosureCompressorProcessor}.
    */
-  public static GoogleClosureCompressorProcessor googleClosureAdvanced() {
-    return new GoogleClosureCompressorProcessor(
-        CompilationLevel.ADVANCED_OPTIMIZATIONS);
+  public static ResourcePostProcessor googleClosureAdvanced() {
+    return new ConditionalProcessor(new GoogleClosureCompressorProcessor(
+        CompilationLevel.ADVANCED_OPTIMIZATIONS), NO_DEV);
   }
 
   /**
@@ -535,7 +563,7 @@ public final class Processors {
    * @return A new jshint processor.
    */
   public static ResourcePreProcessor jsHint(final LintOptions options) {
-    return LinterProcessor.jsHint(options);
+    return new ConditionalProcessor(LinterProcessor.jsHint(options), DEV);
   }
 
   /**
@@ -556,7 +584,7 @@ public final class Processors {
    * @return A new jslint processor.
    */
   public static ResourcePreProcessor jsLint(final LintOptions options) {
-    return LinterProcessor.jsLint(options);
+    return new ConditionalProcessor(LinterProcessor.jsLint(options), DEV);
   }
 
   /**
@@ -576,7 +604,7 @@ public final class Processors {
    * @return A new csslint processor.
    */
   public static ResourcePreProcessor cssLint(final LintOptions options) {
-    return new CssLinterProcessor(options);
+    return new ConditionalProcessor(new CssLinterProcessor(options), DEV);
   }
 
   /**
@@ -596,4 +624,14 @@ public final class Processors {
   public static DustJsProcessor dustJs() {
     return new DustJsProcessor();
   }
+
+  /**
+   * A require.js pre-processor.
+   *
+   * @return A require.js pre-processor.
+   */
+  public static ResourcePreProcessor requireJs() {
+    return new ConditionalProcessor(new RequireJsProcessor(), NO_DEV);
+  }
+
 }

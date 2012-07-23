@@ -4,7 +4,6 @@ import java.beans.PropertyDescriptor;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.PropertyValues;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -100,29 +99,4 @@ class WebDefaults extends WebMvcConfigurerAdapter implements
     return new ObjectMapper();
   }
 
-  /**
-   * Configure {@link ModeAware} beans.
-   *
-   * @param mode The application's mode.
-   * @return A bean mode aware processor.
-   */
-  @Bean
-  public BeanPostProcessor modeAwareBeanPostProcessor(final Mode mode) {
-    return new BeanPostProcessor() {
-      @Override
-      public Object postProcessBeforeInitialization(final Object bean,
-          final String beanName) {
-        if (bean instanceof ModeAware) {
-          ((ModeAware) bean).setMode(mode);
-        }
-        return bean;
-      }
-
-      @Override
-      public Object postProcessAfterInitialization(final Object bean,
-          final String beanName) {
-        return bean;
-      }
-    };
-  }
 }

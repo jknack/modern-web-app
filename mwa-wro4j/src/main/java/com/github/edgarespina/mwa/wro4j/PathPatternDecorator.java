@@ -9,14 +9,10 @@ import java.io.Writer;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.EnvironmentAware;
-import org.springframework.core.env.Environment;
 import org.springframework.util.AntPathMatcher;
 
 import ro.isdc.wro.WroRuntimeException;
 import ro.isdc.wro.model.resource.Resource;
-import ro.isdc.wro.model.resource.locator.factory.UriLocatorFactory;
-import ro.isdc.wro.model.resource.processor.ResourcePreProcessor;
 import ro.isdc.wro.model.resource.processor.support.ProcessorDecorator;
 
 import com.google.common.base.Joiner;
@@ -27,8 +23,7 @@ import com.google.common.base.Joiner;
  * @author edgar.espina
  * @since 0.1.2
  */
-public class PathPatternDecorator extends ProcessorDecorator implements
-    EnvironmentAware, UriLocatorFactoryAware {
+public class PathPatternDecorator extends ExtendedProcessorDecorator {
 
   /**
    * The logging system.
@@ -83,42 +78,18 @@ public class PathPatternDecorator extends ProcessorDecorator implements
     if (resource != null) {
       for (String pattern : patterns) {
         if (matcher.match(pattern, resource.getUri())) {
-          logger.debug("Processing resource: {}. Match found: {}",
+          logger.debug("Processing resource: {} match found: {}",
               resource.getUri(), matcher);
           getDecoratedObject().process(resource, reader, writer);
           return;
         }
       }
-      logger.debug("Skipping resource: {}. No match found: {}",
+      logger.debug("Skipping resource: {} no match found: {}",
           resource.getUri(), matcher);
       IOUtils.copy(reader, writer);
     } else {
       throw new WroRuntimeException("Wrong usage of "
           + toString() + ". Please use it as a pre-processor.");
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void setUriLocatorFactory(final UriLocatorFactory uriLocatorFactory) {
-    ResourcePreProcessor processor = getDecoratedObject();
-    if (processor instanceof UriLocatorFactoryAware) {
-      ((UriLocatorFactoryAware) processor)
-          .setUriLocatorFactory(uriLocatorFactory);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void setEnvironment(final Environment environment) {
-    ResourcePreProcessor processor = getDecoratedObject();
-    if (processor instanceof EnvironmentAware) {
-      ((EnvironmentAware) processor).setEnvironment(environment);
-
     }
   }
 

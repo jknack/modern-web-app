@@ -22,6 +22,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -230,7 +231,8 @@ public abstract class Startup implements WebApplicationInitializer {
     /**
      * Special beans.
      */
-    rootContext.addBeanFactoryPostProcessor(registerMode(mode));
+    rootContext.addBeanFactoryPostProcessor(registerSingletons(mode,
+        typeSafeRootPackages()));
 
     /**
      * Creates the Spring MVC dispatcher servlet.
@@ -342,10 +344,39 @@ public abstract class Startup implements WebApplicationInitializer {
       classes.add(WebDefaults.class);
       context.register(classes.toArray(new Class[classes.size()]));
       // Scan all the packages of the main class recursively.
-      context.scan(getClass().getPackage().getName());
+      context.scan(rootPackages());
     } catch (Exception ex) {
       throw new ServletException("Cannot register modules.", ex);
     }
+  }
+
+  /**
+   * A list with all the packages that will be added to the classpath scanning.
+   * By default it scan all the package of the main or bootstrapper class.
+   *
+   * @return A list with all the packages that will be added to the classpath
+   *         scanning. By default it scan all the package of the main or
+   *         bootstrapper class.
+   */
+  protected String[] rootPackages() {
+    return new String[] {getClass().getPackage().getName() };
+  }
+
+  /**
+   * A list with all the packages that will be added to the classpath scanning.
+   * By default it scan all the package of the main or bootstrapper class.
+   *
+   * @return A list with all the packages that will be added to the classpath
+   *         scanning. By default it scan all the package of the main or
+   *         bootstrapper class.
+   */
+  private Package[] typeSafeRootPackages() {
+    String[] packages = rootPackages();
+    Package[] typeSafePackages = new Package[packages.length];
+    for (int i = 0; i < typeSafePackages.length; i++) {
+      typeSafePackages[i] = Package.getPackage(packages[i]);
+    }
+    return typeSafePackages;
   }
 
   /**
@@ -399,14 +430,46 @@ public abstract class Startup implements WebApplicationInitializer {
    * Register the application mode in the spring context.
    *
    * @param mode The application's mode.
+   * @param roots The roots packages.
    * @return A new {@link BeanFactoryPostProcessor}.
    */
-  private static BeanFactoryPostProcessor registerMode(final Mode mode) {
+  private static BeanFactoryPostProcessor registerSingletons(
+      final Mode mode, final Package[] roots) {
     return new BeanFactoryPostProcessor() {
       @Override
       public void postProcessBeanFactory(
           final ConfigurableListableBeanFactory beanFactory) {
+        beanFactory.addBeanPostProcessor(modeAwareBeanPostProcessor(mode));
         beanFactory.registerSingleton("#mode", mode);
+        // register roots
+        for (int i = 0; i < roots.length; i++) {
+          beanFactory.registerSingleton("#root$" + i, roots[i]);
+        }
+      }
+    };
+  }
+
+  /**
+   * Configure {@link ModeAware} beans.
+   *
+   * @param mode The application's mode.
+   * @return A bean mode aware processor.
+   */
+  private static BeanPostProcessor modeAwareBeanPostProcessor(final Mode mode) {
+    return new BeanPostProcessor() {
+      @Override
+      public Object postProcessBeforeInitialization(final Object bean,
+          final String beanName) {
+        if (bean instanceof ModeAware) {
+          ((ModeAware) bean).setMode(mode);
+        }
+        return bean;
+      }
+
+      @Override
+      public Object postProcessAfterInitialization(final Object bean,
+          final String beanName) {
+        return bean;
       }
     };
   }

@@ -2,7 +2,6 @@ package com.github.edgarespina.mwa.morphia;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.ValidatorFactory;
@@ -100,17 +99,14 @@ public class MorphiaModule {
    * @return A {@link Morphia} POJOs mapper for Mongo datatabases.
    */
   @Bean
-  public Morphia morphia(final MorphiaConfigurer[] configurers) {
-    Validate.notEmpty(configurers, "The morphia configurers are required.");
+  public Morphia morphia(final Package[] rootPackages) {
+    Validate
+        .notNull(rootPackages, "At least one root package must be present.");
     Morphia morphia = new Morphia();
-    Set<String> processed = new HashSet<String>();
-    for (MorphiaConfigurer configurer : configurers) {
-      for (Class<?> candidate : configurer.scan()) {
-        if (processed.add(candidate.getName())) {
-          logger.debug("Adding morphia class: {}", candidate.getName());
-          morphia.map(candidate);
-        }
-      }
+    for (Package candidate : rootPackages) {
+      String packageName = candidate.getName();
+      logger.debug("Adding pacakge: {}", packageName);
+      morphia.mapPackage(packageName);
     }
 
     if (validationFactory != null) {

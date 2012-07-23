@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.io.Writer;
 
 import org.apache.commons.io.IOUtils;
 
@@ -49,4 +51,20 @@ public final class WroHelper {
     }
   }
 
+  /**
+   * Copy and close the reader and writer streams.
+   *
+   * @param reader The source stream.
+   * @param writer The destintation stream.
+   * @throws IOException If content cannot be copy.
+   */
+  public static void safeCopy(final Reader reader, final Writer writer)
+      throws IOException {
+    try {
+      IOUtils.copy(reader, writer);
+    } finally {
+      IOUtils.closeQuietly(reader);
+      IOUtils.closeQuietly(writer);
+    }
+  }
 }

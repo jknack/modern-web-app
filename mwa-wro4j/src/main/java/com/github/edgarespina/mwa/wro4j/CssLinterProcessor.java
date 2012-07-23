@@ -7,10 +7,7 @@ import java.io.Reader;
 import java.io.Writer;
 
 import org.apache.commons.io.IOUtils;
-import org.springframework.context.EnvironmentAware;
-import org.springframework.core.env.Environment;
 
-import ro.isdc.wro.WroRuntimeException;
 import ro.isdc.wro.extensions.processor.support.ObjectPoolHelper;
 import ro.isdc.wro.extensions.processor.support.csslint.CssLint;
 import ro.isdc.wro.extensions.processor.support.csslint.CssLintError;
@@ -22,8 +19,6 @@ import ro.isdc.wro.model.resource.locator.factory.UriLocatorFactory;
 import ro.isdc.wro.model.resource.processor.ResourcePreProcessor;
 import ro.isdc.wro.util.ObjectFactory;
 
-import com.github.edgarespina.mwa.Application;
-
 /**
  * Similar to {@link CssLinterProcessor} but let to capture {@link CssLintError}
  * .
@@ -32,18 +27,13 @@ import com.github.edgarespina.mwa.Application;
  * @since 0.1.2
  */
 @SupportedResourceType(ResourceType.CSS)
-class CssLinterProcessor implements
-    ResourcePreProcessor, UriLocatorFactoryAware, EnvironmentAware {
+class CssLinterProcessor implements ResourcePreProcessor,
+    UriLocatorFactoryAware {
 
   /**
    * The uri locator factory.
    */
   private UriLocatorFactory uriLocatorFactory;
-
-  /**
-   * True if we're in dev.
-   */
-  private boolean debug;
 
   /**
    * Options to use to configure jsHint.
@@ -109,13 +99,9 @@ class CssLinterProcessor implements
    */
   protected void onCssLintException(final CssLintException ex,
       final Resource resource) {
-    if (debug) {
-      throw new RuntimeLinterException(resource.getUri(), WroHelper.safeRead(
-          uriLocatorFactory, resource),
-          options, ex.getErrors().toArray(new CssLintError[0]));
-    } else {
-      throw new WroRuntimeException("Linter error", ex);
-    }
+    throw new RuntimeLinterException(resource.getUri(), WroHelper.safeRead(
+        uriLocatorFactory, resource),
+        options, ex.getErrors().toArray(new CssLintError[0]));
   }
 
   /**
@@ -126,13 +112,4 @@ class CssLinterProcessor implements
     this.uriLocatorFactory = uriLocatorFactory;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void setEnvironment(final Environment environment) {
-    debug =
-        Application.DEV.matches(environment
-            .getProperty(Application.APPLICATION_MODE));
-  }
 }

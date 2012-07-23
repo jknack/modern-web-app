@@ -7,15 +7,10 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Set;
-
 import org.junit.Test;
 
-import com.github.edgarespina.mwa.morphia.MorphiaConfigurer;
-import com.github.edgarespina.mwa.morphia.MorphiaModule;
 import com.google.code.morphia.Datastore;
 import com.google.code.morphia.Morphia;
-import com.google.common.collect.Sets;
 import com.mongodb.Mongo;
 import com.mongodb.MongoURI;
 
@@ -29,20 +24,10 @@ public class MorphiaModuleTest {
 
   @Test
   public void morphia() {
-    @SuppressWarnings("unchecked")
-    Set<Class<?>> classes =
-        Sets.newHashSet(TestEntity.class, TestEmbedded.class);
-
-    MorphiaConfigurer configurer = createMock(MorphiaConfigurer.class);
-    expect(configurer.scan()).andReturn(classes);
-
-    replay(configurer);
-
     Morphia morphia =
-        new MorphiaModule().morphia(new MorphiaConfigurer[] {configurer });
+        new MorphiaModule().morphia(new Package[] {getClass().getPackage() });
     assertNotNull(morphia);
 
-    verify(configurer);
   }
 
   @Test
