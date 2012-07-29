@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.edgarespina</groupId>
@@ -16,6 +17,7 @@
 
   <properties>
     <spring-version>3.1.1.RELEASE</spring-version>
+    <spring-security>3.1.1.RELEASE</spring-security>
     <spring-data-version>1.0.2.RELEASE</spring-data-version>
     <hibernate-version>4.1.4.Final</hibernate-version>
     <hibernate-validator-version>5.0.0.Alpha1</hibernate-validator-version>
@@ -134,6 +136,135 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-oxm</artifactId>
         <version>${spring-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-aop</artifactId>
+        <version>${spring-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-asm</artifactId>
+        <version>${spring-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+        <version>${spring-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>${spring-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-beans</artifactId>
+        <version>${spring-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-expression</artifactId>
+        <version>${spring-version}</version>
+      </dependency>
+
+      <!-- Spring Security -->
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-core</artifactId>
+        <version>${spring-security}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-asm</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-config</artifactId>
+        <version>${spring-security}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-aspects</artifactId>
+        <version>${spring-security}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-oauth</artifactId>
+        <version>${spring-security}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-cas</artifactId>
+        <version>${spring-security}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-ldap</artifactId>
+        <version>${spring-security}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-remoting</artifactId>
+        <version>${spring-security}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-web</artifactId>
+        <version>${spring-security}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-openid</artifactId>
+        <version>${spring-security}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-acl</artifactId>
+        <version>${spring-security}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.annotation</groupId>
+        <artifactId>jsr250-api</artifactId>
+        <version>1.0</version>
       </dependency>
 
       <!-- Spring Data & Mongo -->
@@ -531,13 +662,15 @@
                 <configuration>
                   <target>
                     <fileset id="configFiles" dir="${project.config.directory}" />
-                    <pathconvert pathsep="," property="need.to.delete" refid="configFiles">
+                    <pathconvert pathsep="," property="need.to.delete"
+                      refid="configFiles">
                       <mapper>
                         <flattenmapper />
                       </mapper>
                     </pathconvert>
                     <delete verbose="true">
-                      <fileset dir="${project.build.directory}/classes" includes="${need.to.delete}" />
+                      <fileset dir="${project.build.directory}/classes"
+                        includes="${need.to.delete}" />
                     </delete>
                   </target>
                 </configuration>
@@ -694,7 +827,8 @@
                 <configuration>
                   <target>
                     <mkdir dir="${querydsl-jpa-apt-dir}" />
-                    <get src="${querydsl-jpa-apt-remote-file}" dest="${querydsl-jpa-apt-path}" usetimestamp="true" skipexisting="true" />
+                    <get src="${querydsl-jpa-apt-remote-file}" dest="${querydsl-jpa-apt-path}"
+                      usetimestamp="true" skipexisting="true" />
                   </target>
                 </configuration>
                 <goals>
