@@ -278,7 +278,7 @@ public class WroProblemReporterInterceptor extends HandlerInterceptorAdapter {
      * @param callback The on-error callback.
      */
     private void handleStatus(final int sc, final OnErrorCallback callback) {
-      this.status = sc;
+      status = sc;
       if (status >= HttpServletResponse.SC_BAD_REQUEST) {
         try {
           callback.onError();
@@ -366,8 +366,7 @@ public class WroProblemReporterInterceptor extends HandlerInterceptorAdapter {
    * <p>
    * Intercept URI request and report any problems detected in JS or CSS
    * resources. If no problem is detected the interceptor does nothing.
-   * </p>
-   * {@inheritDoc}
+   * </p> {@inheritDoc}
    */
   @Override
   public void postHandle(final HttpServletRequest request,
@@ -394,10 +393,9 @@ public class WroProblemReporterInterceptor extends HandlerInterceptorAdapter {
         filter.doFilter(wroRequest(request, resource), wroResponse, null);
         if (wroResponse.hasErrors()) {
           // An error has been detected stop immediately
-          break;
-        } else {
-          changeSet.putIfAbsent(uri, hash);
+          return;
         }
+        changeSet.putIfAbsent(uri, hash);
       }
     }
   }

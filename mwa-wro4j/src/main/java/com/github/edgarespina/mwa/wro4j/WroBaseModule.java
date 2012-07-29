@@ -105,7 +105,11 @@ public abstract class WroBaseModule {
         throw new IllegalArgumentException("Request cannot be NULL!");
       }
       String uri = request.getRequestURI();
-      uri = uri.replace(request.getContextPath(), "");
+      String contextPath = request.getContextPath();
+      if (uri.startsWith(contextPath)) {
+        // Strip contextPath if present
+        uri = uri.substring(contextPath.length());
+      }
       final String groupName = fileToGroup(uri);
       return StringUtils.isEmpty(groupName) ? null : groupName;
     }
@@ -216,7 +220,7 @@ public abstract class WroBaseModule {
         final WroManagerFactory wroManagerFactory) {
       this.configuration =
           checkNotNull(configuration, "The wroConfiguration is required.");
-      this.configurationFactory = new WroConfigurationFactory(configuration);
+      configurationFactory = new WroConfigurationFactory(configuration);
       setWroManagerFactory(wroManagerFactory);
     }
 
@@ -431,7 +435,7 @@ public abstract class WroBaseModule {
    * @param environment The application's environment. Required.
    * @param mode The application's mmode. Required.
    * @param processorsFactory The user-defined {@link ProcessorsFactory}.
-   *        Required.
+   *          Required.
    * @param uriLocatorFactory The {@link UriLocatorFactory}. Required.
    * @return A new {@link BaseWroManagerFactory}.
    */
