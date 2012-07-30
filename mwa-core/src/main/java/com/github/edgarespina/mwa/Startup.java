@@ -1,5 +1,8 @@
 package com.github.edgarespina.mwa;
 
+import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
+import static org.springframework.core.annotation.AnnotationUtils.getValue;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.EnumSet;
@@ -7,8 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Handler;
-import java.util.logging.LogManager;
 
 import javax.inject.Named;
 import javax.servlet.DispatcherType;
@@ -16,17 +17,18 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
@@ -102,7 +104,7 @@ public abstract class Startup implements WebApplicationInitializer {
     @SuppressWarnings("unchecked")
     public ExtendedAutowireCandidateResolver(final Environment environment,
         final DefaultListableBeanFactory beanFactory) {
-      this.valueAnnotationTypes = Sets.newHashSet(Value.class, Named.class);
+      valueAnnotationTypes = Sets.newHashSet(Value.class, Named.class);
       this.environment = environment;
       beanFactory.setAutowireCandidateResolver(this);
       beanFactory.addEmbeddedValueResolver(this);
@@ -115,7 +117,7 @@ public abstract class Startup implements WebApplicationInitializer {
     protected Object findValue(final Annotation[] annotationsToSearch) {
       for (Annotation annotation : annotationsToSearch) {
         if (isInstance(annotation)) {
-          Object value = AnnotationUtils.getValue(annotation);
+          Object value = getValue(annotation);
           if (value == null) {
             throw new IllegalStateException(
                 "Value/Named annotation must have a value attribute");
@@ -135,13 +137,12 @@ public abstract class Startup implements WebApplicationInitializer {
     private boolean isInstance(final Annotation annotation) {
       for (Class<? extends Annotation> valueType : valueAnnotationTypes) {
         if (valueType.isInstance(annotation)) {
-          String value = (String) AnnotationUtils.getValue(annotation);
+          String value = (String) getValue(annotation);
           if (valueType == Named.class) {
             return environment.getProperty(value) != null;
-          } else {
-            // force to use ${} in @Value
-            return value.startsWith("${") && value.endsWith("}");
           }
+          // force to use ${} in @Value
+          return value.startsWith("${") && value.endsWith("}");
         }
       }
       return false;
@@ -200,14 +201,12 @@ public abstract class Startup implements WebApplicationInitializer {
    * contextPath, version and mode.
    * </ul>
    *
-   * @param servletContext The servelt context.
+   * @param servletContext The servlet context.
    * @throws ServletException If something goes wrong.
    */
   @Override
   public final void onStartup(final ServletContext servletContext)
       throws ServletException {
-    // redirect java util logging calls.
-    configureJuli();
 
     final AnnotationConfigWebApplicationContext rootContext =
         new ModernWebAppContext();
@@ -217,22 +216,26 @@ public abstract class Startup implements WebApplicationInitializer {
     final ConfigurableEnvironment env =
         configureEnvironment(servletContext, rootContext);
 
-    servletContext.getContextPath();
-    Mode mode = Mode.valueOf(env.getRequiredProperty("application.mode"));
+    String modeProperty = env.getProperty("application.mode");
+    if (StringUtils.isBlank(modeProperty)) {
+      modeProperty = Mode.DEV.name();
+      logger.warn("application.mode isn't set, using: {}", modeProperty);
+    }
+    Mode mode = Mode.valueOf(modeProperty);
+
     // Activate the default profile
     env.setActiveProfiles(mode.name());
 
     /**
-     * Scan beans under each module's package.
+     * Configure modules.
      */
-    Class<?>[] modules = imports();
-    registerModules(rootContext, modules);
+    registerModules(rootContext);
 
     /**
      * Special beans.
      */
     rootContext.addBeanFactoryPostProcessor(registerSingletons(mode,
-        typeSafeRootPackages()));
+        rootPackages()));
 
     /**
      * Creates the Spring MVC dispatcher servlet.
@@ -250,35 +253,23 @@ public abstract class Startup implements WebApplicationInitializer {
   }
 
   /**
-   * Turn off Juli and redirect Juli to SJF4J.
-   */
-  private void configureJuli() {
-    java.util.logging.Logger rootLogger =
-        LogManager.getLogManager().getLogger("");
-    Handler[] handlers = rootLogger.getHandlers();
-    for (Handler handler : handlers) {
-      rootLogger.removeHandler(handler);
-    }
-    SLF4JBridgeHandler.install();
-  }
-
-  /**
    * Publish application properties files into the environment. Additionally, it
    * enabled the use of {@link Value} annotation.
    *
    * @param servletContext The servlet context.
    * @param rootContext The Spring application context.
    * @return The application environment.
-   * @throws ServletException If the properties files failst to load.
+   * @throws ServletException If the properties files fail to load.
    */
   private ConfigurableEnvironment configureEnvironment(
       final ServletContext servletContext,
       final ConfigurableWebApplicationContext rootContext)
       throws ServletException {
     try {
-      ResourcePatternResolver resourceLoader =
-          new PathMatchingResourcePatternResolver();
-      Resource[] propertiesFiles = resourceLoader.getResources(properties());
+      Set<Resource> properties = findResources(propertySources());
+      if (properties.size() == 0) {
+        logger.warn("No property files were found.");
+      }
       // Add to the environment
       final ConfigurableEnvironment env = rootContext.getEnvironment();
       Map<String, Object> webproperties = new HashMap<String, Object>();
@@ -288,7 +279,7 @@ public abstract class Startup implements WebApplicationInitializer {
       MutablePropertySources propertySources = env.getPropertySources();
       propertySources.addFirst(new MapPropertySource(servletContext
           .getContextPath(), webproperties));
-      for (Resource propertyFile : propertiesFiles) {
+      for (Resource propertyFile : properties) {
         logger.debug("Adding property file: {}", propertyFile);
         propertySources.addFirst(asPropertySource(propertyFile));
       }
@@ -321,45 +312,49 @@ public abstract class Startup implements WebApplicationInitializer {
    *         servlet. Default is: '/*'.
    */
   protected String[] dispatcherMapping() {
-    return new String[] {"/*" };
+    return new String[] {"/*"};
   }
 
   /**
    * Add modules to the application context.
    *
    * @param context The String application context.
-   * @param modules The list of modules.
    * @throws ServletException If something goes wrong.
    */
   private void registerModules(
-      final AnnotationConfigWebApplicationContext context,
-      final Class<?>[] modules) throws ServletException {
+      final AnnotationConfigWebApplicationContext context)
+      throws ServletException {
     try {
       Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
+      Class<?>[] modules = imports();
       if (modules != null && modules.length > 0) {
         for (Class<?> module : modules) {
-          classes.add(module);
+          if (isConfiguration(module)) {
+            classes.add(module);
+          } else {
+            throw new ServletException(
+                "Class must be marked with @Configuration: "
+                    + module.getName());
+          }
         }
       }
       classes.add(WebDefaults.class);
       context.register(classes.toArray(new Class[classes.size()]));
       // Scan all the packages of the main class recursively.
-      context.scan(rootPackages());
+      context.scan(rootPackageNames());
     } catch (Exception ex) {
       throw new ServletException("Cannot register modules.", ex);
     }
   }
 
   /**
-   * A list with all the packages that will be added to the classpath scanning.
-   * By default it scan all the package of the main or bootstrapper class.
+   * Return true if the candidate class is marked as {@link Configuration}.
    *
-   * @return A list with all the packages that will be added to the classpath
-   *         scanning. By default it scan all the package of the main or
-   *         bootstrapper class.
+   * @param candidate The candidate class.
+   * @return True if the candidate class is marked as {@link Configuration}.
    */
-  protected String[] rootPackages() {
-    return new String[] {getClass().getPackage().getName() };
+  private boolean isConfiguration(final Class<?> candidate) {
+    return findAnnotation(candidate, Configuration.class) != null;
   }
 
   /**
@@ -370,13 +365,25 @@ public abstract class Startup implements WebApplicationInitializer {
    *         scanning. By default it scan all the package of the main or
    *         bootstrapper class.
    */
-  private Package[] typeSafeRootPackages() {
-    String[] packages = rootPackages();
-    Package[] typeSafePackages = new Package[packages.length];
-    for (int i = 0; i < typeSafePackages.length; i++) {
-      typeSafePackages[i] = Package.getPackage(packages[i]);
+  protected Package[] rootPackages() {
+    return new Package[] {getClass().getPackage()};
+  }
+
+  /**
+   * A list with all the packages that will be added to the classpath scanning.
+   * By default it scan all the package of the main or bootstrapper class.
+   *
+   * @return A list with all the packages that will be added to the classpath
+   *         scanning. By default it scan all the package of the main or
+   *         bootstrapper class.
+   */
+  private String[] rootPackageNames() {
+    Package[] roots = rootPackages();
+    Set<String> names = Sets.newHashSet();
+    for (Package root : roots) {
+      names.add(root.getName());
     }
-    return typeSafePackages;
+    return names.toArray(new String[names.size()]);
   }
 
   /**
@@ -396,7 +403,8 @@ public abstract class Startup implements WebApplicationInitializer {
   }
 
   /**
-   * Import external modules required by the application.
+   * Import external modules required by the application. This is the same mark
+   * the class with {@link Configuration} and add {@link Import} expressions.
    *
    * @return All the imported modules.
    */
@@ -422,8 +430,53 @@ public abstract class Startup implements WebApplicationInitializer {
    * @see UrlResource
    * @see Resource
    */
-  protected String properties() {
+  protected String propertySource() {
     return "application.properties";
+  }
+
+  /**
+   * <p>
+   * Provide the location of the application properties file, such as
+   * {@code "classpath:/com/myco/foo.properties"} or
+   * {@code "file:/path/to/file.properties"}.
+   * </p>
+   * <p>
+   * Default is: application.properties.
+   * </p>
+   *
+   * @return Provide the location of the application properties file, such as
+   *         {@code "classpath:/com/myco/foo.properties"} or
+   *         {@code "file:/path/to/file.properties"}.
+   * @see ClassPathResource
+   * @see FileSystemResource
+   * @see UrlResource
+   * @see Resource
+   */
+  protected String[] propertySources() {
+    return new String[] {propertySource()};
+  }
+
+  /**
+   * Find all the resources for the given location.
+   *
+   * @param locations The locations.
+   * @return A resource set.
+   * @throws IOException If a resource file fail to be loaded.
+   */
+  private Set<Resource> findResources(final String[] locations)
+      throws IOException {
+    ResourcePatternResolver resolver =
+        new PathMatchingResourcePatternResolver();
+    Set<Resource> resources = Sets.newLinkedHashSet();
+    for (String location : locations) {
+      Resource[] candidates = resolver.getResources(location);
+      for (Resource resource : candidates) {
+        if (resource.exists()) {
+          resources.add(resource);
+        }
+      }
+    }
+    return resources;
   }
 
   /**
