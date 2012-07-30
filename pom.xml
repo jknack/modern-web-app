@@ -16,24 +16,24 @@
   </description>
 
   <properties>
-    <spring-version>3.1.1.RELEASE</spring-version>
+    <spring-version>3.1.2.RELEASE</spring-version>
     <spring-security>3.1.1.RELEASE</spring-security>
-    <spring-data-version>1.0.2.RELEASE</spring-data-version>
-    <hibernate-version>4.1.4.Final</hibernate-version>
+    <spring-data-version>1.0.3.RELEASE</spring-data-version>
+    <hibernate-version>4.1.5.SP1</hibernate-version>
     <hibernate-validator-version>5.0.0.Alpha1</hibernate-validator-version>
-    <jackson-version>1.9.7</jackson-version>
-    <logback-version>1.0.3</logback-version>
-    <slf4j-version>1.6.4</slf4j-version>
+    <jackson-version>1.9.9</jackson-version>
+    <logback-version>1.0.6</logback-version>
+    <slf4j-version>1.6.5</slf4j-version>
     <servlet-api-version>3.0.1</servlet-api-version>
     <javax.inject-version>1</javax.inject-version>
     <cglib-version>2.2.2</cglib-version>
     <bonecp-version>0.7.1.RELEASE</bonecp-version>
-    <mysql-connector-java-version>5.1.20</mysql-connector-java-version>
+    <mysql-connector-java-version>5.1.21</mysql-connector-java-version>
     <commons-logging-version>1.1.1</commons-logging-version>
     <log4j-version>1.2.16</log4j-version>
     <commons-fileupload-version>1.2.2</commons-fileupload-version>
     <commons-io-version>2.0.1</commons-io-version>
-    <h2-version>1.3.166</h2-version>
+    <h2-version>1.3.168</h2-version>
     <derby-version>10.8.2.2</derby-version>
     <junit-version>4.10</junit-version>
     <easymock-version>3.1</easymock-version>
@@ -41,7 +41,7 @@
     <commons-lang3-version>3.1</commons-lang3-version>
     <commons-collections-version>3.2</commons-collections-version>
     <guava-version>11.0</guava-version>
-    <querydsl-version>2.5.0</querydsl-version>
+    <querydsl-version>2.7.1</querydsl-version>
     <mongo-java-driver-version>2.7.3</mongo-java-driver-version>
     <morphia-version>0.99</morphia-version>
     <wro4j-version>1.4.6</wro4j-version>
@@ -57,13 +57,13 @@
     <maven-source-plugin-version>2.1.2</maven-source-plugin-version>
     <maven-javadoc-plugin-version>2.8.1</maven-javadoc-plugin-version>
     <maven-gpg-plugin-version>1.4</maven-gpg-plugin-version>
-    <maven-enforcer-plugin-version>1.0.1</maven-enforcer-plugin-version>
+    <maven-enforcer-plugin-version>1.1.1</maven-enforcer-plugin-version>
     <maven-surefire-plugin-version>2.12</maven-surefire-plugin-version>
     <maven-eclipse-plugin-version>2.9</maven-eclipse-plugin-version>
     <maven-war-plugin-version>2.2</maven-war-plugin-version>
     <maven-checkstyle-plugin-version>2.9.1</maven-checkstyle-plugin-version>
     <maven-apt-plugin-version>1.0.2</maven-apt-plugin-version>
-    <jetty-maven-plugin-version>8.1.3.v20120416</jetty-maven-plugin-version>
+    <jetty-maven-plugin-version>8.1.5.v20120716</jetty-maven-plugin-version>
     <tomcat-maven-plugin-version>2.0-beta-1</tomcat-maven-plugin-version>
     <findbugs-maven-plugin-version>2.4.0</findbugs-maven-plugin-version>
     <gmaven-plugin-version>1.4</gmaven-plugin-version>
@@ -86,10 +86,6 @@
     <module>mwa-mvc</module>
     <module>mwa-logging</module>
   </modules>
-
-  <prerequisites>
-    <maven>3.0</maven>
-  </prerequisites>
 
   <dependencyManagement>
     <dependencies>
@@ -530,6 +526,35 @@
       </activation>
       <build>
         <plugins>
+
+          <!-- Force maven-3.x and java-1.6 -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <version>${maven-enforcer-plugin-version}</version>
+            <executions>
+              <execution>
+                <id>enforce-versions</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <requireMavenVersion>
+                      <version>[3.0,)</version>
+                    </requireMavenVersion>
+                    <requireJavaVersion>
+                      <version>1.6</version>
+                    </requireJavaVersion>
+                    <requireOS>
+                      <family>unix</family>
+                    </requireOS>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
           <!-- We're on 1.6 -->
           <plugin>
             <artifactId>maven-compiler-plugin</artifactId>
@@ -551,13 +576,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
             <version>${maven-source-plugin-version}</version>
-          </plugin>
-
-          <!-- Enforcer: Java6 and Maven-2.2.x -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-enforcer-plugin</artifactId>
-            <version>${maven-enforcer-plugin-version}</version>
           </plugin>
 
           <!-- Surefire: unit test -->
@@ -593,6 +611,13 @@
                 <contextPath>/${project.artifactId}</contextPath>
               </webApp>
             </configuration>
+          </plugin>
+
+          <!-- Release plugin -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>${maven-release-plugin-version}</version>
           </plugin>
 
           <!-- Tomcat setup for development -->

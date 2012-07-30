@@ -48,6 +48,7 @@ public class LessCssProcessor implements ResourcePostProcessor {
     HttpServletRequest request = context.getRequest();
     String uri = request.getRequestURI();
     try {
+      logger.debug("lessifying: {}", uri);
       LessCompiler less = new LessCompiler();
       String content = IOUtils.toString(reader);
       writer.write(less.compile(content));
