@@ -545,9 +545,6 @@
                     <requireJavaVersion>
                       <version>1.6</version>
                     </requireJavaVersion>
-                    <requireOS>
-                      <family>unix</family>
-                    </requireOS>
                   </rules>
                 </configuration>
               </execution>
