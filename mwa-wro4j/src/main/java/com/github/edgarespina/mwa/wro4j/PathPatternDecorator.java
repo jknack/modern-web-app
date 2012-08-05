@@ -13,7 +13,7 @@ import org.springframework.util.AntPathMatcher;
 
 import ro.isdc.wro.WroRuntimeException;
 import ro.isdc.wro.model.resource.Resource;
-import ro.isdc.wro.model.resource.processor.support.ProcessorDecorator;
+import ro.isdc.wro.model.resource.processor.decorator.ProcessorDecorator;
 
 import com.google.common.base.Joiner;
 
@@ -42,7 +42,7 @@ public class PathPatternDecorator extends ExtendedProcessorDecorator {
   private final AntPathMatcher matcher;
 
   /**
-   * Creates a new {@link PathPatternDecorator}.
+   * Creates a new {@link ExtendedProcessorDecorator}.
    *
    * @param processor The target processor. Required.
    * @param includes True if a possitive filter should be applied.
@@ -52,7 +52,7 @@ public class PathPatternDecorator extends ExtendedProcessorDecorator {
       final String... patterns) {
     super(processor);
     notEmpty(patterns, "A pattern set is required.");
-    this.matcher = new AntPathMatcher() {
+    matcher = new AntPathMatcher() {
       @Override
       public boolean match(final String pattern, final String path) {
         boolean match = super.match(pattern, path);

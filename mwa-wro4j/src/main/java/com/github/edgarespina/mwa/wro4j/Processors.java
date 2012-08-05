@@ -17,7 +17,7 @@ import ro.isdc.wro.extensions.processor.js.UglifyJsProcessor;
 import ro.isdc.wro.extensions.processor.js.YUIJsCompressorProcessor;
 import ro.isdc.wro.model.resource.processor.ResourcePostProcessor;
 import ro.isdc.wro.model.resource.processor.ResourcePreProcessor;
-import ro.isdc.wro.model.resource.processor.impl.CopyrightKeeperProcessorDecorator;
+import ro.isdc.wro.model.resource.processor.decorator.CopyrightKeeperProcessorDecorator;
 import ro.isdc.wro.model.resource.processor.impl.css.ConformColorsCssProcessor;
 import ro.isdc.wro.model.resource.processor.impl.css.CssCompressorProcessor;
 import ro.isdc.wro.model.resource.processor.impl.css.CssDataUriPreProcessor;
@@ -216,7 +216,7 @@ public final class Processors {
 
   /**
    * A decorator for any processor. Inspects the resource for copyright
-   * (licence) header and inserts them back if the decorated processor removes
+   * (license) header and inserts them back if the decorated processor removes
    * them.
    *
    * @param processor The processor to decorate. Required.
