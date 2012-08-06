@@ -1,10 +1,12 @@
 package com.github.edgarespina.mwa.wro4j;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,12 +25,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.web.context.support.ServletContextResource;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import ro.isdc.wro.WroRuntimeException;
 import ro.isdc.wro.config.Context;
 import ro.isdc.wro.config.jmx.WroConfiguration;
 import ro.isdc.wro.extensions.model.factory.SmartWroModelFactory;
@@ -38,8 +46,10 @@ import ro.isdc.wro.manager.factory.BaseWroManagerFactory;
 import ro.isdc.wro.manager.factory.WroManagerFactory;
 import ro.isdc.wro.model.WroModel;
 import ro.isdc.wro.model.factory.WroModelFactory;
+import ro.isdc.wro.model.factory.WroModelFactoryDecorator;
 import ro.isdc.wro.model.group.DefaultGroupExtractor;
 import ro.isdc.wro.model.group.Group;
+import ro.isdc.wro.model.group.GroupExtractor;
 import ro.isdc.wro.model.resource.Resource;
 import ro.isdc.wro.model.resource.locator.ClasspathUriLocator;
 import ro.isdc.wro.model.resource.locator.UrlUriLocator;
@@ -50,11 +60,11 @@ import ro.isdc.wro.model.resource.processor.ResourcePostProcessor;
 import ro.isdc.wro.model.resource.processor.ResourcePreProcessor;
 import ro.isdc.wro.model.resource.processor.factory.ProcessorsFactory;
 import ro.isdc.wro.model.resource.processor.factory.SimpleProcessorsFactory;
-import ro.isdc.wro.model.transformer.WildcardExpanderModelTransformer;
 import ro.isdc.wro.model.transformer.WildcardExpanderModelTransformer.NoMoreAttemptsIOException;
 import ro.isdc.wro.util.ObjectFactory;
 import ro.isdc.wro.util.Transformer;
 
+import com.github.edgarespina.mwa.Beans;
 import com.github.edgarespina.mwa.FilterMapping;
 import com.github.edgarespina.mwa.Mode;
 import com.github.edgarespina.mwa.ModeAware;
@@ -89,39 +99,14 @@ import com.github.edgarespina.mwa.ModeAware;
 public abstract class WroBaseModule {
 
   /**
-   * Extract the group name from a URI. The class works with
-   * {@link GroupPerFileModel}.
-   *
-   * @author edgar.espina
-   * @devOnly
-   */
-  private static class GroupPerFileExtractor extends DefaultGroupExtractor {
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getGroupName(final HttpServletRequest request) {
-      if (request == null) {
-        throw new IllegalArgumentException("Request cannot be NULL!");
-      }
-      String uri = request.getRequestURI();
-      String contextPath = request.getContextPath();
-      if (uri.startsWith(contextPath)) {
-        // Strip contextPath if present
-        uri = uri.substring(contextPath.length());
-      }
-      final String groupName = fileToGroup(uri);
-      return StringUtils.isEmpty(groupName) ? null : groupName;
-    }
-  }
-
-  /**
    * This class create a group for every single resource in a {@link WroModel}.
+   * This service is available in dev mode.
    *
    * @author edgar.espina
-   * @devOnly
    */
-  private static class GroupPerFileModel implements Transformer<WroModel> {
+  @Profile("dev")
+  private static class GroupPerFileModel extends DefaultGroupExtractor
+      implements Transformer<WroModel> {
     /**
      * {@inheritDoc}
      */
@@ -155,6 +140,39 @@ public abstract class WroBaseModule {
         output.addGroup(newGroup);
       }
       return output;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getGroupName(final HttpServletRequest request) {
+      if (request == null) {
+        throw new IllegalArgumentException("Request cannot be NULL!");
+      }
+      String uri = request.getRequestURI();
+      String contextPath = request.getContextPath();
+      if (uri.startsWith(contextPath)) {
+        // Strip contextPath if present
+        uri = uri.substring(contextPath.length());
+      }
+      final String groupName = fileToGroup(uri);
+      return StringUtils.isEmpty(groupName) ? null : groupName;
+    }
+
+    /**
+     * Convert the given file's name to a wro group's name.
+     *
+     * @param filename The file's name.
+     * @return The group's name.
+     */
+    private static String fileToGroup(final String filename) {
+      String group = filename;
+      if (group.startsWith("/")) {
+        group = group.substring(1);
+      }
+      group = FilenameUtils.removeExtension(group);
+      return group.replace("/", "_");
     }
   }
 
@@ -214,7 +232,7 @@ public abstract class WroBaseModule {
      * Creates a new {@link ExtendedWroFilter}.
      *
      * @param configuration The {@link WroConfiguration}. Required.
-     * @param wroManagerFactory The {@link WroModelFactory. Required.
+     * @param wroManagerFactory The wroManagerFactory. Required.
      */
     public ExtendedWroFilter(final WroConfiguration configuration,
         final WroManagerFactory wroManagerFactory) {
@@ -321,7 +339,140 @@ public abstract class WroBaseModule {
     public boolean accept(final String uri) {
       return uri.trim().startsWith(PREFIX);
     }
+  }
 
+  /**
+   * Look for wild-card expressions inside resources and resolved them using
+   * Spring.
+   *
+   * @author edgar.espina
+   * @since 0.2.6
+   */
+  private static class WildcardModelFactory extends WroModelFactoryDecorator {
+
+    /**
+     * The logging system.
+     */
+    private static final Logger logger =
+        LoggerFactory.getLogger(WildcardModelFactory.class);
+
+    /**
+     * The application's context.
+     */
+    private ApplicationContext applicationContext;
+
+    /**
+     * A lock.
+     */
+    private final Object lock = new Object();
+
+    /**
+     * A cached model for no-dev environment.
+     */
+    private WroModel expanded = null;
+
+    /**
+     * The application's mode.
+     */
+    private Mode mode;
+
+    /**
+     * Creates new {@link WildcardModelFactory}.
+     *
+     * @param applicationContext The application's context. Required.
+     * @param decorated The source model factory.
+     */
+    public WildcardModelFactory(
+        final ApplicationContext applicationContext,
+        final WroModelFactory decorated) {
+      super(decorated);
+      this.applicationContext =
+          notNull(applicationContext, "The application's context is required.");
+      mode = applicationContext.getBean(Mode.class);
+    }
+
+    @Override
+    public WroModel create() {
+      if (mode.isDev()) {
+        return expand(super.create());
+      } else {
+        synchronized (lock) {
+          if (expanded == null) {
+            expanded = expand(super.create());
+          }
+        }
+        return expanded;
+      }
+    }
+
+    /**
+     * Expand the model if need it.
+     *
+     * @param model The wroModel
+     * @return The same model.
+     */
+    private WroModel expand(final WroModel model) {
+      for (Group group : model.getGroups()) {
+        Map<Resource, List<Resource>> replaceMap =
+            new HashMap<Resource, List<Resource>>();
+        for (Resource resource : group.getResources()) {
+          String uri = resource.getUri();
+          try {
+            if (uri.contains("*") || uri.contains("?")) {
+              // A wild card was found.
+              String[] uriList = findResources(resource.getUri());
+              if (uriList.length > 0) {
+                List<Resource> resourceList =
+                    new ArrayList<Resource>(uriList.length);
+                logger.debug("Expanding: {}", uri);
+                for (String newURI : uriList) {
+                  logger.debug("  to: {}", newURI);
+                  resourceList.add(Resource.create(newURI, resource.getType()));
+                }
+                replaceMap.put(resource, resourceList);
+              }
+            }
+          } catch (IOException ex) {
+            throw new WroRuntimeException("Resource " + uri
+                + " cannot be processed.", ex);
+          }
+        }
+        for (Entry<Resource, List<Resource>> entry : replaceMap.entrySet()) {
+          group.replace(entry.getKey(), entry.getValue());
+        }
+        replaceMap.clear();
+      }
+      return model;
+    }
+
+    /**
+     * Find all the resources that matches the given wildcard expression.
+     *
+     * @param uri The wild-card expression.
+     * @return All the uri resources associated.
+     * @throws IOException If a resource cannot be read.
+     */
+    private String[] findResources(final String uri) throws IOException {
+      org.springframework.core.io.Resource[] resources =
+          applicationContext.getResources(uri);
+      if (resources == null || resources.length < 2) {
+        return new String[0];
+      }
+      String[] uris = new String[resources.length];
+      for (int i = 0; i < uris.length; i++) {
+        org.springframework.core.io.Resource resource = resources[i];
+        if (resource instanceof ClassPathResource) {
+          uris[i] = ((ClassPathResource) resource).getPath();
+        } else if (resource instanceof ServletContextResource) {
+          uris[i] = ((ServletContextResource) resource).getPath();
+        } else if (resource instanceof FileSystemResource) {
+          uris[i] = ((FileSystemResource) resource).getPath();
+        } else {
+          uris[i] = resource.getURL().toString();
+        }
+      }
+      return uris;
+    }
   }
 
   /**
@@ -432,39 +583,64 @@ public abstract class WroBaseModule {
   /**
    * Publish a {@link BaseWroManagerFactory}.
    *
+   * @param applicationContext The application context. Required.
    * @param environment The application's environment. Required.
-   * @param mode The application's mmode. Required.
+   * @param mode The application's mode. Required.
+   * @param wroModelFactory The wro model factory. Required.
    * @param processorsFactory The user-defined {@link ProcessorsFactory}.
-   *          Required.
+   *        Required.
    * @param uriLocatorFactory The {@link UriLocatorFactory}. Required.
    * @return A new {@link BaseWroManagerFactory}.
    */
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Bean
-  public BaseWroManagerFactory wroManagerFactory(final Environment environment,
-      final Mode mode, final ProcessorsFactory processorsFactory,
+  public BaseWroManagerFactory wroManagerFactory(
+      final ApplicationContext applicationContext,
+      final Environment environment, final Mode mode,
+      final WroModelFactory wroModelFactory,
+      final ProcessorsFactory processorsFactory,
       final UriLocatorFactory uriLocatorFactory) {
-    checkNotNull(environment, "The application's environment is required.");
-    checkNotNull(mode, "The application's descriptor is required.");
-    checkNotNull(processorsFactory, "The processor's factory is required.");
-    checkNotNull(uriLocatorFactory, "The uri locator factory is required.");
+    notNull(applicationContext, "The application's context is required.");
+    notNull(environment, "The application's environment is required.");
+    notNull(mode, "The application's descriptor is required.");
+    notNull(processorsFactory, "The processor's factory is required.");
+    notNull(uriLocatorFactory, "The uri locator factory is required.");
+
     BaseWroManagerFactory wroManagerFactory = new BaseWroManagerFactory();
-    wroManagerFactory
-        .setUriLocatorFactory(uriLocatorFactory)
-        .setModelFactory(wroModelFactory());
 
     wroManagerFactory
-        .addModelTransformer(new WildcardExpanderModelTransformer());
-    if (mode.isDev()) {
-      wroManagerFactory.addModelTransformer(new GroupPerFileModel());
-      wroManagerFactory.setGroupExtractor(new GroupPerFileExtractor());
-      wroManagerFactory.setProcessorsFactory(processorsFactory(
-          mode, processorsFactory, uriLocatorFactory,
-          environment));
+        .setUriLocatorFactory(uriLocatorFactory)
+        .setModelFactory(new WildcardModelFactory(
+            applicationContext, wroModelFactory));
+
+    List<Transformer> transformers =
+        Beans.lookFor(applicationContext, Transformer.class);
+
+    GroupExtractor groupExtractor =
+        Beans.get(applicationContext, GroupExtractor.class);
+
+    boolean useDefaults =
+        transformers.size() == 0 && groupExtractor == null;
+
+    if (useDefaults) {
+      if (mode.isDev()) {
+        GroupPerFileModel groupPerFileModel = new GroupPerFileModel();
+        wroManagerFactory.addModelTransformer(groupPerFileModel);
+        wroManagerFactory.setGroupExtractor(groupPerFileModel);
+      }
     } else {
-      wroManagerFactory.setProcessorsFactory(processorsFactory(
-          mode, processorsFactory, uriLocatorFactory,
-          environment));
+      for (Transformer transformer : transformers) {
+        wroManagerFactory.addModelTransformer(transformer);
+      }
+      if (groupExtractor != null) {
+        wroManagerFactory.setGroupExtractor(groupExtractor);
+      }
     }
+
+    wroManagerFactory.setProcessorsFactory(
+        processorsFactory(mode, processorsFactory, uriLocatorFactory,
+            environment));
+
     return wroManagerFactory;
   }
 
@@ -495,7 +671,6 @@ public abstract class WroBaseModule {
     }
     // Do nothing.
     return new HandlerInterceptorAdapter() {
-
     };
   }
 
@@ -515,14 +690,12 @@ public abstract class WroBaseModule {
       final Environment environment) {
     SimpleProcessorsFactory result = new SimpleProcessorsFactory();
     for (ResourcePreProcessor processor : processors.getPreProcessors()) {
-      if (applyProcessor(mode, uriLocatorFactory, environment, processor)) {
-        result.addPreProcessor(processor);
-      }
+      configureProcessor(mode, uriLocatorFactory, environment, processor);
+      result.addPreProcessor(processor);
     }
     for (ResourcePostProcessor processor : processors.getPostProcessors()) {
-      if (applyProcessor(mode, uriLocatorFactory, environment, processor)) {
-        result.addPostProcessor(processor);
-      }
+      configureProcessor(mode, uriLocatorFactory, environment, processor);
+      result.addPostProcessor(processor);
     }
     return result;
   }
@@ -534,9 +707,8 @@ public abstract class WroBaseModule {
    * @param uriLocatorFactory The uri locator factory.
    * @param environment The application's environment.
    * @param processor The candidate processor.
-   * @return True if the given processor apply for the enviroment.
    */
-  private static boolean applyProcessor(final Mode mode,
+  private static void configureProcessor(final Mode mode,
       final UriLocatorFactory uriLocatorFactory, final Environment environment,
       final Object processor) {
     // Check for specific contract
@@ -550,21 +722,6 @@ public abstract class WroBaseModule {
     if (processor instanceof ModeAware) {
       ((ModeAware) processor).setMode(mode);
     }
-    return true;
   }
 
-  /**
-   * Convert the given file's name to a wro group's name.
-   *
-   * @param filename The file's name.
-   * @return The group's name.
-   */
-  private static String fileToGroup(final String filename) {
-    String group = filename;
-    if (group.startsWith("/")) {
-      group = group.substring(1);
-    }
-    group = FilenameUtils.removeExtension(group);
-    return group.replace("/", "_");
-  }
 }

@@ -18,7 +18,7 @@ import ro.isdc.wro.model.resource.ResourceType;
  * @author edgar.espina
  * @since 0.1
  */
-final class JavaScriptExporter extends WroContribution {
+public class JavaScriptExporter extends WroContribution {
 
   /**
    * The list of script resources.

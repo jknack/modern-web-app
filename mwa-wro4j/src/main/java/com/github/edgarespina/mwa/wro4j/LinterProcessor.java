@@ -105,4 +105,8 @@ final class LinterProcessor extends AbstractLinterProcessor implements
     return new LinterProcessor(new JsLint(), options);
   }
 
+  @Override
+  public String toString() {
+    return linter.getClass().getSimpleName();
+  }
 }

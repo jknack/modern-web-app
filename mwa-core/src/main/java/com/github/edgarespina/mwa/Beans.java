@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -36,5 +37,22 @@ public final class Beans {
       result.addAll(beans);
     }
     return result;
+  }
+
+  /**
+   * Look for bean of an specific type in the Application Context.
+   *
+   * @param context The application context.
+   * @param beanType The bean type to look for.
+   * @param <T> The bean generic type.
+   * @return The matching bean or null.
+   */
+  public static <T> T get(final ApplicationContext context,
+      final Class<T> beanType) {
+    try {
+      return context.getBean(beanType);
+    } catch (BeansException ex) {
+      return null;
+    }
   }
 }

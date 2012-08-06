@@ -110,6 +110,6 @@ public class ConditionalProcessor extends ExtendedProcessorDecorator {
 
   @Override
   public String toString() {
-    return "?@" + getDecoratedObject().toString();
+    return getDecoratedObject() + "?";
   }
 }

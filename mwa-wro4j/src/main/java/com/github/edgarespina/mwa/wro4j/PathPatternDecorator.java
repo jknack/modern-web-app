@@ -6,16 +6,13 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 
 import ro.isdc.wro.WroRuntimeException;
 import ro.isdc.wro.model.resource.Resource;
-import ro.isdc.wro.model.resource.processor.support.ProcessorDecorator;
-
-import com.google.common.base.Joiner;
+import ro.isdc.wro.model.resource.processor.decorator.ProcessorDecorator;
 
 /**
  * A {@link ProcessorDecorator} with Ant path style support.
@@ -42,7 +39,12 @@ public class PathPatternDecorator extends ExtendedProcessorDecorator {
   private final AntPathMatcher matcher;
 
   /**
-   * Creates a new {@link PathPatternDecorator}.
+   * Shall we include paths?
+   */
+  private boolean includes;
+
+  /**
+   * Creates a new {@link ExtendedProcessorDecorator}.
    *
    * @param processor The target processor. Required.
    * @param includes True if a possitive filter should be applied.
@@ -52,19 +54,8 @@ public class PathPatternDecorator extends ExtendedProcessorDecorator {
       final String... patterns) {
     super(processor);
     notEmpty(patterns, "A pattern set is required.");
-    this.matcher = new AntPathMatcher() {
-      @Override
-      public boolean match(final String pattern, final String path) {
-        boolean match = super.match(pattern, path);
-        return includes ? match : !match;
-      }
-
-      @Override
-      public String toString() {
-        return (includes ? "" : "~") + "(" + Joiner.on(" OR ").join(patterns)
-            + ")";
-      }
-    };
+    this.includes = includes;
+    matcher = new AntPathMatcher();
     this.patterns = patterns;
   }
 
@@ -76,17 +67,36 @@ public class PathPatternDecorator extends ExtendedProcessorDecorator {
       final Writer writer)
       throws IOException {
     if (resource != null) {
-      for (String pattern : patterns) {
-        if (matcher.match(pattern, resource.getUri())) {
-          logger.debug("Processing resource: {} match found: {}",
-              resource.getUri(), matcher);
+      String uri = resource.getUri();
+      if (includes) {
+        // Match (p1 OR p2 OR .. pn)
+        for (String pattern : patterns) {
+          if (matcher.match(pattern, uri)) {
+            logger.debug("Processing resource: {}. Match found: {}",
+                uri, toString());
+            getDecoratedObject().process(resource, reader, writer);
+            return;
+          }
+        }
+      } else {
+        boolean process = true;
+        // Match !(p1 AND p2 AND .. pn)
+        for (String pattern : patterns) {
+          if (matcher.match(pattern, uri)) {
+            process = false;
+            break;
+          }
+        }
+        if (process) {
+          logger.debug("Processing resource: {}. Match found: {}", uri,
+              toString());
           getDecoratedObject().process(resource, reader, writer);
           return;
         }
       }
-      logger.debug("Skipping resource: {} no match found: {}",
-          resource.getUri(), matcher);
-      IOUtils.copy(reader, writer);
+      logger.debug("Skipping {} from {}. No match found: {}", new Object[] {
+          uri, getDecoratedObject(), toString() });
+      WroHelper.safeCopy(reader, writer);
     } else {
       throw new WroRuntimeException("Wrong usage of "
           + toString() + ". Please use it as a pre-processor.");
@@ -98,6 +108,13 @@ public class PathPatternDecorator extends ExtendedProcessorDecorator {
    */
   @Override
   public String toString() {
-    return getDecoratedObject().getClass().getName() + "@decorated";
+    StringBuilder buffer = new StringBuilder(includes ? "(" : "!(");
+    String separator = includes ? " || " : " && ";
+    for (String pattern : patterns) {
+      buffer.append(pattern).append(separator);
+    }
+    buffer.setLength(buffer.length() - separator.length());
+    buffer.append(")");
+    return buffer.toString();
   }
 }
