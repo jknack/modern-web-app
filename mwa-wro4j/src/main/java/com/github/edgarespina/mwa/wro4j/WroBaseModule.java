@@ -49,6 +49,7 @@ import ro.isdc.wro.model.factory.WroModelFactory;
 import ro.isdc.wro.model.factory.WroModelFactoryDecorator;
 import ro.isdc.wro.model.group.DefaultGroupExtractor;
 import ro.isdc.wro.model.group.Group;
+import ro.isdc.wro.model.group.GroupExtractor;
 import ro.isdc.wro.model.resource.Resource;
 import ro.isdc.wro.model.resource.locator.ClasspathUriLocator;
 import ro.isdc.wro.model.resource.locator.UrlUriLocator;
@@ -63,6 +64,7 @@ import ro.isdc.wro.model.transformer.WildcardExpanderModelTransformer.NoMoreAtte
 import ro.isdc.wro.util.ObjectFactory;
 import ro.isdc.wro.util.Transformer;
 
+import com.github.edgarespina.mwa.Beans;
 import com.github.edgarespina.mwa.FilterMapping;
 import com.github.edgarespina.mwa.Mode;
 import com.github.edgarespina.mwa.ModeAware;
@@ -360,6 +362,21 @@ public abstract class WroBaseModule {
     private ApplicationContext applicationContext;
 
     /**
+     * A lock.
+     */
+    private final Object lock = new Object();
+
+    /**
+     * A cached model for no-dev environment.
+     */
+    private WroModel expanded = null;
+
+    /**
+     * The application's mode.
+     */
+    private Mode mode;
+
+    /**
      * Creates new {@link WildcardModelFactory}.
      *
      * @param applicationContext The application's context. Required.
@@ -371,11 +388,30 @@ public abstract class WroBaseModule {
       super(decorated);
       this.applicationContext =
           notNull(applicationContext, "The application's context is required.");
+      mode = applicationContext.getBean(Mode.class);
     }
 
     @Override
     public WroModel create() {
-      WroModel model = super.create();
+      if (mode.isDev()) {
+        return expand(super.create());
+      } else {
+        synchronized (lock) {
+          if (expanded == null) {
+            expanded = expand(super.create());
+          }
+        }
+        return expanded;
+      }
+    }
+
+    /**
+     * Expand the model if need it.
+     *
+     * @param model The wroModel
+     * @return The same model.
+     */
+    private WroModel expand(final WroModel model) {
       for (Group group : model.getGroups()) {
         Map<Resource, List<Resource>> replaceMap =
             new HashMap<Resource, List<Resource>>();
@@ -556,6 +592,7 @@ public abstract class WroBaseModule {
    * @param uriLocatorFactory The {@link UriLocatorFactory}. Required.
    * @return A new {@link BaseWroManagerFactory}.
    */
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Bean
   public BaseWroManagerFactory wroManagerFactory(
       final ApplicationContext applicationContext,
@@ -576,10 +613,28 @@ public abstract class WroBaseModule {
         .setModelFactory(new WildcardModelFactory(
             applicationContext, wroModelFactory));
 
-    if (mode.isDev()) {
-      GroupPerFileModel groupPerFileModel = new GroupPerFileModel();
-      wroManagerFactory.addModelTransformer(groupPerFileModel);
-      wroManagerFactory.setGroupExtractor(groupPerFileModel);
+    List<Transformer> transformers =
+        Beans.lookFor(applicationContext, Transformer.class);
+
+    GroupExtractor groupExtractor =
+        Beans.get(applicationContext, GroupExtractor.class);
+
+    boolean useDefaults =
+        transformers.size() == 0 && groupExtractor == null;
+
+    if (useDefaults) {
+      if (mode.isDev()) {
+        GroupPerFileModel groupPerFileModel = new GroupPerFileModel();
+        wroManagerFactory.addModelTransformer(groupPerFileModel);
+        wroManagerFactory.setGroupExtractor(groupPerFileModel);
+      }
+    } else {
+      for (Transformer transformer : transformers) {
+        wroManagerFactory.addModelTransformer(transformer);
+      }
+      if (groupExtractor != null) {
+        wroManagerFactory.setGroupExtractor(groupExtractor);
+      }
     }
 
     wroManagerFactory.setProcessorsFactory(
