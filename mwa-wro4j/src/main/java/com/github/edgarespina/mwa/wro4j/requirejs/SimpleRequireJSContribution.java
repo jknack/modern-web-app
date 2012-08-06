@@ -1,4 +1,4 @@
-package com.github.edgarespina.mwa.wro4j;
+package com.github.edgarespina.mwa.wro4j.requirejs;
 
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 import static org.apache.commons.io.FilenameUtils.getName;
@@ -17,6 +17,7 @@ import ro.isdc.wro.manager.factory.BaseWroManagerFactory;
 import ro.isdc.wro.model.group.Group;
 import ro.isdc.wro.model.resource.Resource;
 
+import com.github.edgarespina.mwa.wro4j.WroContribution;
 import com.google.common.collect.Sets;
 
 /**
@@ -29,7 +30,7 @@ import com.google.common.collect.Sets;
  * @author edgar.espina
  * @since 0.2.2
  */
-public class RequireJSContribution extends WroContribution {
+public class SimpleRequireJSContribution extends WroContribution {
 
   /**
    * Require.js default timeout.
@@ -116,7 +117,7 @@ public class RequireJSContribution extends WroContribution {
    *
    * @param wroManagerFactory The {@link BaseWroManagerFactory}. Required.
    */
-  public RequireJSContribution(
+  public SimpleRequireJSContribution(
       final BaseWroManagerFactory wroManagerFactory) {
     super(wroManagerFactory);
     this.variableName = VARIABLE_NAME;
@@ -192,7 +193,7 @@ public class RequireJSContribution extends WroContribution {
    *        loading a script. The default is 7 seconds.
    * @return This {@link RequireJSContributionFixed}.
    */
-  public RequireJSContribution waitSeconds(final int waitSeconds) {
+  public SimpleRequireJSContribution waitSeconds(final int waitSeconds) {
     this.waitSeconds = waitSeconds;
     return this;
   }
@@ -203,7 +204,7 @@ public class RequireJSContribution extends WroContribution {
    * @param loadOn The load-on strategy. Required.
    * @return This require contribution.
    */
-  public RequireJSContribution withLoadOn(final LoadOn loadOn) {
+  public SimpleRequireJSContribution withLoadOn(final LoadOn loadOn) {
     Validate.notNull(loadOn, "The load-on strategy is required.");
     this.loadOn = loadOn;
     return this;
