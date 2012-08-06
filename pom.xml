@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.edgarespina</groupId>
   <artifactId>modern-web-app</artifactId>
   <packaging>pom</packaging>
-  <version>0.2.6-SNAPSHOT</version>
+  <version>0.2.6</version>
   <name>A Modern Web App Archicture</name>
 
   <url>https://github.com/edgarespina/modern-web-app</url>
@@ -690,15 +689,13 @@
                 <configuration>
                   <target>
                     <fileset id="configFiles" dir="${project.config.directory}" />
-                    <pathconvert pathsep="," property="need.to.delete"
-                      refid="configFiles">
+                    <pathconvert pathsep="," property="need.to.delete" refid="configFiles">
                       <mapper>
                         <flattenmapper />
                       </mapper>
                     </pathconvert>
                     <delete verbose="true">
-                      <fileset dir="${project.build.directory}/classes"
-                        includes="${need.to.delete}" />
+                      <fileset dir="${project.build.directory}/classes" includes="${need.to.delete}" />
                     </delete>
                   </target>
                 </configuration>
@@ -855,8 +852,7 @@
                 <configuration>
                   <target>
                     <mkdir dir="${querydsl-jpa-apt-dir}" />
-                    <get src="${querydsl-jpa-apt-remote-file}" dest="${querydsl-jpa-apt-path}"
-                      usetimestamp="true" skipexisting="true" />
+                    <get src="${querydsl-jpa-apt-remote-file}" dest="${querydsl-jpa-apt-path}" usetimestamp="true" skipexisting="true" />
                   </target>
                 </configuration>
                 <goals>
@@ -1040,7 +1036,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <connection>scm:git:git@github.com:edgarespina/modern-web-app.git</connection>
     <developerConnection>scm:git:git@github.com:edgarespina/modern-web-app.git</developerConnection>
     <url>scm:git:git@github.com:edgarespina/modern-web-app.git</url>
-    <tag>HEAD</tag>
+    <tag>modern-web-app-0.2.6</tag>
   </scm>
 
   <distributionManagement>
