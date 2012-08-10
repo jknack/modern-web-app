@@ -1,7 +1,6 @@
 package com.github.edgarespina.mwa.wro4j.requirejs;
 
 import static org.apache.commons.io.FilenameUtils.getBaseName;
-import static org.apache.commons.io.FilenameUtils.getPathNoEndSeparator;
 
 import java.io.File;
 import java.io.FileReader;
@@ -39,9 +38,71 @@ import com.github.edgarespina.mwa.wro4j.WroHelper;
 import com.google.common.collect.Lists;
 
 /**
- * A require.js processor. This processor is off in debug mode. It use a modify
- * version of r.js for rhino. The custom version doesn't write the output to a
- * file, instead it save the output to a global variable.
+ * <p>
+ * A require.js processor. Please note this processor should be off during
+ * development. You must follow these steps for making it work:
+ * </p>
+ * <p>
+ * 1. Configure a fallback group.
+ * </p>
+ *
+ * <pre>
+ * {@code
+ *  wro.xml:
+ *  <group name="fallback">
+ *    <js>/js/*.js
+ *  ...
+ * }
+ * </pre>
+ *
+ * With this, wro will see all your *.js files during development (mode=dev).
+ * <p>
+ * 2. Configure a require.js group
+ *
+ * <pre>
+ * {@code
+ *  wro.xml:
+ *  <group name="home">
+ *    <js>/js/home.js
+ *  ...
+ * }
+ * </pre>
+ *
+ * </p>
+ * Here is where you define a wro group that will be processed by require.js.
+ * Remember you just need to add the 'AMD' module that will load all the
+ * dependencies (e.g. 'home'). Require.js will trace all the dependencies of
+ * 'home' and bundle them all together.
+ * <p>
+ * 3. Configure a build profile to instruct require.js how to build. The
+ * processor can use custom build profiles if you store them in a "/build"
+ * directory inside your web context.
+ *
+ * <pre>
+ *  src/main/webapp/build/build.js:
+ *  ({
+ *    paths: {
+ *      "underscore": "empty:",
+ *      "backbone": "empty:",
+ *      "mustache": "empty:",
+ *      "jquery": "empty:",
+ *      "jqueryUI": "js/libs/jquery-ui-1.8.18.custom"
+ *    }
+ *   })
+ * </pre>
+ *
+ * Please note that path are resolved using the web context (e.g. "/").
+ * <p>
+ * Build profile precedence:
+ * </p>
+ * <ol>
+ * <li>[groupName].[profile].js: where profile is a request parameter. Example:
+ * /group.js?profile=myExternalApp
+ * <li>[groupName].[mode].js: where module is resolved from the application.mode
+ * environment property.
+ * <li>build.[profile].js: same as 1) except that represents a global profile.
+ * <li>build.[profile].js: same as 2) except that represents a global profile.
+ * </ol>
  *
  * @author edgar.espina
  * @since 0.2.3
@@ -74,7 +135,7 @@ public class RequireJsProcessor implements ResourcePostProcessor, ModeAware {
       String rjs = "r-2.0.4.js";
       logger.debug("Loading: {}", rjs);
       in = script(rjs);
-      this.source = IOUtils.toString(in);
+      source = IOUtils.toString(in);
     } catch (Exception ex) {
       throw new IllegalStateException("Cannot load r.js", ex);
     } finally {
@@ -99,14 +160,15 @@ public class RequireJsProcessor implements ResourcePostProcessor, ModeAware {
         final String profile = currentRequest.getParameter("profile");
         final String uri = currentRequest.getRequestURI().replace(
             servletContext.getContextPath(), "");
-        final String path = getPathNoEndSeparator(uri);
         final String baseName = getBaseName(uri);
         final String name = baseName + "-" + System.nanoTime();
         final String appDir = servletContext.getRealPath("/");
-        final String baseUrl = appDir + path;
-        final File tmpIn = new File(baseUrl, name + ".js");
+        final String base = appDir;
+        // mkdirs
+        new File(base).mkdirs();
+        final String baseBuild = base + "/build";
+        final File tmpIn = new File(base, name + ".js");
         final File out = new File(tmpdir, name + "-bundle.js");
-
         // safe the current input to file and use it. doing this we make sure
         // that if any previous processor in the chain changed the input we use
         // that in r.js.
@@ -116,20 +178,20 @@ public class RequireJsProcessor implements ResourcePostProcessor, ModeAware {
         List<String> args = Lists.newArrayList(
             "-o",
             "name=" + name,
-            "baseUrl=" + baseUrl,
+            "baseUrl=" + base,
             "out=" + out.getAbsolutePath(),
             "optimize=none"
             );
 
         // Find a specific build profile for the given file.
         File build =
-            buildFile(baseUrl, baseName, profile, mode.name());
+            buildFile(baseBuild, baseName, profile, mode.name());
         if (build == null) {
           // no luck, find a global profile per environment
-          build = buildFile(baseUrl, "build", profile, mode.name());
+          build = buildFile(baseBuild, "build", profile, mode.name());
           if (build == null) {
             // no luck, defaults to build.js
-            build = new File(baseUrl, "build.js");
+            build = new File(baseBuild, "build.js");
           }
         }
         if (build.exists()) {
