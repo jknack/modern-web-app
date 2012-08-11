@@ -51,13 +51,13 @@ public class CssExporter extends WroContribution {
       final ModelAndView modelAndView,
       final Map<String, Group> additionalGroups) throws IOException {
     Map<String, Object> model = modelAndView.getModel();
-    String view = modelAndView.getViewName();
+    String bundleName = group.getName();
     StringBuilder buffer = new StringBuilder();
     String contextPath = (String) model.get(CONTEXT_PATH);
     if (useCache()) {
       buffer.append("<link rel=\"stylesheet\" text=\"text/css\" href=\"")
-          .append(contextPath).append("/bundle/").append(view)
-          .append(".css").append("?v=").append(version).append("\">");
+          .append(contextPath).append("/bundle/").append(bundleName)
+          .append(".css").append("?=v").append(version).append("\">");
     } else {
       List<Resource> candidates = group.getResources();
       List<Resource> resources = new ArrayList<Resource>();

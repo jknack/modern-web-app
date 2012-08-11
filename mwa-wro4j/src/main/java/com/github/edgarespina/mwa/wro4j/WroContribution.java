@@ -175,7 +175,7 @@ public abstract class WroContribution extends AbstractModelContribution {
       final HttpServletResponse response, final ModelAndView modelAndView)
       throws IOException {
     try {
-      String group = modelAndView.getViewName();
+      String group = defaultGroup(modelAndView);
       Map<String, Group> groups = lookupGroups(request, response, group);
       doContribution(groups.remove(group), modelAndView, groups);
     } catch (InvalidGroupNameException ex) {
@@ -184,6 +184,16 @@ public abstract class WroContribution extends AbstractModelContribution {
       model.put(resourcesVarName(), Collections.emptyList());
       logger.error("Groups not found: " + ex.getMessage(), ex);
     }
+  }
+
+  /**
+   * Extract the default group name from the model.
+   *
+   * @param modelAndView The model and view.
+   * @return The group's name.
+   */
+  protected String defaultGroup(final ModelAndView modelAndView) {
+    return modelAndView.getViewName();
   }
 
   /**

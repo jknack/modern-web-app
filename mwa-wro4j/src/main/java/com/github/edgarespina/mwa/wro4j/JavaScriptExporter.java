@@ -47,18 +47,19 @@ public class JavaScriptExporter extends WroContribution {
   protected void doContribution(final Group group,
       final ModelAndView modelAndView,
       final Map<String, Group> additionalGroups) throws IOException {
-    String view = modelAndView.getViewName();
+    String bundle = group.getName();
     Map<String, Object> model = modelAndView.getModel();
     StringBuilder buffer = new StringBuilder();
     String contextPath = (String) model.get(CONTEXT_PATH);
     if (useCache()) {
-      buffer.append(script(contextPath, "/bundle/" + view + ".js", version));
+      buffer.append(script(contextPath, "/bundle/" + bundle + ".js?v="
+          + version));
     } else {
       List<Resource> candidates = group.getResources();
       List<Resource> resources = new ArrayList<Resource>();
       for (Resource resource : candidates) {
         if (resource.getType() == ResourceType.JS) {
-          buffer.append(script(contextPath, resource.getUri(), null));
+          buffer.append(script(contextPath, resource.getUri()));
           resources.add(resource);
         }
       }
@@ -74,17 +75,12 @@ public class JavaScriptExporter extends WroContribution {
    *
    * @param contextPath The app context path.
    * @param path The location of the file.
-   * @param version The version. Optional.
    * @return A script element.
    */
-  private String script(final String contextPath, final String path,
-      final String version) {
+  private String script(final String contextPath, final String path) {
     String script = "<script type='text/javascript' src='%s'></script>\n";
     StringBuilder file = new StringBuilder(contextPath)
         .append(path);
-    if (version != null) {
-      file.append("?v=").append(version);
-    }
     return String.format(script, file.toString());
   }
 
