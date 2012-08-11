@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -413,8 +414,8 @@ public abstract class WroBaseModule {
      */
     private WroModel expand(final WroModel model) {
       for (Group group : model.getGroups()) {
-        Map<Resource, List<Resource>> replaceMap =
-            new HashMap<Resource, List<Resource>>();
+        List<Resource> resourceList = new ArrayList<Resource>();
+        boolean expanded = false;
         for (Resource resource : group.getResources()) {
           String uri = resource.getUri();
           try {
@@ -422,25 +423,25 @@ public abstract class WroBaseModule {
               // A wild card was found.
               String[] uriList = findResources(resource.getUri());
               if (uriList.length > 0) {
-                List<Resource> resourceList =
-                    new ArrayList<Resource>(uriList.length);
-                logger.debug("Expanding: {}", uri);
+                logger.debug("Expanding {}: {}", group.getName(), uri);
+                expanded = true;
                 for (String newURI : uriList) {
                   logger.debug("  to: {}", newURI);
                   resourceList.add(Resource.create(newURI, resource.getType()));
                 }
-                replaceMap.put(resource, resourceList);
               }
+            } else {
+              resourceList.add(resource);
             }
           } catch (IOException ex) {
             throw new WroRuntimeException("Resource " + uri
                 + " cannot be processed.", ex);
           }
         }
-        for (Entry<Resource, List<Resource>> entry : replaceMap.entrySet()) {
-          group.replace(entry.getKey(), entry.getValue());
+        if (expanded) {
+          // Override everything.
+          group.setResources(resourceList);
         }
-        replaceMap.clear();
       }
       return model;
     }
@@ -453,25 +454,30 @@ public abstract class WroBaseModule {
      * @throws IOException If a resource cannot be read.
      */
     private String[] findResources(final String uri) throws IOException {
-      org.springframework.core.io.Resource[] resources =
-          applicationContext.getResources(uri);
-      if (resources == null || resources.length < 2) {
+      try {
+        org.springframework.core.io.Resource[] resources =
+            applicationContext.getResources(uri);
+        if (resources == null || resources.length == 0) {
+          return new String[0];
+        }
+        String[] uris = new String[resources.length];
+        for (int i = 0; i < uris.length; i++) {
+          org.springframework.core.io.Resource resource = resources[i];
+          if (resource instanceof ClassPathResource) {
+            uris[i] = ((ClassPathResource) resource).getPath();
+          } else if (resource instanceof ServletContextResource) {
+            uris[i] = ((ServletContextResource) resource).getPath();
+          } else if (resource instanceof FileSystemResource) {
+            uris[i] = ((FileSystemResource) resource).getPath();
+          } else {
+            uris[i] = resource.getURL().toString();
+          }
+        }
+        return uris;
+      } catch (FileNotFoundException ex) {
+        logger.debug("Ignoring: {}. Reason: {}", uri, ex);
         return new String[0];
       }
-      String[] uris = new String[resources.length];
-      for (int i = 0; i < uris.length; i++) {
-        org.springframework.core.io.Resource resource = resources[i];
-        if (resource instanceof ClassPathResource) {
-          uris[i] = ((ClassPathResource) resource).getPath();
-        } else if (resource instanceof ServletContextResource) {
-          uris[i] = ((ServletContextResource) resource).getPath();
-        } else if (resource instanceof FileSystemResource) {
-          uris[i] = ((FileSystemResource) resource).getPath();
-        } else {
-          uris[i] = resource.getURL().toString();
-        }
-      }
-      return uris;
     }
   }
 
