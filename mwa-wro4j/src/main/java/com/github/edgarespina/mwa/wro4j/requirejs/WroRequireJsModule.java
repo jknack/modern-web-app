@@ -26,8 +26,8 @@ public class WroRequireJsModule extends WroBaseModule {
    * @return A new require configuration.
    */
   @Bean
-  public RequireConfigContribution wroRequireConfigContrib(
+  public RequireJsConfig wroRequireConfigContrib(
       final BaseWroManagerFactory wroManagerFactory) {
-    return new RequireConfigContribution(wroManagerFactory);
+    return new RequireJsConfig(wroManagerFactory);
   }
 }

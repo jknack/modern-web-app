@@ -50,16 +50,14 @@ public class JavaScriptExporter extends WroContribution {
     String bundle = group.getName();
     Map<String, Object> model = modelAndView.getModel();
     StringBuilder buffer = new StringBuilder();
-    String contextPath = (String) model.get(CONTEXT_PATH);
     if (useCache()) {
-      buffer.append(script(contextPath, "/bundle/" + bundle + ".js?v="
-          + version));
+      buffer.append(script("/bundle/" + bundle + ".js?v=" + version));
     } else {
       List<Resource> candidates = group.getResources();
       List<Resource> resources = new ArrayList<Resource>();
       for (Resource resource : candidates) {
         if (resource.getType() == ResourceType.JS) {
-          buffer.append(script(contextPath, resource.getUri()));
+          buffer.append(script(resource.getUri()));
           resources.add(resource);
         }
       }
@@ -68,20 +66,6 @@ public class JavaScriptExporter extends WroContribution {
     // 2. Publish as a model attribute.
     model.put(varName(), buffer.toString());
     logger.trace("Publishing {}:\n{}", varName(), buffer);
-  }
-
-  /**
-   * Generate a script element.
-   *
-   * @param contextPath The app context path.
-   * @param path The location of the file.
-   * @return A script element.
-   */
-  private String script(final String contextPath, final String path) {
-    String script = "<script type='text/javascript' src='%s'></script>\n";
-    StringBuilder file = new StringBuilder(contextPath)
-        .append(path);
-    return String.format(script, file.toString());
   }
 
   /**

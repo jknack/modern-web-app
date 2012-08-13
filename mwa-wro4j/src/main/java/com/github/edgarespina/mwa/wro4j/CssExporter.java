@@ -53,11 +53,8 @@ public class CssExporter extends WroContribution {
     Map<String, Object> model = modelAndView.getModel();
     String bundleName = group.getName();
     StringBuilder buffer = new StringBuilder();
-    String contextPath = (String) model.get(CONTEXT_PATH);
     if (useCache()) {
-      buffer.append("<link rel=\"stylesheet\" text=\"text/css\" href=\"")
-          .append(contextPath).append("/bundle/").append(bundleName)
-          .append(".css").append("?=v").append(version).append("\">");
+      buffer.append(link("/bundle/" + bundleName + ".css?v=" + version));
     } else {
       List<Resource> candidates = group.getResources();
       List<Resource> resources = new ArrayList<Resource>();
@@ -67,8 +64,7 @@ public class CssExporter extends WroContribution {
           String uri = "/" + getPath(resource.getUri())
               + getBaseName(resource.getUri()) + ".css";
           // 1. Collect css.
-          buffer.append("<link rel=\"stylesheet\" text=\"text/css\" href=\"")
-              .append(contextPath).append(uri).append("\">\n");
+          buffer.append(link(uri));
           resources.add(resource);
         }
       }

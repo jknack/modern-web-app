@@ -8,15 +8,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.ModelAndView;
 
 import ro.isdc.wro.config.Context;
@@ -37,7 +36,8 @@ import com.github.edgarespina.mwa.mvc.ModelContribution;
  * @author edgar.espina
  * @since 0.1.0
  */
-public abstract class WroContribution extends AbstractModelContribution {
+public abstract class WroContribution extends AbstractModelContribution
+    implements ServletContextAware {
 
   /**
    * A {@link FilterConfig} for wro filter.
@@ -112,6 +112,11 @@ public abstract class WroContribution extends AbstractModelContribution {
       .format(new Date());
 
   /**
+   * The wro filter config.
+   */
+  private FilterConfig wroConfig;
+
+  /**
    * Creates a new {@link WroContribution}.
    *
    * @param wroManagerFactory The {@link WroModelFactory}. Required.
@@ -126,40 +131,20 @@ public abstract class WroContribution extends AbstractModelContribution {
    *
    * @param request The HTTP request.
    * @param response The HTTP response.
-   * @param candidate The group candidate name.
    * @return The {@link WroModel} from wro.xml.
    */
   private Map<String, Group> lookupGroups(final HttpServletRequest request,
-      final HttpServletResponse response, final String candidate) {
-    Map<String, Group> groups = new HashMap<String, Group>();
+      final HttpServletResponse response) {
     try {
-      Context.set(Context.webContext(request, response, new WroFilterConfig(
-          request.getServletContext())));
-      Set<String> names = new LinkedHashSet<String>();
-      names.add(candidate);
-      names.add(candidate.replace("/", "_"));
-      names.add(candidate.replace("-", "."));
-      names.add(DEFAULT_GROUP);
+      Context.set(Context.webContext(request, response, wroConfig));
       // TODO: Add a cache for no-dev.
       Injector injector = InjectorBuilder.create(wroManagerFactory).build();
       WroModelFactory modelFactory = wroManagerFactory.getModelFactory();
       injector.inject(modelFactory);
       WroModel model = modelFactory.create();
-      for (String name : names) {
-        try {
-          Group group = model.getGroupByName(name);
-          groups.put(name, group);
-        } catch (InvalidGroupNameException ex) {
-          // It's ok, just move on.
-          logger.trace("Group not found: {}", name);
-        }
-      }
-      if (groups.isEmpty()) {
-        throw new InvalidGroupNameException("group(s) not found: "
-            + names.toString());
-      }
-      for (String name : additionalGroups()) {
-        groups.put(name, model.getGroupByName(name));
+      Map<String, Group> groups = new HashMap<String, Group>();
+      for (Group group : model.getGroups()) {
+        groups.put(group.getName(), group);
       }
       return groups;
     } finally {
@@ -175,13 +160,20 @@ public abstract class WroContribution extends AbstractModelContribution {
       final HttpServletResponse response, final ModelAndView modelAndView)
       throws IOException {
     try {
-      String group = defaultGroup(modelAndView);
-      Map<String, Group> groups = lookupGroups(request, response, group);
-      doContribution(groups.remove(group), modelAndView, groups);
+      Map<String, Group> groups = lookupGroups(request, response);
+      String candidate = defaultGroup(modelAndView);
+      Group group = groups.remove(candidate);
+      if (group == null) {
+        group = groups.remove("defaults");
+      }
+      if (group == null) {
+        throw new InvalidGroupNameException("'" + candidate
+            + "'. Available groups are: " + groups.keySet());
+      }
+      doContribution(group, modelAndView, groups);
     } catch (InvalidGroupNameException ex) {
-      Map<String, Object> model = modelAndView.getModel();
-      model.put(varName(), "");
-      model.put(resourcesVarName(), Collections.emptyList());
+      modelAndView.addObject(varName(), "");
+      modelAndView.addObject(resourcesVarName(), Collections.emptyList());
       logger.error("Groups not found: " + ex.getMessage(), ex);
     }
   }
@@ -194,15 +186,6 @@ public abstract class WroContribution extends AbstractModelContribution {
    */
   protected String defaultGroup(final ModelAndView modelAndView) {
     return modelAndView.getViewName();
-  }
-
-  /**
-   * Instruct which group should be loaded by this contribution.
-   *
-   * @return The group names.
-   */
-  protected Set<String> additionalGroups() {
-    return Collections.emptySet();
   }
 
   /**
@@ -231,4 +214,47 @@ public abstract class WroContribution extends AbstractModelContribution {
    * @return The name of the model attribute.
    */
   protected abstract String resourcesVarName();
+
+  @Override
+  public void setServletContext(final ServletContext servletContext) {
+    super.setServletContext(servletContext);
+    wroConfig = new WroFilterConfig(servletContext);
+  }
+
+  /**
+   * Generate a script element for the javascript URI.
+   *
+   * @param uri The javascript URI.
+   * @return A script HTML element.
+   */
+  protected String script(final String uri) {
+    String script = "<script type=\"text/javascript\" src=\"%s\"></script>\n";
+    return String.format(script, normalizePath(uri));
+  }
+
+  /**
+   * Check if the path start with the servlet context. If not the servlet
+   * context is prepend to the URI.
+   *
+   * @param uri A URI.
+   * @return A URI with the servlet context.
+   */
+  protected String normalizePath(final String uri) {
+    String contextPath = contextPath();
+    if (uri.startsWith(contextPath)) {
+      return uri;
+    }
+    return contextPath + (uri.startsWith("/") ? uri : "/" + uri);
+  }
+
+  /**
+   * Generate a link element for the css URI.
+   *
+   * @param uri The css URI.
+   * @return A link HTML element.
+   */
+  protected String link(final String uri) {
+    String link = "<link rel=\"stylesheet\" text=\"text/css\" href=\"%s\">\n";
+    return String.format(link, normalizePath(uri));
+  }
 }

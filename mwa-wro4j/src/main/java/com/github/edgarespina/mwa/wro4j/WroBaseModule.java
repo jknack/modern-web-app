@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
@@ -69,6 +71,7 @@ import com.github.edgarespina.mwa.Beans;
 import com.github.edgarespina.mwa.FilterMapping;
 import com.github.edgarespina.mwa.Mode;
 import com.github.edgarespina.mwa.ModeAware;
+import com.github.edgarespina.mwa.mvc.MvcModule;
 
 /**
  * <p>
@@ -97,7 +100,9 @@ import com.github.edgarespina.mwa.ModeAware;
  * @since 0.1.2
  * @see Processors
  */
-public abstract class WroBaseModule {
+@Configuration
+@Import(MvcModule.class)
+public class WroBaseModule {
 
   /**
    * This class create a group for every single resource in a {@link WroModel}.

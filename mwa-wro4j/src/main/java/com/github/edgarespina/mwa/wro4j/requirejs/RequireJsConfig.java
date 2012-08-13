@@ -7,7 +7,6 @@ import static org.apache.commons.io.FilenameUtils.getPath;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.Validate;
@@ -17,8 +16,8 @@ import ro.isdc.wro.manager.factory.BaseWroManagerFactory;
 import ro.isdc.wro.model.group.Group;
 import ro.isdc.wro.model.resource.Resource;
 
+import com.github.edgarespina.mwa.wro4j.JavaScriptExporter;
 import com.github.edgarespina.mwa.wro4j.WroContribution;
-import com.google.common.collect.Sets;
 
 /**
  * Publish a model attribute that define a require.js bootstrapping function.
@@ -30,7 +29,7 @@ import com.google.common.collect.Sets;
  * @author edgar.espina
  * @since 0.2.2
  */
-public class RequireConfigContribution extends WroContribution {
+public class RequireJsConfig extends WroContribution {
 
   /**
    * Require.js default timeout.
@@ -48,7 +47,7 @@ public class RequireConfigContribution extends WroContribution {
     /**
      * No wait, load inmediately.
      */
-    INMEDIATELY {
+    NONE {
       @Override
       public String load(final String module) {
         return "require([\"" + module + "\"]);\n";
@@ -109,7 +108,7 @@ public class RequireConfigContribution extends WroContribution {
   /**
    * Should the require.js call wait for dom ready or not?
    */
-  private Loader loader = Loader.INMEDIATELY;
+  private Loader loader = Loader.NONE;
 
   /**
    * Creates a new {@link RequireJSContributionFixed} and publish require
@@ -117,10 +116,10 @@ public class RequireConfigContribution extends WroContribution {
    *
    * @param wroManagerFactory The {@link BaseWroManagerFactory}. Required.
    */
-  public RequireConfigContribution(
+  public RequireJsConfig(
       final BaseWroManagerFactory wroManagerFactory) {
     super(wroManagerFactory);
-    this.variableName = VARIABLE_NAME;
+    variableName = VARIABLE_NAME;
   }
 
   /**
@@ -133,29 +132,24 @@ public class RequireConfigContribution extends WroContribution {
   protected void doContribution(final Group group,
       final ModelAndView modelAndView, final Map<String, Group> groups)
       throws IOException {
-    String view = modelAndView.getViewName();
+    String bundle = group.getName();
     List<Resource> resources = group.getResources();
-    String contextPath = (String) modelAndView.getModel().get(CONTEXT_PATH);
     StringBuilder buffer = new StringBuilder();
     // 1. Add the require.js script
-    buffer.append("<script type=\"text/javascript\" src=\"");
     if (useCache()) {
-      buffer.append(contextPath).append("/bundle/require.js")
-          .append("?v=").append(version).append("\">");
+      buffer.append(script("/bundle/require.js?v=" + version));
     } else {
-      buffer.append(contextPath).append(requireJs(groups.get("require")))
-          .append("\">");
+      buffer.append(script(requireJs(groups.get("require"))));
     }
-    buffer.append("</script>\n");
     // 2. require.config
     buffer.append("<script>\n");
     buffer.append("require.config({\n");
     final String pathSep = ",\n";
     if (useCache()) {
       buffer.append("paths: {");
-      buffer.append("\"").append(view).append("\"").append(": \"")
-          .append(contextPath).append("/bundle/")
-          .append(view).append("\"");
+      buffer.append("\"").append(bundle).append("\"").append(": \"")
+          .append(contextPath()).append("/bundle/")
+          .append(bundle).append("\"");
       buffer.append("},\n");
       buffer.append("waitSeconds: ").append(waitSeconds).append(",\n");
       buffer.append("urlArgs: \"v=" + version + "\"");
@@ -167,7 +161,7 @@ public class RequireConfigContribution extends WroContribution {
         if (name.endsWith(".js")) {
           // 3. configure module's paths.
           String location =
-              contextPath + "/" + getPath(uri) + getBaseName(name);
+              contextPath() + "/" + getPath(uri) + getBaseName(name);
           buffer.append("\"").append(FilenameUtils.getBaseName(name))
               .append("\": ");
           buffer.append("\"").append(location).append("\"").append(pathSep);
@@ -175,10 +169,11 @@ public class RequireConfigContribution extends WroContribution {
       }
       buffer.append("waitSeconds: ").append(waitSeconds).append("\n");
       buffer.append("}\n");
+      modelAndView.addObject(resourcesVarName(), resources);
     }
     buffer.append("\n});\n");
     // 4. load the main module
-    buffer.append(loader.load(view)).append("\n");
+    buffer.append(loader.load(bundle)).append("\n");
     buffer.append("</script>\n");
     // 5. Publish as a model attribute.
     modelAndView.getModel().put(variableName, buffer.toString());
@@ -193,7 +188,7 @@ public class RequireConfigContribution extends WroContribution {
    *        loading a script. The default is 7 seconds.
    * @return This {@link RequireJSContributionFixed}.
    */
-  public RequireConfigContribution waitSeconds(final int waitSeconds) {
+  public RequireJsConfig waitSeconds(final int waitSeconds) {
     this.waitSeconds = waitSeconds;
     return this;
   }
@@ -204,7 +199,7 @@ public class RequireConfigContribution extends WroContribution {
    * @param loader The load-on strategy. Required.
    * @return This require contribution.
    */
-  public RequireConfigContribution loader(final Loader loader) {
+  public RequireJsConfig loader(final Loader loader) {
     Validate.notNull(loader, "The loader strategy is required.");
     this.loader = loader;
     return this;
@@ -222,17 +217,12 @@ public class RequireConfigContribution extends WroContribution {
   }
 
   @Override
-  protected Set<String> additionalGroups() {
-    return Sets.newHashSet("require");
-  }
-
-  @Override
   protected String varName() {
     return VARIABLE_NAME;
   }
 
   @Override
   protected String resourcesVarName() {
-    return "";
+    return JavaScriptExporter.RESOURCES;
   }
 }
