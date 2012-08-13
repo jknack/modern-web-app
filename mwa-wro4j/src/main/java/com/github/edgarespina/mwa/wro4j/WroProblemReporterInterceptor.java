@@ -6,12 +6,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -379,7 +380,7 @@ public class WroProblemReporterInterceptor extends HandlerInterceptorAdapter {
     /**
      * Prepare js and css resources.
      */
-    List<Resource> resources = new ArrayList<Resource>();
+    Set<Resource> resources = new LinkedHashSet<Resource>();
     resources.addAll(resources(model, JavaScriptExporter.RESOURCES));
     resources.addAll(resources(model, CssExporter.RESOURCES));
     for (Resource resource : resources) {
