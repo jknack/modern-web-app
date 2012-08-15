@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.edgarespina</groupId>
   <artifactId>modern-web-app</artifactId>
   <packaging>pom</packaging>
-  <version>0.2.7-SNAPSHOT</version>
+  <version>0.2.8-SNAPSHOT</version>
   <name>A Modern Web App Archicture</name>
 
   <url>https://github.com/edgarespina/modern-web-app</url>
@@ -15,6 +16,7 @@
   </description>
 
   <properties>
+    <!-- Libraries -->
     <spring-version>3.1.2.RELEASE</spring-version>
     <spring-security>3.1.1.RELEASE</spring-security>
     <spring-data-version>1.0.3.RELEASE</spring-data-version>
@@ -656,6 +658,32 @@
       </build>
     </profile>
 
+    <!-- Jetty with contextXml -->
+    <profile>
+      <id>jetty-with-contextXml</id>
+      <activation>
+        <file>
+          <exists>src/main/etc/jetty-context.xml</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <!-- Jetty Setup for development -->
+          <plugin>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-maven-plugin</artifactId>
+            <version>${jetty-maven-plugin-version}</version>
+            <configuration>
+              <webApp>
+                <contextPath>/${project.artifactId}</contextPath>
+              </webApp>
+              <contextXml>src/main/etc/jetty-context.xml</contextXml>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <!-- Configure ${project.config.directory} -->
     <profile>
       <id>config-directory</id>
@@ -689,13 +717,15 @@
                 <configuration>
                   <target>
                     <fileset id="configFiles" dir="${project.config.directory}" />
-                    <pathconvert pathsep="," property="need.to.delete" refid="configFiles">
+                    <pathconvert pathsep="," property="need.to.delete"
+                      refid="configFiles">
                       <mapper>
                         <flattenmapper />
                       </mapper>
                     </pathconvert>
                     <delete verbose="true">
-                      <fileset dir="${project.build.directory}/classes" includes="${need.to.delete}" />
+                      <fileset dir="${project.build.directory}/classes"
+                        includes="${need.to.delete}" />
                     </delete>
                   </target>
                 </configuration>
@@ -852,7 +882,8 @@
                 <configuration>
                   <target>
                     <mkdir dir="${querydsl-jpa-apt-dir}" />
-                    <get src="${querydsl-jpa-apt-remote-file}" dest="${querydsl-jpa-apt-path}" usetimestamp="true" skipexisting="true" />
+                    <get src="${querydsl-jpa-apt-remote-file}" dest="${querydsl-jpa-apt-path}"
+                      usetimestamp="true" skipexisting="true" />
                   </target>
                 </configuration>
                 <goals>
