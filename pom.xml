@@ -744,11 +744,11 @@
       <id>checkstyle</id>
       <activation>
         <file>
-          <exists>${basedir}/src/etc/modules/checkstyle.xml</exists>
+          <exists>${basedir}/src/main/etc/checkstyle.xml</exists>
         </file>
       </activation>
       <properties>
-        <checkstyle-file>${basedir}/src/etc/modules/checkstyle.xml</checkstyle-file>
+        <checkstyle-file>${basedir}/src/main/etc/checkstyle.xml</checkstyle-file>
       </properties>
       <build>
         <plugins>
@@ -780,7 +780,7 @@
       <id>findbugs</id>
       <activation>
         <file>
-          <exists>${basedir}/src/etc/modules/findbugs</exists>
+          <exists>${basedir}/src/main/etc/findbugs</exists>
         </file>
       </activation>
       <build>
@@ -859,7 +859,7 @@
       <id>querydsl-jpa</id>
       <activation>
         <file>
-          <exists>${basedir}/src/etc/modules/querydsl-jpa</exists>
+          <exists>${basedir}/src/main/etc/querydsl-jpa.md</exists>
         </file>
       </activation>
       <properties>
