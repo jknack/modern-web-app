@@ -6,14 +6,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.OrderComparator;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
@@ -22,6 +22,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerMapping;
 import org.springframework.web.servlet.handler.MappedInterceptor;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jknack.mwa.handler.MessageConverterHandlerExceptionResolver;
 
 /**
@@ -98,47 +99,95 @@ enum BeanPostProcessors {
   },
 
   /**
-   * Add custom argument resolvers.
+   * Add custom argument and return value resolvers.
    */
-  ADD_ARGUMENT_RESOLVERS_RETURN_VALUE_HANDLERS {
+  REQUEST_MAPPING_HANDLER_ADAPTER {
     @Override
     public boolean matches(final Object bean) {
       return bean instanceof RequestMappingHandlerAdapter;
     }
 
     @Override
-    public Object processBeforeInitialization(
-        final ApplicationContext context, final Object bean) {
+    public Object processAfterInitialization(final ApplicationContext context,
+        final Object bean) {
       RequestMappingHandlerAdapter handlerMapping =
           (RequestMappingHandlerAdapter) bean;
       // New applications should consider setting it to true.
       handlerMapping.setIgnoreDefaultModelOnRedirect(true);
 
       // Add custom argument resolvers
-      Set<HandlerMethodArgumentResolver> argumentResolvers =
-          new LinkedHashSet<HandlerMethodArgumentResolver>(
-              handlerMapping.getCustomArgumentResolvers());
-      argumentResolvers.addAll(Beans.lookFor(context,
-          HandlerMethodArgumentResolver.class));
-      handlerMapping.setCustomArgumentResolvers(
-          new ArrayList<HandlerMethodArgumentResolver>(argumentResolvers));
+      handlerMapping.setArgumentResolvers(argumentValueHandlers(context,
+          handlerMapping));
+
       // Add custom return value handlers
-      Set<HandlerMethodReturnValueHandler> returnValueHandlers =
-          new LinkedHashSet<HandlerMethodReturnValueHandler>(
-              handlerMapping.getCustomReturnValueHandlers());
-      returnValueHandlers.addAll(Beans.lookFor(context,
-          HandlerMethodReturnValueHandler.class));
-      handlerMapping.setCustomReturnValueHandlers(
-          new ArrayList<HandlerMethodReturnValueHandler>(returnValueHandlers));
-      // Find Jackson Converter
+      handlerMapping.setReturnValueHandlers(returnValueHandlers(context,
+          handlerMapping));
+
+      // Find Jackson2 Converter
       List<HttpMessageConverter<?>> messageConverters =
           handlerMapping.getMessageConverters();
-      MappingJacksonHttpMessageConverter jacksonMessageConverter =
-          find(messageConverters, MappingJacksonHttpMessageConverter.class);
-      ObjectMapper defaultObjectMapper =
+      MappingJackson2HttpMessageConverter jacksonMessageConverter =
+          find(messageConverters, MappingJackson2HttpMessageConverter.class);
+      ObjectMapper jackson2ObjectMapper =
           context.getBean(WebDefaults.OBJECT_MAPPER, ObjectMapper.class);
-      jacksonMessageConverter.setObjectMapper(defaultObjectMapper);
+      jacksonMessageConverter.setObjectMapper(jackson2ObjectMapper);
       return bean;
+    }
+
+    /**
+     * Merge all the {@link HandlerMethodArgumentResolver} found in the
+     * {@link RequestMappingHandlerAdapter} with all the
+     * {@link HandlerMethodArgumentResolver} found in the
+     * {@link ApplicationContext}. A {@link HandlerMethodArgumentResolver} might
+     * implement {@link Ordered} interface.
+     *
+     * @param context The application context.
+     * @param handlerMapping The request mapping handler.
+     * @return A new set of {@link HandlerMethodArgumentResolver}.
+     */
+    private List<HandlerMethodArgumentResolver> argumentValueHandlers(
+        final ApplicationContext context,
+        final RequestMappingHandlerAdapter handlerMapping) {
+      Set<HandlerMethodArgumentResolver> returnValueHandlerSet =
+          new LinkedHashSet<HandlerMethodArgumentResolver>(
+              handlerMapping.getArgumentResolvers().getResolvers());
+
+      returnValueHandlerSet.addAll(Beans.lookFor(context,
+          HandlerMethodArgumentResolver.class));
+
+      List<HandlerMethodArgumentResolver> returnValueHandlerList =
+          new ArrayList<HandlerMethodArgumentResolver>(returnValueHandlerSet);
+      OrderComparator.sort(returnValueHandlerList);
+
+      return returnValueHandlerList;
+    }
+
+    /**
+     * Merge all the {@link HandlerMethodReturnValueHandler} found in the
+     * {@link RequestMappingHandlerAdapter} with all the
+     * {@link HandlerMethodReturnValueHandler} found in the
+     * {@link ApplicationContext}. A {@link HandlerMethodReturnValueHandler}
+     * might implement {@link Ordered} interface.
+     *
+     * @param context The application context.
+     * @param handlerMapping The request mapping handler.
+     * @return A new set of {@link HandlerMethodReturnValueHandler}.
+     */
+    private List<HandlerMethodReturnValueHandler> returnValueHandlers(
+        final ApplicationContext context,
+        final RequestMappingHandlerAdapter handlerMapping) {
+      Set<HandlerMethodReturnValueHandler> returnValueHandlerSet =
+          new LinkedHashSet<HandlerMethodReturnValueHandler>(
+              handlerMapping.getReturnValueHandlers().getHandlers());
+
+      returnValueHandlerSet.addAll(Beans.lookFor(context,
+          HandlerMethodReturnValueHandler.class));
+
+      List<HandlerMethodReturnValueHandler> returnValueHandlerList =
+          new ArrayList<HandlerMethodReturnValueHandler>(returnValueHandlerSet);
+      OrderComparator.sort(returnValueHandlerList);
+
+      return returnValueHandlerList;
     }
   };
 

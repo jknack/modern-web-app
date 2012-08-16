@@ -2,16 +2,20 @@ package com.github.jknack.mwa;
 
 import java.beans.PropertyDescriptor;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.PropertyValues;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Role;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.jknack.mwa.web.JacksonViewMethodProcessor;
 
 /**
  * Apply sensible defaults Spring MVC options, like:
@@ -30,14 +34,14 @@ class WebDefaults extends WebMvcConfigurerAdapter implements
     ApplicationContextAware {
 
   /**
+   * The jackson2 object mapper bean's name.
+   */
+  static final String OBJECT_MAPPER = "jackson2ObjectMapper";
+
+  /**
    * The application's context.
    */
   private ApplicationContext applicationContext;
-
-  /**
-   * The default object mapper name.
-   */
-  static final String OBJECT_MAPPER = "globalObjectMapper";
 
   @Override
   public Object postProcessBeforeInitialization(final Object bean,
@@ -95,8 +99,20 @@ class WebDefaults extends WebMvcConfigurerAdapter implements
    * @return A new object mapper.
    */
   @Bean(name = OBJECT_MAPPER)
-  public ObjectMapper globalObjectMapper() {
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public ObjectMapper jackson2ObjectMapper() {
     return new ObjectMapper();
   }
 
+  /**
+   * A return value processor for method marked with JsonView and ResponseBody.
+   *
+   * @return A return value processor for method marked with JsonView and
+   *         ResponseBody.
+   */
+  @Bean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public JacksonViewMethodProcessor jacksonViewMethodProcessor() {
+    return new JacksonViewMethodProcessor(jackson2ObjectMapper());
+  }
 }
