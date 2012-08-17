@@ -20,6 +20,18 @@ MWA is a development platform and practices that let you build new applications 
 * It's NOT a new framework.
 * If you know Maven and Spring, you're ready to go.
 
+### Technology Stack
+* Servlet 3.0
+* Dependency Injection (Spring 3.1.x)
+* REST (Spring MVC 3.1x)
+* JSON (Jackson 2.x)
+* JPA 2.x (Hibernate 4.x)
+* Bean Validation API (Hibernate Validator)
+* QueryDSL
+* Mongo
+* SLF4J and Logback
+* Maven 3.x
+
 ## Fundamentals
 ### No web.xml
 Thanks to the Servlet 3.0 API and servlet container like Jetty 8.x and Tomcat 7.x
@@ -34,7 +46,7 @@ The Spring Dispatcher Servlet is bound to the **root context**.
 ### Logging system
 Base on slf4j with logback as native implementation. The platform deals with all the logging classpath issues of legacy logging facade and implementation. You don't have to worry about having commons-logging, log4j, jul issues in your application.
 
-### Application properties, mode and the Environment API
+### The application environment
 You can define all the properties files you need, by default the platform looks for a: ```application.properties``` at the root of the application classpath.
 
 The [Environment](http://static.springsource.org/spring/docs/current/javadoc-api/org/springframework/core/env/Environment.html) contains all your properties files, the system environment and the Java system properties.
@@ -42,9 +54,9 @@ The [Environment](http://static.springsource.org/spring/docs/current/javadoc-api
 The application environment MUST define a special property:
 application.properties:
 ```properties
-################################################################################
-#                             MyApp environment
-################################################################################
+######################################################################
+#                       MyApp environment
+######################################################################
 # The application's mode: dev or anything else. Default is: dev.
 application.mode=dev
 ```
@@ -68,6 +80,7 @@ Reusable piece of software are delivered in one of the two formats:
 ```text
 config
           application.properties
+          logback-test.xml
 src
        main
            java
@@ -108,10 +121,32 @@ pom.xml
     </dependency>
   </dependencies>
 ```
+
 * Edit the ```applications.properties``` with:
 ```properties
 application.mode=dev
 ```
+
+* Create the file ```logback-test.xml``` under ```config```:
+
+```xml
+<configuration scanPeriod="1 seconds" scan="true">
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-4level %logger - %msg%n
+      </pattern>
+    </encoder>
+  </appender>
+
+  <root level="info">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>
+```
+This is a logack configuration file useful for dev, because:
+  1. It scan for changes every second
+  2. It write the output to the standard console
 
 * Create a new class ```mwa.example.MyApp``` under ```src/main/java```
 
@@ -136,7 +171,8 @@ public class MyApp extends Startup {}
 ### JPA 2.x Features
 In this section we're going to add JPA 2.x Support, so let's start:
 
-* Edit your ```pom.xml`` with:
+* Edit the ```pom.xml``` file with:
+
 ```xml
  ...
     <dependency>
@@ -146,10 +182,13 @@ In this section we're going to add JPA 2.x Support, so let's start:
     </dependency>
  ...
 ```
+
 * Configure the database you want to connect in ```application.properties```:
+
 ```properties
 db=mem
 ```
+
 Because we want to go fast, we select an in-memory database.
 
 * Re-generate Eclipse metadata ```mvn eclipse:clean eclipse:eclipse```:
@@ -211,7 +250,7 @@ public class UserManager {
 }
 ```
 
-* Configuring transactions
+* Adding Transactions
 
 ```java
 ...
