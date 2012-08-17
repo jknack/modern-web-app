@@ -67,14 +67,6 @@ Reusable piece of software are delivered in one of the two formats:
 * Maven profiles, activated by the presence of specific files
 * Spring Configuration classes (a.k.a Module)
 
-### Available modules
-* [Core Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-core)
-* [Logging Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-logging)
-* [JPA 2.0 Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-jpa)
-* [Mongo Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-mongo)
-* [Morphia Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-morphia)
-* [Mail Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-mail)
-
 ## Getting Started
 * Create a Maven Web Project
 ```text
@@ -276,3 +268,14 @@ So, how it works? The ```src/main/etc/query-dsl.md``` activate a Maven profile t
   1. Add the necessary dependencies to your project
   2. Re-generate the QueryDSL generated classes during a Maven build.
   3. Configure Eclipse for live editing and synchronization of QueryDSL generated classes.
+
+### Want to learn more?
+Check out the modules documentation
+* [Core Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-core): applies sensible defaults to your application.
+* [Mvc Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-mvc): useful additions to Spring MVC.
+* [Logging Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-logging): classpath configuration of Java logging libraries.
+* [JPA 2.0 Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-jpa): configuration of Spring beans required by JPA 2.x.
+* [Mongo Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-mongo): configuration of Spring beans for MongoDB.
+* [Morphia Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-morphia): configuration of Spring beans for Morphia MongoDB.
+* [Web Resource Optimizer Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-wro4j): javascript and css compression, optimization and more.
+* [Mail Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-mail): a simple and effective mail facade.
