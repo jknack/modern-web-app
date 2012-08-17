@@ -12,6 +12,7 @@ MWA is a development platform and practices that let you build new applications 
 * RESTFUL programming is doing by Spring MVC with JSON serialization.
 * You don't have to learn anything specific about MWA.
 * It reduces startup and configuration time of new applications.
+* It integrate other technologies with Spring.
 * Promotes the use of reusable piece of software.
 * It is an effort for making Java web applications less verbose and fun.
 
@@ -64,17 +65,16 @@ Reusable piece of software are delivered in one of the two formats:
 
 ## Getting Started
 * Create a Maven Web Project
-```txt
-config/
-
-      application.properties
-
-src/main/java
-
-src/main/webapp
-
+```text
+config
+          application.properties
+src
+       main
+           java
+           webapp
 pom.xml
 ```
+
 * Edit your ```pom.xml``` file with:
 
 ```xml
