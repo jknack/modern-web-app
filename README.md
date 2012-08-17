@@ -64,11 +64,15 @@ Reusable piece of software are delivered in one of the two formats:
 
 ## Getting Started
 * Create a Maven Web Project
-```
+```txt
 config/
+
       application.properties
+
 src/main/java
+
 src/main/webapp
+
 pom.xml
 ```
 * Edit your ```pom.xml``` file with:
@@ -112,6 +116,7 @@ application.mode=dev
 * Create a new class ```mwa.example.MyApp``` under ```src/main/java```
 
 * Edit ```mwa.example.MyApp``` with:
+
 ```java
 package mwa.example;
 
@@ -149,6 +154,7 @@ Because we want to go fast, we select an in-memory database.
 
 * Re-generate Eclipse metadata ```mvn eclipse:clean eclipse:eclipse```:
 * Import the JpaModule, ```MyApp.java```:
+
 ```java
 ...
 import com.github.jknack.jpa.JpaModule;
@@ -161,7 +167,9 @@ public class MyApp extends Startup {
   }
 }
 ```
+
 * Adding a JPA entity, ```User.java```:
+
 ```java
 package mwa.example.domain;
 
@@ -178,6 +186,7 @@ public class User {
   ...
 }
 ```
+
 * The User entity belong to the namespace: ```mwa.example```, so, the JpaModule discover all the JPA entities automatically.
 * Using the EntityManager. Create a new class ```mwa.example.domain.UserManager```:
 
@@ -201,6 +210,7 @@ public class UserManager {
   }
 }
 ```
+
 * Configuring transactions
 
 ```java
@@ -213,6 +223,7 @@ public class UserManager {
 ...
 }
 ```
+
 * That's all!
 
 ### QueryDSL JPA Support
