@@ -90,6 +90,30 @@ application.mode=dev
 
 The default is: ```dev``` and it has a special meaning for some components of the platform. You can type there whatever you want, just remember ```dev``` is special.
 
+### Injecting the ```com.github.jknack.Mode```
+The platform publish the special object: ```Mode```.
+
+```java
+public class MyBean {
+ 
+  @Inject
+  public MyBean(Mode mode) {
+    ...
+  }
+}
+```
+Alternative,a ```com.github.jknack.ModeAware``` is available
+
+```java
+public class MyBean implements ModeAware {
+ 
+  public void setMode(Mode mode) {
+    ...
+  }
+}
+```
+
+
 ### Activating Spring profiles
 The ```application.mode``` configure a Spring Profile. For example:
 
