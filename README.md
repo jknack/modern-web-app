@@ -53,6 +53,7 @@ The [Environment](http://static.springsource.org/spring/docs/current/javadoc-api
 
 The application environment MUST define a special property:
 application.properties:
+
 ```properties
 ######################################################################
 #                       MyApp environment
@@ -60,6 +61,7 @@ application.properties:
 # The application's mode: dev or anything else. Default is: dev.
 application.mode=dev
 ```
+
 Sensible defaults applies when the application is running in dev mode.
 
 ### Reusable Software
@@ -114,7 +116,7 @@ pom.xml
   </dependencies>
 ```
 
-* Edit the ```applications.properties``` with:
+* Edit the ```application.properties``` with:
 ```properties
 application.mode=dev
 ```
@@ -271,11 +273,11 @@ So, how it works? The ```src/main/etc/query-dsl.md``` activate a Maven profile t
 
 ### Want to learn more?
 Check out the modules documentation
-* [Core Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-core): applies sensible defaults to your application.
-* [Mvc Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-mvc): useful additions to Spring MVC.
-* [Logging Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-logging): classpath configuration of Java logging libraries.
-* [JPA 2.0 Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-jpa): configuration of Spring beans required by JPA 2.x.
-* [Mongo Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-mongo): configuration of Spring beans for MongoDB.
-* [Morphia Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-morphia): configuration of Spring beans for Morphia MongoDB.
-* [Web Resource Optimizer Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-wro4j): javascript and css compression, optimization and more.
-* [Mail Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-mail): a simple and effective mail facade.
+* [Core Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-core): applies sensible defaults to your application.
+* [Mvc Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-mvc): useful additions to Spring MVC.
+* [Logging Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-logging): classpath configuration of Java logging libraries.
+* [JPA 2.0 Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-jpa): configuration of Spring beans required by JPA 2.x.
+* [Mongo Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-mongo): configuration of Spring beans for MongoDB.
+* [Morphia Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-morphia): configuration of Spring beans for Morphia MongoDB.
+* [Web Resource Optimizer Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-wro4j): javascript and css compression, optimization and more.
+* [Mail Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-mail): a simple and powerful mail facade.
