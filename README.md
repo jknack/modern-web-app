@@ -53,6 +53,7 @@ The [Environment](http://static.springsource.org/spring/docs/current/javadoc-api
 
 The application environment MUST define a special property:
 application.properties:
+
 ```properties
 ######################################################################
 #                       MyApp environment
@@ -60,6 +61,7 @@ application.properties:
 # The application's mode: dev or anything else. Default is: dev.
 application.mode=dev
 ```
+
 Sensible defaults applies when the application is running in dev mode.
 
 ### Reusable Software
@@ -114,7 +116,7 @@ pom.xml
   </dependencies>
 ```
 
-* Edit the ```applications.properties``` with:
+* Edit the ```application.properties``` with:
 ```properties
 application.mode=dev
 ```
