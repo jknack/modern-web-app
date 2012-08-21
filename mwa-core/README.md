@@ -5,6 +5,7 @@
 * The application's environment
 * The application's mode
 * The application's namespace
+* Servlet Filters as Spring beans
 
 ## No web.xml
 Since Servlet 3.0 API the web.xml file is optional. The platform replace the web.xml with the ```com.github.jknack.Startup``` class.
@@ -88,10 +89,10 @@ A special property MUST to be declared in one of your property sources:
 application.mode=dev
 ```
 
-The default is: ```dev``` and it has a special meaning for some components of the platform. You can type there whatever you want, just remember ```dev``` is special.
+The default is: ```dev``` and it has a special meaning inside the platform. You can type there whatever you want, just remember ```dev``` is special.
 
 ### Injecting the ```com.github.jknack.Mode```
-The platform publish the special object: ```Mode```.
+You can access to the special object: ```Mode``` using Spring DI.
 
 ```java
 public class MyBean {
@@ -102,7 +103,7 @@ public class MyBean {
   }
 }
 ```
-Alternative,a ```com.github.jknack.ModeAware``` is available
+Alternative, a ```com.github.jknack.ModeAware``` is available
 
 ```java
 public class MyBean implements ModeAware {
@@ -114,21 +115,17 @@ public class MyBean implements ModeAware {
 ```
 
 
-### Activating Spring profiles
-The ```application.mode``` configure a Spring Profile. For example:
+### The Spring's  profile
+The platform confgure a Spring's profile using the ```application.mode```.
 
 ```java
 @Profile("dev")
 public class MyDevBean {}
 ```
 
-If you set the application's mode to: ```foo``` then:
+This bean will be enabled if and only if ```application.mode=dev```
 
-```java
-@Profile("foo")
-public class MyFooBean {}
-```
-If you want to learn more about Spring profiles, have a look at [Introducing Profile](http://blog.springsource.org/2011/02/14/spring-3-1-m1-introducing-profile/)
+If you want to learn more about Spring profiles, have a look at [Introducing Profile](http://blog.springsource.org/2011/02/14/spring-3-1-m1-introducing-profile/) blog.
 
 ## The application's namespace
 The platform set sensible defaults in order to increase application configuration time and reduce complexity.
@@ -160,3 +157,29 @@ public class MyBean {
   }
 }
 ```
+
+### Servlet filters as Spring beans
+A Servlet Filter can be configured as a Spring beans using the ```com.github.jknack.FilterMapping```
+
+```java
+import static com.github.jknack.FilterMapping.filter;
+
+@Configuration
+public class MyApp extends Startup {
+
+  @Bean
+  public FilterMapping myFilter(BeanA beanA, BeanB beanB) {
+    return filter("/**").through(new MyFilter(beanA, beanB);
+  }
+}
+```
+
+Additionally, you can set the ```order``` property of the ```FilterMapping```:
+
+```java
+...
+  return filter("/**").through(new MyFilter(beanA, beanB).order(Ordered.HIGHEST_PRECEDENCE);
+...
+```
+
+The ```order``` is useful for security filters or similar.
