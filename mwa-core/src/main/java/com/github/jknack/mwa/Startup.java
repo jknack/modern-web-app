@@ -235,7 +235,7 @@ public abstract class Startup implements WebApplicationInitializer {
      * Special beans.
      */
     rootContext.addBeanFactoryPostProcessor(registerSingletons(mode,
-        rootPackages()));
+        namespace()));
 
     /**
      * Creates the Spring MVC dispatcher servlet.
@@ -365,7 +365,7 @@ public abstract class Startup implements WebApplicationInitializer {
    *         scanning. By default it scan all the package of the main or
    *         bootstrapper class.
    */
-  protected Package[] rootPackages() {
+  protected Package[] namespace() {
     return new Package[] {getClass().getPackage()};
   }
 
@@ -378,7 +378,7 @@ public abstract class Startup implements WebApplicationInitializer {
    *         bootstrapper class.
    */
   private String[] rootPackageNames() {
-    Package[] roots = rootPackages();
+    Package[] roots = namespace();
     Set<String> names = Sets.newHashSet();
     for (Package root : roots) {
       names.add(root.getName());
