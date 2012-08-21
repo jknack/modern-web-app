@@ -273,11 +273,11 @@ So, how it works? The ```src/main/etc/query-dsl.md``` activate a Maven profile t
 
 ### Want to learn more?
 Check out the modules documentation
-* [Core Module] (/mwa-core): applies sensible defaults to your application.
-* [Mvc Module] (mwa-mvc): useful additions to Spring MVC.
-* [Logging Module] (mwa-logging): classpath configuration of Java logging libraries.
-* [JPA 2.0 Module] (mwa-jpa): configuration of Spring beans required by JPA 2.x.
-* [Mongo Module] (mwa-mongo): configuration of Spring beans for MongoDB.
-* [Morphia Module] (mwa-morphia): configuration of Spring beans for Morphia MongoDB.
-* [Web Resource Optimizer Module] (mwa-wro4j): javascript and css compression, optimization and more.
-* [Mail Module] (mwa-mail): a simple and powerful mail facade.
+* [Core Module] (modern-web-app/tree/develop/mwa-core): applies sensible defaults to your application.
+* [Mvc Module] (modern-web-app/tree/develop/mwa-mvc): useful additions to Spring MVC.
+* [Logging Module] (modern-web-app/tree/develop/mwa-logging): classpath configuration of Java logging libraries.
+* [JPA 2.0 Module] (modern-web-app/tree/develop/mwa-jpa): configuration of Spring beans required by JPA 2.x.
+* [Mongo Module] (modern-web-app/tree/develop/mwa-mongo): configuration of Spring beans for MongoDB.
+* [Morphia Module] (modern-web-app/tree/develop/mwa-morphia): configuration of Spring beans for Morphia MongoDB.
+* [Web Resource Optimizer Module] (modern-web-app/tree/develop/mwa-wro4j): javascript and css compression, optimization and more.
+* [Mail Module] (modern-web-app/tree/develop/mwa-mail): a simple and powerful mail facade.
