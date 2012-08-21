@@ -1,30 +1,32 @@
 # The JPA Module
-The JpaModule configures your application with JPA 2.0 Support.
+This module add JPA 2.x features using Hibernate 4.x
 
 ## Features
 * A datasource for development or production like environment.
-* An EntityManagerFactory JPA 2.0 service.
-* An EntityManager JPA 2.0 service.
+* An EntityManagerFactory service.
+* An EntityManager service.
 * A JpaTransactionManager Spring service.
 * Resource cleanup at application shutdown.
 
-## Configuration
-* Add maven dependency:
+## Using the JpaModule
+### Database configuration
+The ```db``` property configure a database to use.
 
-pom.xml:
+### Using a memory database
+If you set the ```db``` property to ```mem```, a memory database will be ready for use
 
-```xml
-    <!-- MWA JPA -->
-    <dependency>
-      <groupId>org.knowhow</groupId>
-      <artifactId>mwa-jpa</artifactId>
-      <version>${mwa-version}</version>
-    </dependency>
+```properties
+###############################################################################
+#                             Database setup
+###############################################################################
+# Embedded/Development database: mem or fs
+db=mem
+
 ```
+**Please note you need the H2 driver in your classpath**
 
-* Add the "db" property
-
-application.properties:
+### Using a file system database
+If you set the ```db``` property to ```fs```, a memory database will be ready for use
 
 ```properties
 ###############################################################################
@@ -33,85 +35,70 @@ application.properties:
 # Embedded/Development database: mem or fs
 db=fs
 
-# Production database
-#db=jdbc:mysql://localhost/mydb
-#db.user=
-#db.password=
 ```
 
-* Register the JpaModule:
+The database is created in the temporary directory defined by your operating system.
 
-Main.java:
+**Please note you need the H2 driver in your classpath**
+
+### Using a JDBC URI
+When a JDBC URI is found, a ```dataSource pool``` is configured using [BoneCP](http://jolbox.com/)
+
+```properties
+###############################################################################
+#                             Database setup
+###############################################################################
+# Production database
+db=jdbc:mysql://localhost/mydb
+db.user=user
+db.password=pass
+
+# Advanced option for JDBC URI
+# See BoneCP: http://jolbox.com
+# default values
+
+#db.driver=com.mysql.jdbc.Driver
+#db.iddleConnectionTestPeriod=14400
+#db.iddleMaxAge=360
+#db.maxConnectionsPerPartition=30
+#db.minConnectionsPerPartition=10
+#db.partitionCount=3
+#db.acquireIncrement=5
+#db.statementsCacheSize=100
+#db.releaseThreads=3
+```
+
+### Enabling the JpaModule
+Just imports the ```JpaModule``` in your application.
 
 ```java
 package mwa.demo;
 
-import org.knowhow.mwa.Startup;
-import org.knowhow.mwa.jpa.JpaModule;
-/**
- * Startup the web-app.
- *
- * @author edgar.espina
- * @since 0.1
- */
-public class Main extends Startup {
+import com.github.jknack.mwa.Startup;
+import com.github.jknack.mwa.jpa.JpaModule;
 
-  /**
-   * Publish all the modules.
-   *
-   * @return All the modules.
-   */
+public class MyApp extends Startup {
+
   @Override
-  protected Class<?>[] modules() {
+  protected Class<?>[] imports() {
     return new Class<?>[] {JpaModule.class, ...};
   }
 }
 ```
-* Publish persistent classes (class annotated with @Entity, @Embedded, etc.)
 
-MyDomainModule.java:
+The ``JpaModule``` automatically discover all the JPA entities in ```mwa.demo``` package or sub-packages.
 
-```java
-package mwa.demo.domain;
 
-import org.knowhow.mwa.jpa.JpaConfigurer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-/**
- * My domain module.
- *
- * @author edgar.espina
- * @since 0.1
- */
-@Configuration
-public class MyDomainModule {
-
-  /**
-   * Publish persistent classes required by {@link JpaModule}.
-   *
-   * @return All persistent classes required by {@link JpaModule}.
-   * @throws Exception If the persisten classes cannot be detected.
-   */
-  @Bean
-  public JpaConfigurer jpaConfigurer() throws Exception {
-    // Publish the mwa.demo.domain package as source of persistent classes.
-    return new JpaConfigurer(getClass().getPackage());
-  }
-}
-
-```
-
-## Usage
-MyService.java:
+### Injecting the EntityManager
 
 ```java
-  public class MyService {
+  @Component
+  public class UserManager {
 
     private EntityManager em;
 
     @Inject
-    public MyService(EntityManager em) {
+    public UserManager(EntityManager em) {
       this.em = em;
     }
 
@@ -121,14 +108,15 @@ MyService.java:
     }
   }
 ```
-## Export your DDL
-  TODO:
 
-## Advanced configuration
-  TODO: Complete this section.
+### QueryDSL JPA Support
+Optionally, you can enabled [Query DSL JPA Support](http://www.querydsl.com/static/querydsl/2.1.0/reference/html/ch02s02.html) for type safe queries. Let's see how easy is:
+* Create a new folder: ```src/main/etc```
+* Inside the folder ```src/main/etc``` create the file: ```querydsl-jpa.md```
+* Run: ```mvn eclipse:clean eclipse:eclipse``` or ```mvn clean install```
+* That's all!!!
 
-## External dependencies
-* Spring 3.1+: orm, jdbc and tx.
-* Hibernate 4+
-* BoneCP for high performance connection pools.
-* H2 for embedded/development database.
+So, how it works? The ```src/main/etc/query-dsl.md``` activate a Maven profile that does 3 things:
+  1. Add the necessary dependencies to your project
+  2. Re-generate the QueryDSL generated classes during a Maven build.
+  3. Configure Eclipse for live editing and synchronization of QueryDSL generated classes.
