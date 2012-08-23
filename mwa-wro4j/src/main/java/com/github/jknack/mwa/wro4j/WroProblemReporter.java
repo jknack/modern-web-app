@@ -104,8 +104,7 @@ public enum WroProblemReporter {
       model.put("reason", error.getMessage());
       model.put("evidence", Joiner.on("\n").join(error.getExtract()));
       model.put("filename", error.getFilename());
-      write(response, merge(lessCssTemplate, model),
-          HttpServletResponse.SC_BAD_REQUEST);
+      write(response, merge(lessCssTemplate, model));
     }
   },
 
@@ -128,8 +127,7 @@ public enum WroProblemReporter {
     public void report(final RuntimeException ex,
         final HttpServletRequest request,
         final HttpServletResponse response) {
-      write(response, lintHtml((RuntimeLinterException) ex),
-          HttpServletResponse.SC_BAD_REQUEST);
+      write(response, lintHtml((RuntimeLinterException) ex));
     }
 
     /**
@@ -234,13 +232,11 @@ public enum WroProblemReporter {
    *
    * @param response The HTTP response.
    * @param content The content.
-   * @param statusCode The status code.
    */
   protected void write(final HttpServletResponse response,
-      final String content, final int statusCode) {
+      final String content) {
     PrintWriter writer = null;
     try {
-      response.setStatus(statusCode);
       writer = response.getWriter();
       writer.println(content);
     } catch (IOException ioex) {
