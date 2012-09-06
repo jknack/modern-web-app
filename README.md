@@ -114,6 +114,7 @@ pom.xml
       <version>${mwa-version}</version>
     </dependency>
   </dependencies>
+</project>
 ```
 
 * Edit the ```application.properties``` with:
