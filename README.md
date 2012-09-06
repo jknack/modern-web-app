@@ -150,7 +150,7 @@ This is a logack configuration file useful for dev, because:
 ```java
 package mwa.example;
 
-import com.github.jknack.Startup;
+import com.github.jknack.mwa.Startup;
 
 public class MyApp extends Startup {}
 ```
