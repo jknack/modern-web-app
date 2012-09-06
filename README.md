@@ -191,7 +191,7 @@ Because we want to go fast, we select an in-memory database.
 
 ```java
 ...
-import com.github.jknack.jpa.JpaModule;
+import com.github.jknack.mwa.jpa.JpaModule;
 ...
 public class MyApp extends Startup {
   public Class<?>[] imports() {
