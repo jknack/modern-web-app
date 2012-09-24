@@ -54,11 +54,9 @@
       <artifactId>spring-orm</artifactId>
     </dependency>
 
-    <!-- Test databases -->
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <scope>test</scope>
     </dependency>
 
     <!-- Unit test -->
