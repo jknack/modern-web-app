@@ -6,7 +6,7 @@
   <groupId>com.github.jknack</groupId>
   <artifactId>modern-web-app</artifactId>
   <packaging>pom</packaging>
-  <version>0.3.1-SNAPSHOT</version>
+  <version>0.3.2-SNAPSHOT</version>
   <name>A Modern Web App Archicture</name>
 
   <url>https://github.com/jknack/modern-web-app</url>
