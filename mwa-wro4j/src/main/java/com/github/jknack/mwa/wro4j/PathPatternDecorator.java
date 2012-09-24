@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 
-import ro.isdc.wro.WroRuntimeException;
+import ro.isdc.wro.config.Context;
 import ro.isdc.wro.model.resource.Resource;
 import ro.isdc.wro.model.resource.processor.decorator.ProcessorDecorator;
 
@@ -66,40 +66,40 @@ public class PathPatternDecorator extends ExtendedProcessorDecorator {
   public void process(final Resource resource, final Reader reader,
       final Writer writer)
       throws IOException {
+    final String uri;
     if (resource != null) {
-      String uri = resource.getUri();
-      if (includes) {
-        // Match (p1 OR p2 OR .. pn)
-        for (String pattern : patterns) {
-          if (matcher.match(pattern, uri)) {
-            logger.debug("Processing resource: {}. Match found: {}",
-                uri, toString());
-            getDecoratedObject().process(resource, reader, writer);
-            return;
-          }
-        }
-      } else {
-        boolean process = true;
-        // Match !(p1 AND p2 AND .. pn)
-        for (String pattern : patterns) {
-          if (matcher.match(pattern, uri)) {
-            process = false;
-            break;
-          }
-        }
-        if (process) {
-          logger.debug("Processing resource: {}. Match found: {}", uri,
-              toString());
-          getDecoratedObject().process(resource, reader, writer);
-          return;
+      uri = resource.getUri();
+    } else {
+      uri = Context.get().getRequest().getRequestURI();
+    }
+    boolean process = false;
+    if (includes) {
+      // Match (p1 OR p2 OR .. pn)
+      for (String pattern : patterns) {
+        if (matcher.match(pattern, uri)) {
+          logger.debug("Processing resource: {}. Match found: {}",
+              uri, toString());
+          process = true;
         }
       }
+    } else {
+      process = true;
+      // Match !(p1 AND p2 AND .. pn)
+      for (String pattern : patterns) {
+        if (matcher.match(pattern, uri)) {
+          process = false;
+          break;
+        }
+      }
+    }
+    if (process) {
+      logger.debug("Processing resource: {}. Match found: {}", uri,
+          toString());
+      getDecoratedObject().process(resource, reader, writer);
+    } else {
       logger.debug("Skipping {} from {}. No match found: {}", new Object[] {
           uri, getDecoratedObject(), toString() });
       WroHelper.safeCopy(reader, writer);
-    } else {
-      throw new WroRuntimeException("Wrong usage of "
-          + toString() + ". Please use it as a pre-processor.");
     }
   }
 

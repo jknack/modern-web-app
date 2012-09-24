@@ -11,6 +11,7 @@ import ro.isdc.wro.extensions.processor.js.CoffeeScriptProcessor;
 import ro.isdc.wro.extensions.processor.js.DojoShrinksafeCompressorProcessor;
 import ro.isdc.wro.extensions.processor.js.DustJsProcessor;
 import ro.isdc.wro.extensions.processor.js.GoogleClosureCompressorProcessor;
+import ro.isdc.wro.extensions.processor.js.HandlebarsJsProcessor;
 import ro.isdc.wro.extensions.processor.js.JsonHPackProcessor;
 import ro.isdc.wro.extensions.processor.js.PackerJsProcessor;
 import ro.isdc.wro.extensions.processor.js.UglifyJsProcessor;
@@ -316,8 +317,90 @@ public final class Processors {
    * @param patterns A set of ant path patterns.
    * @return A {@link PropertyResolverProcessor}.
    */
+  public static ResourcePostProcessor includes(
+      final ResourcePostProcessor processor, final String... patterns) {
+    return new PathPatternDecorator(processor, true, patterns);
+  }
+
+  /**
+   * PathMatcher implementation for Ant-style path patterns. Enforce decorated
+   * processors to be applied only if the resource path matches one of the
+   * patterns. Examples are provided below.
+   * <p>
+   * Part of this mapping code has been kindly borrowed from <a
+   * href="http://ant.apache.org">Apache Ant</a>.
+   * <p>
+   * The mapping matches URLs using the following rules:<br>
+   * <ul>
+   * <li>? matches one character</li>
+   * <li>* matches zero or more characters</li>
+   * <li>** matches zero or more 'directories' in a path</li>
+   * </ul>
+   * <p>
+   * Some examples:<br>
+   * <ul>
+   * <li><code>com/t?st.jsp</code> - matches <code>com/test.jsp</code> but also
+   * <code>com/tast.jsp</code> or <code>com/txst.jsp</code></li>
+   * <li><code>com/*.jsp</code> - matches all <code>.jsp</code> files in the
+   * <code>com</code> directory</li>
+   * <li><code>com/&#42;&#42;/test.jsp</code> - matches all
+   * <code>test.jsp</code> files underneath the <code>com</code> path</li>
+   * <li><code>org/springframework/&#42;&#42;/*.jsp</code> - matches all
+   * <code>.jsp</code> files underneath the <code>org/springframework</code>
+   * path</li>
+   * <li><code>org/&#42;&#42;/servlet/bla.jsp</code> - matches
+   * <code>org/springframework/servlet/bla.jsp</code> but also
+   * <code>org/springframework/testing/servlet/bla.jsp</code> and
+   * <code>org/servlet/bla.jsp</code></li>
+   * </ul>
+   *
+   * @param processor The target processor. Required.
+   * @param patterns A set of ant path patterns.
+   * @return A {@link PropertyResolverProcessor}.
+   */
   public static ResourcePreProcessor excludes(
       final ResourcePreProcessor processor, final String... patterns) {
+    return new PathPatternDecorator(processor, false, patterns);
+  }
+
+  /**
+   * PathMatcher implementation for Ant-style path patterns. Enforce decorated
+   * processors to be applied only if the resource path matches one of the
+   * patterns. Examples are provided below.
+   * <p>
+   * Part of this mapping code has been kindly borrowed from <a
+   * href="http://ant.apache.org">Apache Ant</a>.
+   * <p>
+   * The mapping matches URLs using the following rules:<br>
+   * <ul>
+   * <li>? matches one character</li>
+   * <li>* matches zero or more characters</li>
+   * <li>** matches zero or more 'directories' in a path</li>
+   * </ul>
+   * <p>
+   * Some examples:<br>
+   * <ul>
+   * <li><code>com/t?st.jsp</code> - matches <code>com/test.jsp</code> but also
+   * <code>com/tast.jsp</code> or <code>com/txst.jsp</code></li>
+   * <li><code>com/*.jsp</code> - matches all <code>.jsp</code> files in the
+   * <code>com</code> directory</li>
+   * <li><code>com/&#42;&#42;/test.jsp</code> - matches all
+   * <code>test.jsp</code> files underneath the <code>com</code> path</li>
+   * <li><code>org/springframework/&#42;&#42;/*.jsp</code> - matches all
+   * <code>.jsp</code> files underneath the <code>org/springframework</code>
+   * path</li>
+   * <li><code>org/&#42;&#42;/servlet/bla.jsp</code> - matches
+   * <code>org/springframework/servlet/bla.jsp</code> but also
+   * <code>org/springframework/testing/servlet/bla.jsp</code> and
+   * <code>org/servlet/bla.jsp</code></li>
+   * </ul>
+   *
+   * @param processor The target processor. Required.
+   * @param patterns A set of ant path patterns.
+   * @return A {@link PropertyResolverProcessor}.
+   */
+  public static ResourcePostProcessor excludes(
+      final ResourcePostProcessor processor, final String... patterns) {
     return new PathPatternDecorator(processor, false, patterns);
   }
 
@@ -634,4 +717,12 @@ public final class Processors {
     return new ConditionalProcessor(new RequireJsProcessor(), NO_DEV);
   }
 
+  /**
+   * Compiles Handlebars templates to JavaScript code.
+   *
+   * @return A handlebars processor (only for no-dev environment).
+   */
+  public static ResourcePreProcessor handlebarsJs() {
+    return new ConditionalProcessor(new HandlebarsJsProcessor(), NO_DEV);
+  }
 }

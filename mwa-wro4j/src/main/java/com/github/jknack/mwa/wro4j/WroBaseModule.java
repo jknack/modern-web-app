@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -252,7 +253,8 @@ public class WroBaseModule {
      * {@inheritDoc}
      */
     @Override
-    protected ObjectFactory<WroConfiguration> newWroConfigurationFactory() {
+    protected ObjectFactory<WroConfiguration> newWroConfigurationFactory(
+        final FilterConfig filterConfig) {
       return configurationFactory;
     }
 
