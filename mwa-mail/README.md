@@ -8,7 +8,7 @@ It let you send rich email message through a simple and intuitive manner.
 
 ```xml
 <dependency>
-  <groupId>org.knowhow</groupId>
+  <groupId>com.github.jknack</groupId>
   <artifactId>mwa-mail</artifactId>
   <version>${mwa-version}</version>
 </dependency>
@@ -52,7 +52,7 @@ RFC 2045 rules for 8bit text.
 ## Activating the module
 
 ```java
-import org.knowhow.mwa.mail.MailModule;
+import com.github.jknack.mwa.mail.MailModule;
 ...
 public class Main extends Startup {
   ...
@@ -67,7 +67,7 @@ public class Main extends Startup {
 
 ```java
 import import org.springframework.mail.javamail.JavaMailSender;
-import static org.knowhow.mwa.mail.MailBuilder.newMail;
+import static com.github.jknack.mwa.mail.MailBuilder.newMail;
 import javax.mail.internet.MimeMessage;
 ...
 @Service
@@ -143,7 +143,7 @@ sender.send(message);
 In the previous example the content-type is set to: 'application/octect-stream'. Here you can set a different content-type
 
 ```java
-import static org.knowhow.mwa.mail.MailBuilder.mailInputStream;
+import static com.github.jknack.mwa.mail.MailBuilder.mailInputStream;
 ...
 InputStream input = ...
 MimeMessage message =
