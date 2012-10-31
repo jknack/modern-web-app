@@ -33,7 +33,7 @@ import ro.isdc.wro.model.resource.processor.impl.js.JSMinProcessor;
 import ro.isdc.wro.model.resource.processor.impl.js.SemicolonAppenderPreProcessor;
 import ro.isdc.wro.model.resource.processor.support.CssCompressor;
 
-import com.github.jknack.mwa.Mode;
+import com.github.jknack.mwa.IApplicationMode;
 import com.github.jknack.mwa.wro4j.ConditionalProcessor.Condition;
 import com.github.jknack.mwa.wro4j.requirejs.RequireJsProcessor;
 import com.google.javascript.jscomp.CompilationLevel;
@@ -52,7 +52,7 @@ public final class Processors {
    */
   public static final Condition DEV = new Condition() {
     @Override
-    public boolean process(final Mode mode, final Environment environment) {
+    public boolean process(final IApplicationMode mode, final Environment environment) {
       return mode.isDev();
     }
   };
@@ -62,7 +62,7 @@ public final class Processors {
    */
   public static final Condition NO_DEV = new Condition() {
     @Override
-    public boolean process(final Mode mode, final Environment environment) {
+    public boolean process(final IApplicationMode mode, final Environment environment) {
       return !mode.isDev();
     }
   };

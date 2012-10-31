@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
+import org.apache.tools.ant.taskdefs.ManifestTask.Mode;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
@@ -13,8 +14,8 @@ import ro.isdc.wro.model.resource.processor.ResourcePostProcessor;
 import ro.isdc.wro.model.resource.processor.ResourcePreProcessor;
 import ro.isdc.wro.model.resource.processor.decorator.ProcessorDecorator;
 
-import com.github.jknack.mwa.Mode;
-import com.github.jknack.mwa.ModeAware;
+import com.github.jknack.mwa.ApplicationModeAware;
+import com.github.jknack.mwa.IApplicationMode;
 
 /**
  * Add additional callback for {@link Environment}, {@link Mode} and
@@ -23,7 +24,7 @@ import com.github.jknack.mwa.ModeAware;
  * @author edgar.espina
  */
 public class ExtendedProcessorDecorator extends ProcessorDecorator implements
-    EnvironmentAware, ModeAware, UriLocatorFactoryAware {
+    EnvironmentAware, ApplicationModeAware, UriLocatorFactoryAware {
 
   /**
    * A resource post processor with MWA callbacks.
@@ -31,7 +32,7 @@ public class ExtendedProcessorDecorator extends ProcessorDecorator implements
    * @author edgar.espina
    */
   private abstract static class ResourcePostProcessorWrapper implements
-      ResourcePreProcessor, EnvironmentAware, ModeAware,
+      ResourcePreProcessor, EnvironmentAware, ApplicationModeAware,
       UriLocatorFactoryAware {
   }
 
@@ -70,9 +71,9 @@ public class ExtendedProcessorDecorator extends ProcessorDecorator implements
         }
 
         @Override
-        public void setMode(final Mode mode) {
-          if (processor instanceof ModeAware) {
-            ((ModeAware) processor).setMode(mode);
+        public void setMode(final IApplicationMode mode) {
+          if (processor instanceof ApplicationModeAware) {
+            ((ApplicationModeAware) processor).setMode(mode);
           }
         }
 
@@ -103,10 +104,10 @@ public class ExtendedProcessorDecorator extends ProcessorDecorator implements
   }
 
   @Override
-  public void setMode(final Mode mode) {
+  public void setMode(final IApplicationMode mode) {
     ResourcePreProcessor processor = getDecoratedObject();
-    if (processor instanceof ModeAware) {
-      ((ModeAware) processor).setMode(mode);
+    if (processor instanceof ApplicationModeAware) {
+      ((ApplicationModeAware) processor).setMode(mode);
     }
   }
 
