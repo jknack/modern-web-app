@@ -1,6 +1,11 @@
 package com.github.jknack.mwa;
 
+import static org.apache.commons.lang3.Validate.notNull;
+
+import java.lang.reflect.Method;
+
 import org.apache.commons.lang3.Validate;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * The application's mode: dev, stage, prod, etc. The 'dev' mode has special
@@ -90,6 +95,34 @@ public final class Mode {
   @Override
   public String toString() {
     return name;
+  }
+
+  /**
+   * Execute a callback method matching the given mode.
+   * <p>
+   * Example if <code>application.mode=prod</code> the <code>onProd</code>
+   * method will be executed. Or if the <code>onProd</code> is not present, the
+   * {@link ModeCallback#on(Mode)} method will be executed.
+   * </p>
+   *
+   * @param callback The callback. Required.
+   * @param <T> The callback result.
+   * @return The callback result.
+   */
+  @SuppressWarnings("unchecked")
+  public <T> T execute(final ModeCallback<T> callback) {
+    notNull(callback, "A mode's callback is required.");
+    if (isDev()) {
+      return callback.onDev();
+    }
+    String methodName =
+        "on" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+    Method method = ReflectionUtils.findMethod(callback.getClass(), methodName);
+    if (method == null) {
+      return callback.on(this);
+    }
+    ReflectionUtils.makeAccessible(method);
+    return (T) ReflectionUtils.invokeMethod(method, callback);
   }
 
   /**
