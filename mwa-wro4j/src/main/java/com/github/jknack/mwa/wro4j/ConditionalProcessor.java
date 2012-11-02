@@ -12,7 +12,7 @@ import org.springframework.core.env.Environment;
 
 import ro.isdc.wro.model.resource.Resource;
 
-import com.github.jknack.mwa.IApplicationMode;
+import com.github.jknack.mwa.ApplicationMode;
 
 /**
  * Run a wro processor if the result of {@link #process(Environment)} is true.
@@ -37,7 +37,7 @@ public class ConditionalProcessor extends ExtendedProcessorDecorator {
      * @param environment The application's environment.
      * @return True if the processor should runs.
      */
-    boolean process(IApplicationMode mode, Environment environment);
+    boolean process(ApplicationMode mode, Environment environment);
   }
 
   /**
@@ -49,7 +49,7 @@ public class ConditionalProcessor extends ExtendedProcessorDecorator {
   /**
    * The application mode
    */
-  private IApplicationMode mode;
+  private ApplicationMode mode;
 
   /**
    * The application environment.
@@ -103,7 +103,7 @@ public class ConditionalProcessor extends ExtendedProcessorDecorator {
   }
 
   @Override
-  public void setMode(final IApplicationMode mode) {
+  public void setMode(final ApplicationMode mode) {
     super.setMode(mode);
     this.mode = mode;
   }

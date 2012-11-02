@@ -9,7 +9,7 @@ package com.github.jknack.mwa;
  * 
  * @author pgaschuetz
  */
-public interface IApplicationMode {
+public interface ApplicationMode {
 	
 	/**
 	 * 

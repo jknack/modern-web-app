@@ -15,7 +15,7 @@ import ro.isdc.wro.model.resource.processor.ResourcePreProcessor;
 import ro.isdc.wro.model.resource.processor.decorator.ProcessorDecorator;
 
 import com.github.jknack.mwa.ApplicationModeAware;
-import com.github.jknack.mwa.IApplicationMode;
+import com.github.jknack.mwa.ApplicationMode;
 
 /**
  * Add additional callback for {@link Environment}, {@link Mode} and
@@ -71,7 +71,7 @@ public class ExtendedProcessorDecorator extends ProcessorDecorator implements
         }
 
         @Override
-        public void setMode(final IApplicationMode mode) {
+        public void setMode(final ApplicationMode mode) {
           if (processor instanceof ApplicationModeAware) {
             ((ApplicationModeAware) processor).setMode(mode);
           }
@@ -104,7 +104,7 @@ public class ExtendedProcessorDecorator extends ProcessorDecorator implements
   }
 
   @Override
-  public void setMode(final IApplicationMode mode) {
+  public void setMode(final ApplicationMode mode) {
     ResourcePreProcessor processor = getDecoratedObject();
     if (processor instanceof ApplicationModeAware) {
       ((ApplicationModeAware) processor).setMode(mode);

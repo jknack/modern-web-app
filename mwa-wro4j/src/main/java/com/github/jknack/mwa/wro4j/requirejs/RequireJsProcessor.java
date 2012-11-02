@@ -31,7 +31,7 @@ import ro.isdc.wro.model.resource.processor.ResourcePostProcessor;
 import ro.isdc.wro.util.StopWatch;
 
 import com.github.jknack.mwa.ApplicationModeAware;
-import com.github.jknack.mwa.IApplicationMode;
+import com.github.jknack.mwa.ApplicationMode;
 import com.github.jknack.mwa.wro4j.RhinoExecutor;
 import com.github.jknack.mwa.wro4j.RhinoExecutor.JsTask;
 import com.github.jknack.mwa.wro4j.WroHelper;
@@ -118,7 +118,7 @@ public class RequireJsProcessor implements ResourcePostProcessor, ApplicationMod
   /**
    * The runs in mode.
    */
-  private IApplicationMode mode;
+  private ApplicationMode mode;
 
   /**
    * The logging system.
@@ -279,7 +279,7 @@ public class RequireJsProcessor implements ResourcePostProcessor, ApplicationMod
   }
 
   @Override
-  public void setMode(final IApplicationMode mode) {
+  public void setMode(final ApplicationMode mode) {
     this.mode = mode;
   }
 

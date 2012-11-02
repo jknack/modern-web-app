@@ -1,6 +1,6 @@
 package com.github.jknack.mwa;
 
-public enum DefaultApplicationMode implements IApplicationMode {
+public enum DefaultApplicationMode implements ApplicationMode {
 	DEV,
 	TEST,
 	PROD;

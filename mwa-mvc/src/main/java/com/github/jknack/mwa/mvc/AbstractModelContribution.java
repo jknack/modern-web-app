@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ServletContextAware;
 
 import com.github.jknack.mwa.ApplicationModeAware;
-import com.github.jknack.mwa.IApplicationMode;
+import com.github.jknack.mwa.ApplicationMode;
 
 /**
  * Base class for {@link ModelContribution}.
@@ -43,7 +43,7 @@ public abstract class AbstractModelContribution implements ModelContribution,
   /**
    * The environment mode.
    */
-  private IApplicationMode mode;
+  private ApplicationMode mode;
 
   /**
    * {@inheritDoc}
@@ -54,7 +54,7 @@ public abstract class AbstractModelContribution implements ModelContribution,
   }
 
   @Override
-  public void setMode(final IApplicationMode mode) {
+  public void setMode(final ApplicationMode mode) {
     if (useCache == null) {
       useCache = !mode.isDev();
     }
@@ -66,7 +66,7 @@ public abstract class AbstractModelContribution implements ModelContribution,
    *
    * @return The environment mode.
    */
-  public IApplicationMode mode() {
+  public ApplicationMode mode() {
     return mode;
   }
 

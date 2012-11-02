@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author pgaschuetz
  */
-public class DefaultApplicationModeFactory implements IApplicationModeFactory<DefaultApplicationMode> {
+public class DefaultApplicationModeFactory implements ApplicationModeFactory<DefaultApplicationMode> {
 	
 	private final static Logger logger = LoggerFactory.getLogger(DefaultApplicationModeFactory.class);
 	

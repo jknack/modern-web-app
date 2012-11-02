@@ -216,7 +216,7 @@ public abstract class Startup implements WebApplicationInitializer {
     final ConfigurableEnvironment env =
         configureEnvironment(servletContext, rootContext);
 
-    IApplicationModeFactory<? extends IApplicationMode> applicationModeFactory =
+    ApplicationModeFactory<? extends ApplicationMode> applicationModeFactory =
     		createApplicationModeFactory();
     
     String modeProperty = env.getProperty("application.mode");
@@ -224,7 +224,7 @@ public abstract class Startup implements WebApplicationInitializer {
       modeProperty = applicationModeFactory.createForDev().getName();
       logger.warn("application.mode isn't set, using: {}", modeProperty);
     }
-    IApplicationMode mode = applicationModeFactory.createFor(modeProperty);
+    ApplicationMode mode = applicationModeFactory.createFor(modeProperty);
 
     // Activate the default profile
     env.setActiveProfiles(mode.getName());
@@ -298,14 +298,14 @@ public abstract class Startup implements WebApplicationInitializer {
   }
 
   /**
-   * The {@link IApplicationModeFactory} that is responsible for converting the
-   * application mode from a property to an {@link IApplicationMode}
+   * The {@link ApplicationModeFactory} that is responsible for converting the
+   * application mode from a property to an {@link ApplicationMode}
    * 
-   * @return a fully initialized {@link IApplicationModeFactory}.
+   * @return a fully initialized {@link ApplicationModeFactory}.
    *         Default is a {@link DefaultApplicationModeFactory} using {@link DefaultApplicationMode}
    *         as its mode. 
    */
-  protected IApplicationModeFactory<? extends IApplicationMode> createApplicationModeFactory() {
+  protected ApplicationModeFactory<? extends ApplicationMode> createApplicationModeFactory() {
 	  return new DefaultApplicationModeFactory();
   }
   
@@ -502,7 +502,7 @@ public abstract class Startup implements WebApplicationInitializer {
    * @return A new {@link BeanFactoryPostProcessor}.
    */
   private static BeanFactoryPostProcessor registerSingletons(
-      final IApplicationMode mode, final Package[] roots) {
+      final ApplicationMode mode, final Package[] roots) {
     return new BeanFactoryPostProcessor() {
       @Override
       public void postProcessBeanFactory(
@@ -523,7 +523,7 @@ public abstract class Startup implements WebApplicationInitializer {
    * @param mode The application's mode.
    * @return A bean mode aware processor.
    */
-  private static BeanPostProcessor modeAwareBeanPostProcessor(final IApplicationMode mode) {
+  private static BeanPostProcessor modeAwareBeanPostProcessor(final ApplicationMode mode) {
     return new BeanPostProcessor() {
       @Override
       public Object postProcessBeforeInitialization(final Object bean,
