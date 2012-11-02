@@ -30,11 +30,11 @@ import ro.isdc.wro.model.resource.SupportedResourceType;
 import ro.isdc.wro.model.resource.processor.ResourcePostProcessor;
 import ro.isdc.wro.util.StopWatch;
 
-import com.github.jknack.mwa.Mode;
-import com.github.jknack.mwa.ModeAware;
+import com.github.jknack.mwa.ApplicationModeAware;
+import com.github.jknack.mwa.ApplicationMode;
 import com.github.jknack.mwa.wro4j.RhinoExecutor;
-import com.github.jknack.mwa.wro4j.WroHelper;
 import com.github.jknack.mwa.wro4j.RhinoExecutor.JsTask;
+import com.github.jknack.mwa.wro4j.WroHelper;
 import com.google.common.collect.Lists;
 
 /**
@@ -108,7 +108,7 @@ import com.google.common.collect.Lists;
  * @since 0.2.3
  */
 @SupportedResourceType(ResourceType.JS)
-public class RequireJsProcessor implements ResourcePostProcessor, ModeAware {
+public class RequireJsProcessor implements ResourcePostProcessor, ApplicationModeAware {
 
   /**
    * The r.js source.
@@ -118,7 +118,7 @@ public class RequireJsProcessor implements ResourcePostProcessor, ModeAware {
   /**
    * The runs in mode.
    */
-  private Mode mode;
+  private ApplicationMode mode;
 
   /**
    * The logging system.
@@ -185,10 +185,10 @@ public class RequireJsProcessor implements ResourcePostProcessor, ModeAware {
 
         // Find a specific build profile for the given file.
         File build =
-            buildFile(baseBuild, baseName, profile, mode.name());
+            buildFile(baseBuild, baseName, profile, mode.getName());
         if (build == null) {
           // no luck, find a global profile per environment
-          build = buildFile(baseBuild, "build", profile, mode.name());
+          build = buildFile(baseBuild, "build", profile, mode.getName());
           if (build == null) {
             // no luck, defaults to build.js
             build = new File(baseBuild, "build.js");
@@ -279,7 +279,7 @@ public class RequireJsProcessor implements ResourcePostProcessor, ModeAware {
   }
 
   @Override
-  public void setMode(final Mode mode) {
+  public void setMode(final ApplicationMode mode) {
     this.mode = mode;
   }
 

@@ -68,10 +68,10 @@ import ro.isdc.wro.model.transformer.WildcardExpanderModelTransformer.NoMoreAtte
 import ro.isdc.wro.util.ObjectFactory;
 import ro.isdc.wro.util.Transformer;
 
+import com.github.jknack.mwa.ApplicationModeAware;
 import com.github.jknack.mwa.Beans;
 import com.github.jknack.mwa.FilterMapping;
-import com.github.jknack.mwa.Mode;
-import com.github.jknack.mwa.ModeAware;
+import com.github.jknack.mwa.ApplicationMode;
 import com.github.jknack.mwa.mvc.MvcModule;
 
 /**
@@ -380,9 +380,9 @@ public class WroBaseModule {
     private WroModel expanded = null;
 
     /**
-     * The application's mode.
+     * The applications mode.
      */
-    private Mode mode;
+    private ApplicationMode mode;
 
     /**
      * Creates new {@link WildcardModelFactory}.
@@ -396,7 +396,7 @@ public class WroBaseModule {
       super(decorated);
       this.applicationContext =
           notNull(applicationContext, "The application's context is required.");
-      mode = applicationContext.getBean(Mode.class);
+      mode = applicationContext.getBean(ApplicationMode.class);
     }
 
     @Override
@@ -528,7 +528,7 @@ public class WroBaseModule {
    */
   @Bean
   public WroConfiguration wroConfiguration(final Environment env,
-      final Mode mode) {
+      final ApplicationMode mode) {
     checkNotNull(env, "The application's environment is required.");
     boolean debug = mode.isDev();
     boolean disableCache = true;
@@ -609,7 +609,7 @@ public class WroBaseModule {
   @Bean
   public BaseWroManagerFactory wroManagerFactory(
       final ApplicationContext applicationContext,
-      final Environment environment, final Mode mode,
+      final Environment environment, final ApplicationMode mode,
       final WroModelFactory wroModelFactory,
       final ProcessorsFactory processorsFactory,
       final UriLocatorFactory uriLocatorFactory) {
@@ -677,7 +677,7 @@ public class WroBaseModule {
    */
   @Bean
   public HandlerInterceptor wroProblemReporterInterceptor(
-      final Mode mode, final WroFilter filter,
+      final ApplicationMode mode, final WroFilter filter,
       final UriLocatorFactory uriLocatorFactory) {
     if (mode.isDev()) {
       return new WroProblemReporterInterceptor(filter, uriLocatorFactory);
@@ -697,7 +697,7 @@ public class WroBaseModule {
    * @param environment The application's environment.
    * @return A new {@link ProcessorsFactory} for the given environment.
    */
-  private static ProcessorsFactory processorsFactory(final Mode mode,
+  private static ProcessorsFactory processorsFactory(final ApplicationMode mode,
       final ProcessorsFactory processors,
       final UriLocatorFactory uriLocatorFactory,
       final Environment environment) {
@@ -721,7 +721,7 @@ public class WroBaseModule {
    * @param environment The application's environment.
    * @param processor The candidate processor.
    */
-  private static void configureProcessor(final Mode mode,
+  private static void configureProcessor(final ApplicationMode mode,
       final UriLocatorFactory uriLocatorFactory, final Environment environment,
       final Object processor) {
     // Check for specific contract
@@ -732,8 +732,8 @@ public class WroBaseModule {
     if (processor instanceof EnvironmentAware) {
       ((EnvironmentAware) processor).setEnvironment(environment);
     }
-    if (processor instanceof ModeAware) {
-      ((ModeAware) processor).setMode(mode);
+    if (processor instanceof ApplicationModeAware) {
+      ((ApplicationModeAware) processor).setMode(mode);
     }
   }
 
