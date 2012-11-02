@@ -51,6 +51,7 @@
 
     <!-- Encoding UTF-8 -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.source.version>1.6</java.source.version>
 
     <!-- Maven plugins -->
     <maven-compiler-plugin-version>2.3.2</maven-compiler-plugin-version>
@@ -63,6 +64,7 @@
     <maven-eclipse-plugin-version>2.9</maven-eclipse-plugin-version>
     <maven-war-plugin-version>2.2</maven-war-plugin-version>
     <maven-checkstyle-plugin-version>2.9.1</maven-checkstyle-plugin-version>
+    <maven-java-formatter-plugin-version>0.3.1</maven-java-formatter-plugin-version>
     <maven-apt-plugin-version>1.0.2</maven-apt-plugin-version>
     <jetty-maven-plugin-version>8.1.7.v20120910</jetty-maven-plugin-version>
     <tomcat7-maven-plugin-version>2.0</tomcat7-maven-plugin-version>
@@ -557,7 +559,7 @@
                       <version>[3.0,)</version>
                     </requireMavenVersion>
                     <requireJavaVersion>
-                      <version>1.6</version>
+                      <version>${java.source.version}</version>
                     </requireJavaVersion>
                   </rules>
                 </configuration>
@@ -570,8 +572,8 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <version>${maven-compiler-plugin-version}</version>
             <configuration>
-              <source>1.6</source>
-              <target>1.6</target>
+              <source>${java.source.version}</source>
+              <target>${java.source.version}</target>
             </configuration>
           </plugin>
 
@@ -747,6 +749,44 @@
     </profile>
 
     <!-- Code Quality -->
+    <profile>
+      <id>formatter</id>
+      <activation>
+        <file>
+          <exists>${basedir}/src/main/etc/formatter.xml</exists>
+        </file>
+      </activation>
+      <properties>
+        <formatter-file>file://${basedir}/src/main/etc/formatter.xml</formatter-file>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
+            <artifactId>maven-java-formatter-plugin</artifactId>
+            <version>${maven-java-formatter-plugin-version}</version>
+            <configuration>
+              <configFile>${formatter-file}</configFile>
+              <lineEnding>LF</lineEnding>
+              <overrideConfigCompilerVersion>true</overrideConfigCompilerVersion>
+              <encoding>${project.build.sourceEncoding}</encoding>
+              <compilerSource>${java.source.version}</compilerSource>
+              <compilerCompliance>${java.source.version}</compilerCompliance>
+              <compilerTargetPlatform>${java.source.version}</compilerTargetPlatform>
+            </configuration>
+            <executions>
+              <execution>
+                <id>format</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>format</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <profile>
       <id>checkstyle</id>
       <activation>

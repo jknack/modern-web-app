@@ -312,7 +312,7 @@ public abstract class Startup implements WebApplicationInitializer {
    *         servlet. Default is: '/*'.
    */
   protected String[] dispatcherMapping() {
-    return new String[] {"/*"};
+    return new String[]{"/*" };
   }
 
   /**
@@ -366,7 +366,7 @@ public abstract class Startup implements WebApplicationInitializer {
    *         bootstrapper class.
    */
   protected Package[] namespace() {
-    return new Package[] {getClass().getPackage()};
+    return new Package[]{getClass().getPackage() };
   }
 
   /**
@@ -409,7 +409,7 @@ public abstract class Startup implements WebApplicationInitializer {
    * @return All the imported modules.
    */
   protected Class<?>[] imports() {
-    return new Class[] {};
+    return new Class[]{};
   }
 
   /**
@@ -453,7 +453,7 @@ public abstract class Startup implements WebApplicationInitializer {
    * @see Resource
    */
   protected String[] propertySources() {
-    return new String[] {propertySource()};
+    return new String[]{propertySource() };
   }
 
   /**
