@@ -306,7 +306,7 @@ public abstract class Startup implements WebApplicationInitializer {
    *         as its mode. 
    */
   protected ApplicationModeFactory<? extends ApplicationMode> createApplicationModeFactory() {
-	  return new DefaultApplicationModeFactory();
+	  return new EnumApplicationModeFactory<DefaultApplicationMode>(DefaultApplicationMode.class);
   }
   
   /**
