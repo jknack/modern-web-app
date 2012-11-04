@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/jknack/modern-web-app.png)](https://travis-ci.org/jknack/modern-web-app)
 # A Modern Web Application Architecture
 
 ## Introduction
