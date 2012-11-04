@@ -17,7 +17,7 @@
 
   <properties>
     <!-- Libraries -->
-    <spring-version>3.1.2.RELEASE</spring-version>
+    <spring-version>3.1.3.RELEASE</spring-version>
     <spring-security>3.1.2.RELEASE</spring-security>
     <spring-data-version>1.0.3.RELEASE</spring-data-version>
     <hibernate-version>4.1.7.Final</hibernate-version>
