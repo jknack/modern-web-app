@@ -72,7 +72,7 @@ public class JacksonViewMethodProcessor implements
     Writer writer = response.getWriter();
 
     try {
-      JsonFactory jsonFactory = mapper.getJsonFactory();
+      JsonFactory jsonFactory = mapper.getFactory();
       JsonGenerator jsonGenerator =
           jsonFactory.createJsonGenerator(writer);
 
