@@ -1,18 +1,28 @@
 package com.github.jknack.mwa;
 
-import java.beans.PropertyDescriptor;
+import static org.apache.commons.lang3.Validate.notNull;
 
+import java.beans.PropertyDescriptor;
+import java.security.Principal;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
+import org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver;
+import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
+import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jknack.mwa.web.JacksonViewMethodProcessor;
@@ -28,10 +38,47 @@ import com.github.jknack.mwa.web.JacksonViewMethodProcessor;
  * @since 0.1
  */
 @Configuration
-@EnableWebMvc
-class WebDefaults extends WebMvcConfigurerAdapter implements
-    InstantiationAwareBeanPostProcessor,
-    ApplicationContextAware {
+class WebDefaults extends DelegatingWebMvcConfiguration implements
+    InstantiationAwareBeanPostProcessor {
+
+  /**
+   * Log any uncaught exception.
+   *
+   * @author edgar.espina
+   * @since 0.3.3
+   */
+  private static class LogUncaughtException extends DefaultHandlerExceptionResolver {
+
+    /**
+     * The logging system.
+     */
+    private Logger logger;
+
+    /**
+     * Creates a new exception handler.
+     * @param context The application's context. Required.
+     */
+    public LogUncaughtException(final ApplicationContext context) {
+      notNull(context, "The application's context is required.");
+      String defaultNamespace = WebDefaults.class.getPackage().getName();
+      logger = LoggerFactory.getLogger(defaultNamespace);
+    }
+
+    @Override
+    protected void logException(final Exception ex, final HttpServletRequest request) {
+      String message = "Handler execution resulted in exception\n"
+          + "  uri: %s\n"
+          + "  user: %s";
+      String uri = request.getRequestURI();
+      String queryString = request.getQueryString();
+      if (queryString != null) {
+        uri += "?" + queryString;
+      }
+      Principal principal = request.getUserPrincipal();
+      String userName = principal == null ? "unknown" : principal.getName();
+      logger.error(String.format(message, uri, userName), ex);
+    }
+  }
 
   /**
    * The jackson2 object mapper bean's name.
@@ -60,6 +107,7 @@ class WebDefaults extends WebMvcConfigurerAdapter implements
   @Override
   public void setApplicationContext(
       final ApplicationContext applicationContext) {
+    super.setApplicationContext(applicationContext);
     this.applicationContext = applicationContext;
   }
 
@@ -114,5 +162,18 @@ class WebDefaults extends WebMvcConfigurerAdapter implements
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public JacksonViewMethodProcessor jacksonViewMethodProcessor() {
     return new JacksonViewMethodProcessor(jackson2ObjectMapper());
+  }
+
+  @Override
+  public void configureHandlerExceptionResolvers(
+      final List<HandlerExceptionResolver> exceptionResolvers) {
+    ExceptionHandlerExceptionResolver exceptionHandlerExceptionResolver =
+        new ExceptionHandlerExceptionResolver();
+    exceptionHandlerExceptionResolver.setMessageConverters(getMessageConverters());
+    exceptionHandlerExceptionResolver.afterPropertiesSet();
+
+    exceptionResolvers.add(exceptionHandlerExceptionResolver);
+    exceptionResolvers.add(new ResponseStatusExceptionResolver());
+    exceptionResolvers.add(new LogUncaughtException(applicationContext));
   }
 }
