@@ -60,8 +60,8 @@ class WebDefaults extends DelegatingWebMvcConfiguration implements
      */
     public LogUncaughtException(final ApplicationContext context) {
       notNull(context, "The application's context is required.");
-      String defaultNamespace = WebDefaults.class.getPackage().getName();
-      logger = LoggerFactory.getLogger(defaultNamespace);
+      String defaultNs = context.getEnvironment().getProperty("application.default.ns");
+      logger = LoggerFactory.getLogger(defaultNs);
     }
 
     @Override

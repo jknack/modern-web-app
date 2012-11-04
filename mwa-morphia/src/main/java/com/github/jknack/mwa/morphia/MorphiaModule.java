@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Set;
 
+import javax.inject.Named;
 import javax.validation.ValidatorFactory;
 
 import org.apache.commons.lang3.Validate;
@@ -99,14 +100,13 @@ public class MorphiaModule {
    * @return A {@link Morphia} POJOs mapper for Mongo datatabases.
    */
   @Bean
-  public Morphia morphia(final Package[] rootPackages) {
+  public Morphia morphia(@Named("application.ns") final String[] namespace) {
     Validate
-        .notNull(rootPackages, "At least one root package must be present.");
+        .notNull(namespace, "At least one root package must be present.");
     Morphia morphia = new Morphia();
-    for (Package candidate : rootPackages) {
-      String packageName = candidate.getName();
-      logger.debug("Adding pacakge: {}", packageName);
-      morphia.mapPackage(packageName);
+    for (String ns : namespace) {
+      logger.debug("Adding pacakge: {}", ns);
+      morphia.mapPackage(ns);
     }
 
     if (validationFactory != null) {

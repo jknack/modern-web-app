@@ -5,11 +5,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
@@ -110,7 +110,7 @@ public class JpaModule {
    * annotation}.
    *
    * @param env The application environment. Required.
-   * @param rootPackages The package to be scanned. Required.
+   * @param namespace The package to be scanned. Required.
    * @return A {@link EntityManagerFactory object} available for use. Spring
    *         managed beans can use the {@link EntityManager service} using the
    *         {@link PersistenceContext annotation}.
@@ -118,7 +118,7 @@ public class JpaModule {
    */
   @Bean
   public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-      final Environment env, final List<Package> rootPackages)
+      final Environment env, @Named("application.ns") final String[] namespace)
       throws ClassNotFoundException {
     logger.info("Starting service: {}",
         EntityManagerFactory.class.getSimpleName());
@@ -131,11 +131,7 @@ public class JpaModule {
     emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
     emf.setJpaPropertyMap(properties);
     emf.setDataSource(dataSource(env));
-    String[] packageToScan = new String[rootPackages.size()];
-    for (int i = 0; i < packageToScan.length; i++) {
-      packageToScan[i] = rootPackages.get(i).getName();
-    }
-    emf.setPackagesToScan(packageToScan);
+    emf.setPackagesToScan(namespace);
     return emf;
   }
 

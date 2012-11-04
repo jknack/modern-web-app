@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.github.jknack.mwa.morphia.MorphiaModule;
 import com.google.code.morphia.Datastore;
 import com.google.code.morphia.Morphia;
 import com.mongodb.Mongo;
@@ -26,7 +25,7 @@ public class MorphiaModuleTest {
   @Test
   public void morphia() {
     Morphia morphia =
-        new MorphiaModule().morphia(new Package[] {getClass().getPackage() });
+        new MorphiaModule().morphia(new String[] {getClass().getPackage().getName() });
     assertNotNull(morphia);
 
   }

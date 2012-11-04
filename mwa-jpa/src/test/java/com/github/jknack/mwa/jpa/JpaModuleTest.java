@@ -7,8 +7,6 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Arrays;
-
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
@@ -69,7 +67,7 @@ public class JpaModuleTest {
 
     new JpaModule()
         .entityManagerFactory(env,
-            Arrays.asList(JpaModuleTest.class.getPackage()));
+            new String[] {JpaModuleTest.class.getPackage().getName()});
 
     verify(env);
     PowerMock.verify(DataSources.class);

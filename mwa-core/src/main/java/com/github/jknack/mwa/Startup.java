@@ -1,5 +1,6 @@
 package com.github.jknack.mwa;
 
+import static org.apache.commons.lang3.StringUtils.join;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 import static org.springframework.core.annotation.AnnotationUtils.getValue;
 
@@ -57,16 +58,13 @@ import com.google.common.collect.Sets;
  * <ul>
  * <li>XML free configuration.
  * <li>Application context 'root' for Spring.
- * <li>Configure the {@link DispatcherServlet} with the root application
- * context.
+ * <li>Configure the {@link DispatcherServlet} with the root application context.
  * <li>Configure {@link Environment} using an application properties files.
- * <li>Configure the {@link PropertySourcesPlaceholderConfigurer} for
- * {@link Value} usage.
+ * <li>Configure the {@link PropertySourcesPlaceholderConfigurer} for {@link Value} usage.
  * <li>Organize your application in modules: (a.k.a Spring Configuration).
- * <li>Module's package are scanned for detecting Spring beans (a.k.a component
- * scanning).
- * <li>Publish an {@link Application} object with: the application's name,
- * contextPath, version and mode.
+ * <li>Module's package are scanned for detecting Spring beans (a.k.a component scanning).
+ * <li>Publish an {@link Application} object with: the application's name, contextPath, version and
+ * mode.
  * </ul>
  *
  * @author edgar.espina
@@ -189,16 +187,13 @@ public abstract class Startup implements WebApplicationInitializer {
    * <ul>
    * <li>XML free configuration.
    * <li>Application context 'root' for Spring.
-   * <li>Configure the {@link DispatcherServlet} with the root application
-   * context.
+   * <li>Configure the {@link DispatcherServlet} with the root application context.
    * <li>Configure {@link Environment} using an application properties files.
-   * <li>Configure the {@link PropertySourcesPlaceholderConfigurer} for
-   * {@link Value} usage.
+   * <li>Configure the {@link PropertySourcesPlaceholderConfigurer} for {@link Value} usage.
    * <li>Organize your application in modules: (a.k.a Spring Configuration).
-   * <li>Module's package are scanned for detecting Spring beans (a.k.a
-   * component scanning).
-   * <li>Publish an {@link Application} object with: the application's name,
-   * contextPath, version and mode.
+   * <li>Module's package are scanned for detecting Spring beans (a.k.a component scanning).
+   * <li>Publish an {@link Application} object with: the application's name, contextPath, version
+   * and mode.
    * </ul>
    *
    * @param servletContext The servlet context.
@@ -234,8 +229,7 @@ public abstract class Startup implements WebApplicationInitializer {
     /**
      * Special beans.
      */
-    rootContext.addBeanFactoryPostProcessor(registerSingletons(mode,
-        namespace()));
+    rootContext.addBeanFactoryPostProcessor(registerSingletons(mode));
 
     /**
      * Creates the Spring MVC dispatcher servlet.
@@ -272,13 +266,24 @@ public abstract class Startup implements WebApplicationInitializer {
       }
       // Add to the environment
       final ConfigurableEnvironment env = rootContext.getEnvironment();
-      Map<String, Object> webproperties = new HashMap<String, Object>();
-      webproperties.put("contextPath", servletContext.getContextPath());
-      webproperties.put("servletContextName",
-          servletContext.getServletContextName());
+      Map<String, Object> specialProps = new HashMap<String, Object>();
+      String contextPath = servletContext.getContextPath();
+      String appName = env.getProperty("application.name");
+      if (appName == null) {
+        // No set, defaults to contextPath
+        appName = contextPath.replace("/", "");
+        specialProps.put("application.name", appName);
+      }
+      specialProps.put("application.contextPath", contextPath);
+      // namespace
+      specialProps.put("application.ns", join(rootPackageNames(), ","));
+
+      // default name-space
+      specialProps.put("application.default.ns", getClass().getPackage().getName());
+
       MutablePropertySources propertySources = env.getPropertySources();
       propertySources.addFirst(new MapPropertySource(servletContext
-          .getContextPath(), webproperties));
+          .getContextPath(), specialProps));
       for (Resource propertyFile : properties) {
         logger.debug("Adding property file: {}", propertyFile);
         propertySources.addFirst(asPropertySource(propertyFile));
@@ -308,8 +313,8 @@ public abstract class Startup implements WebApplicationInitializer {
    * The mapping for the Spring {@link DispatcherServlet dispatcher} servlet.
    * Default is: '/*'.
    *
-   * @return The mapping for the Spring {@link DispatcherServlet dispatcher}
-   *         servlet. Default is: '/*'.
+   * @return The mapping for the Spring {@link DispatcherServlet dispatcher} servlet. Default is:
+   *         '/*'.
    */
   protected String[] dispatcherMapping() {
     return new String[]{"/*" };
@@ -365,8 +370,8 @@ public abstract class Startup implements WebApplicationInitializer {
    *         scanning. By default it scan all the package of the main or
    *         bootstrapper class.
    */
-  protected Package[] namespace() {
-    return new Package[]{getClass().getPackage() };
+  protected String[] namespace() {
+    return new String[]{getClass().getPackage().getName() };
   }
 
   /**
@@ -378,10 +383,10 @@ public abstract class Startup implements WebApplicationInitializer {
    *         bootstrapper class.
    */
   private String[] rootPackageNames() {
-    Package[] roots = namespace();
+    String[] roots = namespace();
     Set<String> names = Sets.newHashSet();
-    for (Package root : roots) {
-      names.add(root.getName());
+    for (String ns : roots) {
+      names.add(ns);
     }
     return names.toArray(new String[names.size()]);
   }
@@ -415,16 +420,15 @@ public abstract class Startup implements WebApplicationInitializer {
   /**
    * <p>
    * Provide the location of the application properties file, such as
-   * {@code "classpath:/com/myco/foo.properties"} or
-   * {@code "file:/path/to/file.properties"}.
+   * {@code "classpath:/com/myco/foo.properties"} or {@code "file:/path/to/file.properties"}.
    * </p>
    * <p>
    * Default is: application.properties.
    * </p>
    *
    * @return Provide the location of the application properties file, such as
-   *         {@code "classpath:/com/myco/foo.properties"} or
-   *         {@code "file:/path/to/file.properties"}.
+   *         {@code "classpath:/com/myco/foo.properties"} or {@code "file:/path/to/file.properties"}
+   *         .
    * @see ClassPathResource
    * @see FileSystemResource
    * @see UrlResource
@@ -437,16 +441,15 @@ public abstract class Startup implements WebApplicationInitializer {
   /**
    * <p>
    * Provide the location of the application properties file, such as
-   * {@code "classpath:/com/myco/foo.properties"} or
-   * {@code "file:/path/to/file.properties"}.
+   * {@code "classpath:/com/myco/foo.properties"} or {@code "file:/path/to/file.properties"}.
    * </p>
    * <p>
    * Default is: application.properties.
    * </p>
    *
    * @return Provide the location of the application properties file, such as
-   *         {@code "classpath:/com/myco/foo.properties"} or
-   *         {@code "file:/path/to/file.properties"}.
+   *         {@code "classpath:/com/myco/foo.properties"} or {@code "file:/path/to/file.properties"}
+   *         .
    * @see ClassPathResource
    * @see FileSystemResource
    * @see UrlResource
@@ -483,21 +486,15 @@ public abstract class Startup implements WebApplicationInitializer {
    * Register the application mode in the spring context.
    *
    * @param mode The application's mode.
-   * @param roots The roots packages.
    * @return A new {@link BeanFactoryPostProcessor}.
    */
-  private static BeanFactoryPostProcessor registerSingletons(
-      final Mode mode, final Package[] roots) {
+  private static BeanFactoryPostProcessor registerSingletons(final Mode mode) {
     return new BeanFactoryPostProcessor() {
       @Override
       public void postProcessBeanFactory(
           final ConfigurableListableBeanFactory beanFactory) {
         beanFactory.addBeanPostProcessor(modeAwareBeanPostProcessor(mode));
         beanFactory.registerSingleton("#mode", mode);
-        // register roots
-        for (int i = 0; i < roots.length; i++) {
-          beanFactory.registerSingleton("#root$" + i, roots[i]);
-        }
       }
     };
   }
