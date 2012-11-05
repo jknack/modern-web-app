@@ -43,7 +43,7 @@ public class MailBuilderTest {
       MimeMessage mimeMessage = createMock(MimeMessage.class);
 
       MimeMessageHelper message = PowerMock
-          .createMockAndExpectNew(MimeMessageHelper.class, mimeMessage, true);
+          .createMockAndExpectNew(MimeMessageHelper.class, mimeMessage, true, "UTF-8");
       expectations(message);
 
       JavaMailSender sender = createMock(JavaMailSender.class);
@@ -302,7 +302,7 @@ public class MailBuilderTest {
       MimeMessage mimeMessage = createMock(MimeMessage.class);
 
       MimeMessageHelper message = PowerMock.createMockAndExpectNew(
-          MimeMessageHelper.class, mimeMessage, true, "utf-8");
+          MimeMessageHelper.class, mimeMessage, true, "UTF-8");
       expectations(message);
 
       JavaMailSender sender = createMock(JavaMailSender.class);
@@ -311,7 +311,7 @@ public class MailBuilderTest {
       PowerMock.replay(MimeMessageHelper.class);
       replay(sender, mimeMessage, message);
 
-      MailBuilder mail = MailBuilder.newMail(sender, "utf-8");
+      MailBuilder mail = MailBuilder.newMail(sender, "UTF-8");
       run(mail);
 
       verify(sender, mimeMessage, message);
@@ -351,7 +351,7 @@ public class MailBuilderTest {
       MimeMessage mimeMessage = createMock(MimeMessage.class);
 
       MimeMessageHelper message = PowerMock.createMockAndExpectNew(
-          MimeMessageHelper.class, mimeMessage, true, "utf-8");
+          MimeMessageHelper.class, mimeMessage, true, "UTF-8");
       expectations(message);
 
       JavaMailSender sender = createMock(JavaMailSender.class);
@@ -360,7 +360,7 @@ public class MailBuilderTest {
       PowerMock.replay(MimeMessageHelper.class);
       replay(sender, mimeMessage, message);
 
-      MailBuilder mail = MailBuilder.newMailUtf8(sender);
+      MailBuilder mail = MailBuilder.newMail(sender);
       run(mail);
 
       verify(sender, mimeMessage, message);

@@ -531,20 +531,6 @@ public class MailBuilder {
   }
 
   /**
-   * Creates a new mail message with multi-part support.
-   *
-   * @param sender The email sender. Required.
-   * @return A new mail message with multi-part support.
-   * @throws MessagingException If the message cannot be created.
-   */
-  public static MailBuilder newMail(final JavaMailSender sender)
-      throws MessagingException {
-    Validate.notNull(sender, "The email sender is required.");
-    return new MailBuilder(new MimeMessageHelper(sender.createMimeMessage(),
-        true));
-  }
-
-  /**
    * Creates a new mail message with multi-part support and the specified
    * encoding.
    *
@@ -570,11 +556,11 @@ public class MailBuilder {
    *    encoding.
    * @throws MessagingException If the message cannot be created.
    */
-  public static MailBuilder newMailUtf8(final JavaMailSender sender)
+  public static MailBuilder newMail(final JavaMailSender sender)
       throws MessagingException {
     Validate.notNull(sender, "The email sender is required.");
     return new MailBuilder(new MimeMessageHelper(sender.createMimeMessage(),
-        true, "utf-8"));
+        true, "UTF-8"));
   }
 
   /**
