@@ -2,13 +2,13 @@ package com.github.jknack.mwa;
 
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
-import static org.springframework.core.annotation.AnnotationUtils.getValue;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,22 +18,15 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -42,7 +35,6 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePropertySource;
-import org.springframework.util.StringValueResolver;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
@@ -57,14 +49,14 @@ import com.google.common.collect.Sets;
  * </p>
  * <ul>
  * <li>XML free configuration.
- * <li>Application context 'root' for Spring.
+ * <li>Configure a {@link AnnotationConfigWebApplicationContext}.
  * <li>Configure the {@link DispatcherServlet} with the root application context.
- * <li>Configure {@link Environment} using an application properties files.
- * <li>Configure the {@link PropertySourcesPlaceholderConfigurer} for {@link Value} usage.
+ * <li>Configure {@link Environment} using property sources.
+ * <li>Configure the {@link PropertySourcesPlaceholderConfigurer} for {@link Value} and
+ * {@link Named} usage.
  * <li>Organize your application in modules: (a.k.a Spring Configuration).
- * <li>Module's package are scanned for detecting Spring beans (a.k.a component scanning).
- * <li>Publish an {@link Application} object with: the application's name, contextPath, version and
- * mode.
+ * <li>Application's namespace is scanned for detecting Spring beans (a.k.a component scanning).
+ * <li>Add {@link Mode} and {@link ModeAware} support.
  * </ul>
  *
  * @author edgar.espina
@@ -72,108 +64,6 @@ import com.google.common.collect.Sets;
  * @see WebApplicationInitializer
  */
 public abstract class Startup implements WebApplicationInitializer {
-
-  /**
-   * Configure @Named for resolving properties from the environment.
-   *
-   * @author edgar.espina
-   * @since 0.1
-   */
-  private static class ExtendedAutowireCandidateResolver extends
-      QualifierAnnotationAutowireCandidateResolver implements
-      StringValueResolver {
-
-    /**
-     * The list of annotation type to resolve.
-     */
-    private final Set<Class<? extends Annotation>> valueAnnotationTypes;
-
-    /**
-     * The application environment.
-     */
-    private Environment environment;
-
-    /**
-     * Creates a new {@link ExtendedAutowireCandidateResolver}.
-     *
-     * @param environment The application environment.
-     * @param beanFactory The application bean factory.
-     */
-    @SuppressWarnings("unchecked")
-    public ExtendedAutowireCandidateResolver(final Environment environment,
-        final DefaultListableBeanFactory beanFactory) {
-      valueAnnotationTypes = Sets.newHashSet(Value.class, Named.class);
-      this.environment = environment;
-      beanFactory.setAutowireCandidateResolver(this);
-      beanFactory.addEmbeddedValueResolver(this);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Object findValue(final Annotation[] annotationsToSearch) {
-      for (Annotation annotation : annotationsToSearch) {
-        if (isInstance(annotation)) {
-          Object value = getValue(annotation);
-          if (value == null) {
-            throw new IllegalStateException(
-                "Value/Named annotation must have a value attribute");
-          }
-          return value;
-        }
-      }
-      return null;
-    }
-
-    /**
-     * Returns true if the given annotation is one of Value or Named.
-     *
-     * @param annotation The annotation instance.
-     * @return True if the given annotation is one of Value or Named.
-     */
-    private boolean isInstance(final Annotation annotation) {
-      for (Class<? extends Annotation> valueType : valueAnnotationTypes) {
-        if (valueType.isInstance(annotation)) {
-          String value = (String) getValue(annotation);
-          if (valueType == Named.class) {
-            return environment.getProperty(value) != null;
-          }
-          // force to use ${} in @Value
-          return value.startsWith("${") && value.endsWith("}");
-        }
-      }
-      return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String resolveStringValue(final String value) {
-      return environment.getProperty(value, value);
-    }
-  }
-
-  /**
-   * Extend {@link AnnotationConfigWebApplicationContext} with more features.
-   *
-   * @author edgar.espina
-   * @see ExtendedAutowireCandidateResolver
-   */
-  private static class ModernWebAppContext extends
-      AnnotationConfigWebApplicationContext {
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void customizeBeanFactory(
-        final DefaultListableBeanFactory beanFactory) {
-      super.customizeBeanFactory(beanFactory);
-      // Override the autowire candidate resolver
-      new ExtendedAutowireCandidateResolver(getEnvironment(), beanFactory);
-    }
-  }
 
   /**
    * The logging system.
@@ -186,14 +76,14 @@ public abstract class Startup implements WebApplicationInitializer {
    * </p>
    * <ul>
    * <li>XML free configuration.
-   * <li>Application context 'root' for Spring.
+   * <li>Configure a {@link AnnotationConfigWebApplicationContext}.
    * <li>Configure the {@link DispatcherServlet} with the root application context.
-   * <li>Configure {@link Environment} using an application properties files.
-   * <li>Configure the {@link PropertySourcesPlaceholderConfigurer} for {@link Value} usage.
+   * <li>Configure {@link Environment} using property sources.
+   * <li>Configure the {@link PropertySourcesPlaceholderConfigurer} for {@link Value} and
+   * {@link Named} usage.
    * <li>Organize your application in modules: (a.k.a Spring Configuration).
-   * <li>Module's package are scanned for detecting Spring beans (a.k.a component scanning).
-   * <li>Publish an {@link Application} object with: the application's name, contextPath, version
-   * and mode.
+   * <li>Application's namespace is scanned for detecting Spring beans (a.k.a component scanning).
+   * <li>Add {@link Mode} and {@link ModeAware} support.
    * </ul>
    *
    * @param servletContext The servlet context.
@@ -202,72 +92,52 @@ public abstract class Startup implements WebApplicationInitializer {
   @Override
   public final void onStartup(final ServletContext servletContext)
       throws ServletException {
+    final AnnotationConfigWebApplicationContext context =
+        new AnnotationConfigWebApplicationContext();
+    servletContext.addListener(new ContextLoaderListener(context));
 
-    final AnnotationConfigWebApplicationContext rootContext =
-        new ModernWebAppContext();
-    servletContext.addListener(new ContextLoaderListener(rootContext));
-
-    // Configure the environment
-    final ConfigurableEnvironment env =
-        configureEnvironment(servletContext, rootContext);
-
-    String modeProperty = env.getProperty("application.mode");
-    if (StringUtils.isBlank(modeProperty)) {
-      modeProperty = Mode.DEV.name();
-      logger.warn("application.mode isn't set, using: {}", modeProperty);
-    }
-    Mode mode = Mode.valueOf(modeProperty);
-
-    // Activate the default profile
-    env.setActiveProfiles(mode.name());
+    ApplicationContextConfigurer.configure(context,
+        propertySources(servletContext.getContextPath(), context));
 
     /**
      * Configure modules.
      */
-    registerModules(rootContext);
-
-    /**
-     * Special beans.
-     */
-    rootContext.addBeanFactoryPostProcessor(registerSingletons(mode));
+    registerModules(context);
 
     /**
      * Creates the Spring MVC dispatcher servlet.
      */
     ServletRegistration.Dynamic dispatcher = servletContext.addServlet(
-        "spring-dispatcher", new DispatcherServlet(rootContext));
+        "spring-dispatcher", new DispatcherServlet(context));
     dispatcher.setLoadOnStartup(1);
     dispatcher.addMapping(dispatcherMapping());
     // Add the forwarding filter
     servletContext.addFilter("forwardingFilter", new ForwardingFilter(
-        rootContext))
+        context))
         .addMappingForUrlPatterns(
             EnumSet.of(DispatcherType.REQUEST), false, dispatcherMapping());
-    onStartup(servletContext, rootContext);
+    onStartup(servletContext, context);
   }
 
   /**
-   * Publish application properties files into the environment. Additionally, it
-   * enabled the use of {@link Value} annotation.
+   * Get property sources.
    *
-   * @param servletContext The servlet context.
-   * @param rootContext The Spring application context.
-   * @return The application environment.
-   * @throws ServletException If the properties files fail to load.
+   * @param contextPath The application's context path.
+   * @param context The application's context.
+   * @return A property sources array.
+   * @throws ServletException If the environment cannot be configured.
    */
-  private ConfigurableEnvironment configureEnvironment(
-      final ServletContext servletContext,
-      final ConfigurableWebApplicationContext rootContext)
-      throws ServletException {
+  private PropertySource<?>[] propertySources(final String contextPath,
+      final ApplicationContext context) throws ServletException {
     try {
       Set<Resource> properties = findResources(propertySources());
       if (properties.size() == 0) {
         logger.warn("No property files were found.");
       }
-      // Add to the environment
-      final ConfigurableEnvironment env = rootContext.getEnvironment();
+      final Environment env = context.getEnvironment();
+
+      // Special properties
       Map<String, Object> specialProps = new HashMap<String, Object>();
-      String contextPath = servletContext.getContextPath();
       String appName = env.getProperty("application.name");
       if (appName == null) {
         // No set, defaults to contextPath
@@ -275,25 +145,20 @@ public abstract class Startup implements WebApplicationInitializer {
         specialProps.put("application.name", appName);
       }
       specialProps.put("application.contextPath", contextPath);
-      // namespace
       specialProps.put("application.ns", join(rootPackageNames(), ","));
 
       // default name-space
       specialProps.put("application.default.ns", getClass().getPackage().getName());
 
-      MutablePropertySources propertySources = env.getPropertySources();
-      propertySources.addFirst(new MapPropertySource(servletContext
-          .getContextPath(), specialProps));
+      List<PropertySource<?>> propertySources = new ArrayList<PropertySource<?>>();
+
       for (Resource propertyFile : properties) {
         logger.debug("Adding property file: {}", propertyFile);
-        propertySources.addFirst(asPropertySource(propertyFile));
+        propertySources.add(asPropertySource(propertyFile));
       }
-      // Enable @Value
-      PropertySourcesPlaceholderConfigurer placeholderConfigurer =
-          new PropertySourcesPlaceholderConfigurer();
-      placeholderConfigurer.setEnvironment(env);
-      rootContext.addBeanFactoryPostProcessor(placeholderConfigurer);
-      return env;
+      propertySources.add(new MapPropertySource(appName, specialProps));
+
+      return propertySources.toArray(new PropertySource<?>[propertySources.size()]);
     } catch (IOException ex) {
       throw new ServletException("The environment cannot be configured.", ex);
     }
@@ -482,45 +347,4 @@ public abstract class Startup implements WebApplicationInitializer {
     return resources;
   }
 
-  /**
-   * Register the application mode in the spring context.
-   *
-   * @param mode The application's mode.
-   * @return A new {@link BeanFactoryPostProcessor}.
-   */
-  private static BeanFactoryPostProcessor registerSingletons(final Mode mode) {
-    return new BeanFactoryPostProcessor() {
-      @Override
-      public void postProcessBeanFactory(
-          final ConfigurableListableBeanFactory beanFactory) {
-        beanFactory.addBeanPostProcessor(modeAwareBeanPostProcessor(mode));
-        beanFactory.registerSingleton("#mode", mode);
-      }
-    };
-  }
-
-  /**
-   * Configure {@link ModeAware} beans.
-   *
-   * @param mode The application's mode.
-   * @return A bean mode aware processor.
-   */
-  private static BeanPostProcessor modeAwareBeanPostProcessor(final Mode mode) {
-    return new BeanPostProcessor() {
-      @Override
-      public Object postProcessBeforeInitialization(final Object bean,
-          final String beanName) {
-        if (bean instanceof ModeAware) {
-          ((ModeAware) bean).setMode(mode);
-        }
-        return bean;
-      }
-
-      @Override
-      public Object postProcessAfterInitialization(final Object bean,
-          final String beanName) {
-        return bean;
-      }
-    };
-  }
 }

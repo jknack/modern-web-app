@@ -13,7 +13,6 @@ import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 
 import org.hibernate.cfg.AvailableSettings;
@@ -28,9 +27,6 @@ import org.springframework.orm.jpa.support.SharedEntityManagerBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.HandlerExceptionResolver;
-
-import com.github.jknack.mwa.handler.MessageConverterHandlerExceptionResolver;
 
 /**
  * <p>
@@ -155,29 +151,6 @@ public class JpaModule {
   @PreDestroy
   public void destroy() throws Exception {
     cleanupDrivers();
-  }
-
-  /**
-   * Publish a {@link DataAccessHandlerExceptionResolver} message resolver.
-   *
-   * @return A new {@link DataAccessHandlerExceptionResolver} message resolver.
-   */
-  @Bean
-  public HandlerExceptionResolver dataAccessExceptionResolver() {
-    return new DataAccessHandlerExceptionResolver();
-  }
-
-  /**
-   * Publish a {@link HandlerExceptionResolver} message converter resolver for
-   * {@link PersistenceException}.
-   *
-   * @return A new {@link HandlerExceptionResolver} message converter resolver
-   *         for {@link PersistenceException}.
-   */
-  @Bean
-  public HandlerExceptionResolver persistenceExceptionResolver() {
-    return new MessageConverterHandlerExceptionResolver(
-        PersistenceException.class);
   }
 
   /**

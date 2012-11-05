@@ -30,13 +30,4 @@ public class ValidationModule {
     return new LocalValidatorFactoryBean();
   }
 
-  /**
-   * Publish a {@link JSR303HandlerExceptionResolver JSR-303} message resolver.
-   *
-   * @return A new {@link JSR303HandlerExceptionResolver} message resolver.
-   */
-  @Bean
-  public Jsr303HandlerExceptionResolver jsr303ExceptionResolver() {
-    return new Jsr303HandlerExceptionResolver();
-  }
 }

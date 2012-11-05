@@ -13,13 +13,6 @@
   <name>Mongo Module</name>
 
   <dependencies>
-    <!-- Servlet API -->
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
     <!-- MWA Core -->
     <dependency>
       <groupId>${project.groupId}</groupId>

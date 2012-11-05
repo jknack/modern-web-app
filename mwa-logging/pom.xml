@@ -13,24 +13,6 @@
   <name>Logging  Module</name>
 
   <dependencies>
-    <!-- Servlet API -->
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- Spring -->
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-    </dependency>
-
     <!-- Logging System -->
     <dependency>
       <groupId>commons-logging</groupId>

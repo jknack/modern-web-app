@@ -4,8 +4,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.github.jknack.mwa.validation.ValidationModule;
-
 /**
  * Unit test for {@link ValidationModule}.
  *
@@ -19,8 +17,4 @@ public class ValidationModuleTest {
     assertNotNull(new ValidationModule().localValidatorFactoryBean());
   }
 
-  @Test
-  public void jsr303ExcetionResolver() throws Exception {
-    assertNotNull(new ValidationModule().jsr303ExceptionResolver());
-  }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <parent>
     <groupId>com.github.jknack</groupId>
@@ -25,13 +26,6 @@
       <artifactId>commons-lang3</artifactId>
     </dependency>
 
-    <!-- Servlet API -->
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
     <!-- Spring -->
     <dependency>
       <groupId>javax.inject</groupId>
@@ -39,14 +33,13 @@
     </dependency>
 
     <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-nodep</artifactId>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
     </dependency>
 
-    <!-- Jackson 2-->
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
+      <groupId>cglib</groupId>
+      <artifactId>cglib-nodep</artifactId>
     </dependency>
 
     <!-- Logging System -->

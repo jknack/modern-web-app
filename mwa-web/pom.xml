@@ -8,29 +8,42 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>mwa-morphia</artifactId>
+  <artifactId>mwa-web</artifactId>
   <packaging>jar</packaging>
-  <name>Morphia Module</name>
+  <name>Web Module</name>
 
   <dependencies>
-    <!-- MWA Mongo -->
+    <!-- Servlet API -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- MWA Core -->
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-mongo</artifactId>
+      <artifactId>mwa-core</artifactId>
       <version>${project.version}</version>
     </dependency>
 
-    <!-- MWA Validation -->
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-validation</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
     </dependency>
 
-    <!-- Morphia -->
+    <!-- Jackson 2-->
     <dependency>
-      <groupId>com.google.code.morphia</groupId>
-      <artifactId>morphia</artifactId>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
+    <!-- Logging System -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>mwa-logging</artifactId>
+      <type>pom</type>
+      <version>${project.version}</version>
     </dependency>
 
     <!-- Unit test -->
