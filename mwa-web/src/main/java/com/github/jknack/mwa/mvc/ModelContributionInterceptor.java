@@ -63,7 +63,7 @@ public class ModelContributionInterceptor extends HandlerInterceptorAdapter
       for (ModelContribution contribution : contributions) {
         logger.debug(
             "Adding contribution: {} to: {}, view: {}",
-            new Object[] {contribution.getClass().getSimpleName(),
+            new Object[]{contribution.getClass().getSimpleName(),
                 request.getRequestURI(), viewName });
         contribution.contribute(request, response, modelAndView);
       }
