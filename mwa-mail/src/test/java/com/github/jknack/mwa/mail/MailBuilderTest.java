@@ -23,7 +23,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
-import com.github.jknack.mwa.mail.MailBuilder;
 import com.google.common.collect.Lists;
 
 /**
@@ -66,7 +65,7 @@ public class MailBuilderTest {
   @Test
   public void attachFile() throws Exception {
     new MailTestCase() {
-      private File textFile = new File("text.txt");
+      private final File textFile = new File("text.txt");
 
       @Override
       public void run(final MailBuilder mail) throws Exception {
@@ -86,7 +85,7 @@ public class MailBuilderTest {
   @Test
   public void attachInputStream() throws Exception {
     new MailTestCase() {
-      private InputStream input = new ByteArrayInputStream("bytes".getBytes());
+      private final InputStream input = new ByteArrayInputStream("bytes".getBytes());
 
       @Override
       public void run(final MailBuilder mail) throws Exception {
@@ -105,7 +104,7 @@ public class MailBuilderTest {
   @Test
   public void attachResource() throws Exception {
     new MailTestCase() {
-      private Resource input = createMock(Resource.class);
+      private final Resource input = createMock(Resource.class);
 
       @Override
       public void run(final MailBuilder mail) throws Exception {
@@ -287,6 +286,104 @@ public class MailBuilderTest {
       public void expectations(final MimeMessageHelper message)
           throws Exception {
         message.setText("<img src=\"cid:embedded1\"><p>Hello John Doe!</p>",
+            true);
+        expectLastCall();
+        message.addInline("embedded1", header);
+        expectLastCall();
+      }
+    }.run();
+  }
+
+  private static abstract class MailUtf8TestCase {
+    public abstract void expectations(MimeMessageHelper message)
+        throws Exception;
+
+    public void run() throws Exception {
+      MimeMessage mimeMessage = createMock(MimeMessage.class);
+
+      MimeMessageHelper message = PowerMock.createMockAndExpectNew(
+          MimeMessageHelper.class, mimeMessage, true, "utf-8");
+      expectations(message);
+
+      JavaMailSender sender = createMock(JavaMailSender.class);
+      expect(sender.createMimeMessage()).andReturn(mimeMessage);
+
+      PowerMock.replay(MimeMessageHelper.class);
+      replay(sender, mimeMessage, message);
+
+      MailBuilder mail = MailBuilder.newMail(sender, "utf-8");
+      run(mail);
+
+      verify(sender, mimeMessage, message);
+      PowerMock.verify(MimeMessageHelper.class);
+    }
+
+    public abstract void run(MailBuilder mail) throws Exception;
+  }
+
+  @Test
+  public void htmlUtf8() throws Exception {
+    new MailUtf8TestCase() {
+      File header = new File("fakeHeader.jpg");
+
+      @Override
+      public void run(final MailBuilder mail) throws Exception {
+        mail.html("<img src=\"{0}\"><p>Hello {1}! How’re you?</p>", header, "John Doe");
+      }
+
+      @Override
+      public void expectations(final MimeMessageHelper message)
+          throws Exception {
+        message.setText("<img src=\"cid:embedded1\"><p>Hello John Doe! How’re you?</p>",
+            true);
+        expectLastCall();
+        message.addInline("embedded1", header);
+        expectLastCall();
+      }
+    }.run();
+  }
+
+  private static abstract class MailDefaultUtf8TestCase {
+    public abstract void expectations(MimeMessageHelper message)
+        throws Exception;
+
+    public void run() throws Exception {
+      MimeMessage mimeMessage = createMock(MimeMessage.class);
+
+      MimeMessageHelper message = PowerMock.createMockAndExpectNew(
+          MimeMessageHelper.class, mimeMessage, true, "utf-8");
+      expectations(message);
+
+      JavaMailSender sender = createMock(JavaMailSender.class);
+      expect(sender.createMimeMessage()).andReturn(mimeMessage);
+
+      PowerMock.replay(MimeMessageHelper.class);
+      replay(sender, mimeMessage, message);
+
+      MailBuilder mail = MailBuilder.newMailUtf8(sender);
+      run(mail);
+
+      verify(sender, mimeMessage, message);
+      PowerMock.verify(MimeMessageHelper.class);
+    }
+
+    public abstract void run(MailBuilder mail) throws Exception;
+  }
+
+  @Test
+  public void htmlDefaultUtf8() throws Exception {
+    new MailDefaultUtf8TestCase() {
+      File header = new File("fakeHeader.jpg");
+
+      @Override
+      public void run(final MailBuilder mail) throws Exception {
+        mail.html("<img src=\"{0}\"><p>Hello {1}! How’re you?</p>", header, "John Doe");
+      }
+
+      @Override
+      public void expectations(final MimeMessageHelper message)
+          throws Exception {
+        message.setText("<img src=\"cid:embedded1\"><p>Hello John Doe! How’re you?</p>",
             true);
         expectLastCall();
         message.addInline("embedded1", header);
