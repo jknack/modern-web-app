@@ -43,7 +43,7 @@ public class MailBuilder {
     /**
      * The content-type mark.
      */
-    private String contentType;
+    private final String contentType;
 
     /**
      * Creates a new {@link InputStreamWithContentType}.
@@ -202,7 +202,7 @@ public class MailBuilder {
   /**
    * The Spring mail message helper.
    */
-  private MimeMessageHelper message;
+  private final MimeMessageHelper message;
 
   /**
    * The logging system.
@@ -542,6 +542,39 @@ public class MailBuilder {
     Validate.notNull(sender, "The email sender is required.");
     return new MailBuilder(new MimeMessageHelper(sender.createMimeMessage(),
         true));
+  }
+
+  /**
+   * Creates a new mail message with multi-part support and the specified
+   * encoding.
+   *
+   * @param sender The email sender. Required.
+   * @param encoding The encoding. Required.
+   * @return A new mail message with multi-part support and the specified
+   *    encoding.
+   * @throws MessagingException If the message cannot be created.
+   */
+  public static MailBuilder newMail(final JavaMailSender sender,
+      final String encoding) throws MessagingException {
+    Validate.notNull(sender, "The email sender is required.");
+    Validate.notNull(encoding, "The encoding for the email text.");
+    return new MailBuilder(new MimeMessageHelper(sender.createMimeMessage(),
+        true, encoding));
+  }
+
+  /**
+   * Creates a new mail message with multi-part support and UTF-8 encoding.
+   *
+   * @param sender The email sender. Required.
+   * @return A new mail message with multi-part support and the specified
+   *    encoding.
+   * @throws MessagingException If the message cannot be created.
+   */
+  public static MailBuilder newMailUtf8(final JavaMailSender sender)
+      throws MessagingException {
+    Validate.notNull(sender, "The email sender is required.");
+    return new MailBuilder(new MimeMessageHelper(sender.createMimeMessage(),
+        true, "utf-8"));
   }
 
   /**
