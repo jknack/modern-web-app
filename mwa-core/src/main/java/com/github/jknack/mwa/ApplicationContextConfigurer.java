@@ -148,7 +148,7 @@ public final class ApplicationContextConfigurer {
    * @return The given application's context.
    */
   public static ConfigurableApplicationContext configure(
-      final ConfigurableApplicationContext context, final PropertySource<?>... propertySources) {
+      final ConfigurableApplicationContext context, final MutablePropertySources propertySources) {
     ConfigurableEnvironment env = configureEnvironment(context, propertySources);
 
     String modeProperty = env.getProperty("application.mode");
@@ -223,17 +223,17 @@ public final class ApplicationContextConfigurer {
    * @return The application environment.
    */
   public static ConfigurableEnvironment configureEnvironment(
-      final ConfigurableApplicationContext context, final PropertySource<?>... propertySources) {
+      final ConfigurableApplicationContext context, final MutablePropertySources propertySources) {
     notNull(context, "The context is required.");
+    notNull(propertySources, "The propertySources are required.");
 
     final ConfigurableEnvironment env = context.getEnvironment();
-    if (propertySources.length == 0) {
+    if (propertySources.size() == 0) {
       logger.warn("No property files were found.");
     }
     // Add property's by precedence.
     MutablePropertySources mutablePropertySources = env.getPropertySources();
-    for (int i = propertySources.length - 1; i >= 0; i--) {
-      PropertySource<?> propertySource = propertySources[i];
+    for (PropertySource<?> propertySource : propertySources) {
       logger.debug("Adding property file: {}", propertySource);
       mutablePropertySources.addFirst(propertySource);
     }

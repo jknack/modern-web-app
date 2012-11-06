@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -90,14 +91,18 @@ public abstract class Startup implements WebApplicationInitializer {
    * @throws ServletException If something goes wrong.
    */
   @Override
-  public final void onStartup(final ServletContext servletContext)
-      throws ServletException {
+  public final void onStartup(final ServletContext servletContext) throws ServletException {
     final AnnotationConfigWebApplicationContext context =
         new AnnotationConfigWebApplicationContext();
+
     servletContext.addListener(new ContextLoaderListener(context));
 
-    ApplicationContextConfigurer.configure(context,
-        propertySources(servletContext.getContextPath(), context));
+    MutablePropertySources propertySources =
+        propertySources(servletContext.getContextPath(), context);
+
+    configure(propertySources);
+
+    ApplicationContextConfigurer.configure(context, propertySources);
 
     /**
      * Configure modules.
@@ -111,12 +116,20 @@ public abstract class Startup implements WebApplicationInitializer {
         "spring-dispatcher", new DispatcherServlet(context));
     dispatcher.setLoadOnStartup(1);
     dispatcher.addMapping(dispatcherMapping());
+
     // Add the forwarding filter
-    servletContext.addFilter("forwardingFilter", new ForwardingFilter(
-        context))
-        .addMappingForUrlPatterns(
-            EnumSet.of(DispatcherType.REQUEST), false, dispatcherMapping());
+    servletContext.addFilter("forwardingFilter", new ForwardingFilter(context))
+        .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, dispatcherMapping());
+
     onStartup(servletContext, context);
+  }
+
+  /**
+   * Optionally, add one or more property sources to the application's environment.
+   *
+   * @param propertySources The property sources.
+   */
+  protected void configure(final MutablePropertySources propertySources) {
   }
 
   /**
@@ -127,10 +140,10 @@ public abstract class Startup implements WebApplicationInitializer {
    * @return A property sources array.
    * @throws ServletException If the environment cannot be configured.
    */
-  private PropertySource<?>[] propertySources(final String contextPath,
+  private MutablePropertySources propertySources(final String contextPath,
       final ApplicationContext context) throws ServletException {
     try {
-      Set<Resource> properties = findResources(propertySources());
+      List<Resource> properties = findResources(propertySources());
       if (properties.size() == 0) {
         logger.warn("No property files were found.");
       }
@@ -144,23 +157,29 @@ public abstract class Startup implements WebApplicationInitializer {
         appName = contextPath.replace("/", "");
         specialProps.put("application.name", appName);
       }
+      // contextPath
       specialProps.put("application.contextPath", contextPath);
+      // Same as application.contextPath but shorter
+      specialProps.put("contextPath", contextPath);
+
+      // All the namespace available
       specialProps.put("application.ns", join(rootPackageNames(), ","));
 
       // default name-space
-      specialProps.put("application.default.ns", getClass().getPackage().getName());
+      specialProps.put("application.default.ns", getClass().getPackage()
+          .getName());
 
-      List<PropertySource<?>> propertySources = new ArrayList<PropertySource<?>>();
+      MutablePropertySources propertySources = new MutablePropertySources();
+      propertySources.addFirst(new MapPropertySource(appName, specialProps));
 
-      for (Resource propertyFile : properties) {
-        logger.debug("Adding property file: {}", propertyFile);
-        propertySources.add(asPropertySource(propertyFile));
+      for (int i = properties.size() - 1; i >= 0; i++) {
+        propertySources.addFirst(asPropertySource(properties.get(i)));
       }
-      propertySources.add(new MapPropertySource(appName, specialProps));
 
-      return propertySources.toArray(new PropertySource<?>[propertySources.size()]);
+      return propertySources;
     } catch (IOException ex) {
-      throw new ServletException("The environment cannot be configured.", ex);
+      throw new ServletException("The environment cannot be configured.",
+          ex);
     }
   }
 
@@ -168,10 +187,10 @@ public abstract class Startup implements WebApplicationInitializer {
    * Add application's filters, listener and servlets.
    *
    * @param servletContext The servlet's context.
-   * @param rootContext The Spring MVC application context.
+   * @param applicationContext The Spring MVC application context.
    */
   protected void onStartup(final ServletContext servletContext,
-      final ConfigurableWebApplicationContext rootContext) {
+      final ConfigurableWebApplicationContext applicationContext) {
   }
 
   /**
@@ -191,8 +210,7 @@ public abstract class Startup implements WebApplicationInitializer {
    * @param context The String application context.
    * @throws ServletException If something goes wrong.
    */
-  private void registerModules(
-      final AnnotationConfigWebApplicationContext context)
+  private void registerModules(final AnnotationConfigWebApplicationContext context)
       throws ServletException {
     try {
       Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
@@ -228,8 +246,9 @@ public abstract class Startup implements WebApplicationInitializer {
   }
 
   /**
-   * A list with all the packages that will be added to the classpath scanning.
-   * By default it scan all the package of the main or bootstrapper class.
+   * A list with all the packages that will be added to the classpath
+   * scanning. By default it scan all the package of the main or bootstrapper
+   * class.
    *
    * @return A list with all the packages that will be added to the classpath
    *         scanning. By default it scan all the package of the main or
@@ -240,8 +259,9 @@ public abstract class Startup implements WebApplicationInitializer {
   }
 
   /**
-   * A list with all the packages that will be added to the classpath scanning.
-   * By default it scan all the package of the main or bootstrapper class.
+   * A list with all the packages that will be added to the classpath
+   * scanning. By default it scan all the package of the main or bootstrapper
+   * class.
    *
    * @return A list with all the packages that will be added to the classpath
    *         scanning. By default it scan all the package of the main or
@@ -273,8 +293,8 @@ public abstract class Startup implements WebApplicationInitializer {
   }
 
   /**
-   * Import external modules required by the application. This is the same mark
-   * the class with {@link Configuration} and add {@link Import} expressions.
+   * Import external modules required by the application. This is the same
+   * mark the class with {@link Configuration} and add {@link Import} expressions.
    *
    * @return All the imported modules.
    */
@@ -331,20 +351,21 @@ public abstract class Startup implements WebApplicationInitializer {
    * @return A resource set.
    * @throws IOException If a resource file fail to be loaded.
    */
-  private Set<Resource> findResources(final String[] locations)
+  private List<Resource> findResources(final String[] locations)
       throws IOException {
-    ResourcePatternResolver resolver =
-        new PathMatchingResourcePatternResolver();
+    ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
     Set<Resource> resources = Sets.newLinkedHashSet();
     for (String location : locations) {
       Resource[] candidates = resolver.getResources(location);
       for (Resource resource : candidates) {
         if (resource.exists()) {
           resources.add(resource);
+        } else {
+          logger.warn("Could not find any property file for: {}", location);
         }
       }
     }
-    return resources;
+    return new ArrayList<Resource>(resources);
   }
 
 }
