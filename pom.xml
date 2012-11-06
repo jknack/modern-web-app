@@ -1169,6 +1169,7 @@ sp_cleanup.use_this_for_non_static_method_access_only_if_necessary=true
       </activation>
       <properties>
         <checkstyle-file>${basedir}/src/main/etc/checkstyle.xml</checkstyle-file>
+        <checkstyle.phase>verify</checkstyle.phase>
       </properties>
       <build>
         <plugins>
@@ -1184,7 +1185,7 @@ sp_cleanup.use_this_for_non_static_method_access_only_if_necessary=true
             <executions>
               <execution>
                 <id>checkstyle</id>
-                <phase>verify</phase>
+                <phase>${checkstyle.phase}</phase>
                 <goals>
                   <goal>checkstyle</goal>
                 </goals>
