@@ -73,7 +73,7 @@ package com.myapp.beans;
 @Component
 public class MyBean {
 
-  public MyBean(@Named("my.int") int myInt, @Named("my.string") int myString) {
+  public MyBean(@Named("my.int") int myInt, @Named("my.string") String myString) {
   }
 }
 ```
