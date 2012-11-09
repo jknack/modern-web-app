@@ -276,10 +276,11 @@ So, how it works? The ```src/main/etc/query-dsl.md``` activate a Maven profile t
 ### Want to learn more?
 Check out the modules documentation
 * [Core Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-core): applies sensible defaults to your application.
-* [Mvc Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-mvc): useful additions to Spring MVC.
+* [Web Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-web): useful additions to Spring MVC.
 * [Logging Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-logging): classpath configuration of Java logging libraries.
 * [JPA 2.0 Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-jpa): configuration of Spring beans required by JPA 2.x.
 * [Mongo Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-mongo): configuration of Spring beans for MongoDB.
+* [Solr 3.x Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-solr3): configuration of Spring beans for an Embedded Solr Server.
 * [Morphia Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-morphia): configuration of Spring beans for Morphia MongoDB.
 * [Web Resource Optimizer Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-wro4j): javascript and css compression, optimization and more.
 * [Mail Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-mail): a simple and powerful mail facade.
