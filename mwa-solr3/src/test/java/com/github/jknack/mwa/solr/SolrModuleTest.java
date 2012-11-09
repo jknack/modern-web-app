@@ -2,6 +2,8 @@ package com.github.jknack.mwa.solr;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.solr.client.solrj.SolrServer;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -9,7 +11,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public class SolrModuleTest {
 
   @Test
-  public void bootSolr() {
+  public void bootSolr() throws InterruptedException {
     System.setProperty("solr.home", "/solr-home");
 
     AnnotationConfigApplicationContext context =
@@ -21,6 +23,7 @@ public class SolrModuleTest {
     SolrServer server2 = context.getBean("core2", SolrServer.class);
     assertNotNull(server2);
 
+    Thread.sleep(TimeUnit.SECONDS.toMillis(5));
     context.destroy();
   }
 }
