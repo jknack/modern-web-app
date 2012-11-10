@@ -154,7 +154,7 @@ public abstract class Startup implements WebApplicationInitializer {
       String appName = env.getProperty("application.name");
       if (appName == null) {
         // No set, defaults to contextPath
-        appName = contextPath.replace("/", "");
+        appName = getClass().getSimpleName();
         specialProps.put("application.name", appName);
       }
       // contextPath
@@ -171,8 +171,7 @@ public abstract class Startup implements WebApplicationInitializer {
 
       MutablePropertySources propertySources = new MutablePropertySources();
       propertySources.addFirst(new MapPropertySource(appName, specialProps));
-
-      for (int i = properties.size() - 1; i >= 0; i++) {
+      for (int i = properties.size() - 1; i >= 0; i--) {
         propertySources.addFirst(asPropertySource(properties.get(i)));
       }
 

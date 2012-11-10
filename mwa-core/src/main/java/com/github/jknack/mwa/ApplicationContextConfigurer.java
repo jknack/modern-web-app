@@ -144,7 +144,7 @@ public final class ApplicationContextConfigurer {
    * </ul>
    *
    * @param context The application's context. Required.
-   * @param propertySources The property sources. Optional.
+   * @param propertySources The property sources. Required.
    * @return The given application's context.
    */
   public static ConfigurableApplicationContext configure(
@@ -219,7 +219,7 @@ public final class ApplicationContextConfigurer {
    * precedence. For example: the element at '0' will have the highest precedence.
    *
    * @param context The Spring application context. Required.
-   * @param propertySources The property's source. Optional.
+   * @param propertySources The property's source. Required.
    * @return The application environment.
    */
   public static ConfigurableEnvironment configureEnvironment(
@@ -235,7 +235,15 @@ public final class ApplicationContextConfigurer {
     MutablePropertySources mutablePropertySources = env.getPropertySources();
     for (PropertySource<?> propertySource : propertySources) {
       logger.debug("Adding property file: {}", propertySource);
-      mutablePropertySources.addFirst(propertySource);
+      mutablePropertySources.addLast(propertySource);
+    }
+    // Move some less-used property source to the end of the chain.
+    String[] moveToEnd = {"servletConfigInitParams", "servletContextInitParams", "jndiProperties" };
+    for (String propertySourceName : moveToEnd) {
+      PropertySource<?> propertySource = mutablePropertySources.remove(propertySourceName);
+      if (propertySource != null) {
+        mutablePropertySources.addLast(propertySource);
+      }
     }
     // Enable @Value
     PropertySourcesPlaceholderConfigurer placeholderConfigurer =
