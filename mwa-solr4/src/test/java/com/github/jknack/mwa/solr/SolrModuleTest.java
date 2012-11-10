@@ -13,6 +13,8 @@ public class SolrModuleTest {
   @Test
   public void bootSolr() throws InterruptedException {
     System.setProperty("solr.home", "/solr-home");
+    // Don't conflict with Solr 3.x module during maven testing
+    System.setProperty("application.name", "solr4x");
 
     AnnotationConfigApplicationContext context =
         new AnnotationConfigApplicationContext(SolrModule.class);
