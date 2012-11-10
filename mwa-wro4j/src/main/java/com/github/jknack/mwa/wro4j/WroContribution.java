@@ -19,6 +19,7 @@ import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.ModelAndView;
 
 import ro.isdc.wro.config.Context;
+import ro.isdc.wro.manager.WroManager;
 import ro.isdc.wro.manager.factory.BaseWroManagerFactory;
 import ro.isdc.wro.model.WroModel;
 import ro.isdc.wro.model.factory.WroModelFactory;
@@ -139,7 +140,8 @@ public abstract class WroContribution extends AbstractModelContribution
       Context.set(Context.webContext(request, response, wroConfig));
       // TODO: Add a cache for no-dev.
       Injector injector = InjectorBuilder.create(wroManagerFactory).build();
-      WroModelFactory modelFactory = wroManagerFactory.getModelFactory();
+      WroManager manager = wroManagerFactory.create();
+      WroModelFactory modelFactory = manager.getModelFactory();
       injector.inject(modelFactory);
       WroModel model = modelFactory.create();
       Map<String, Group> groups = new HashMap<String, Group>();

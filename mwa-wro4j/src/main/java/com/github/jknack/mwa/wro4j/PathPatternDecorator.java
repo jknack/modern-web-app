@@ -97,7 +97,7 @@ public class PathPatternDecorator extends ExtendedProcessorDecorator {
           toString());
       getDecoratedObject().process(resource, reader, writer);
     } else {
-      logger.debug("Skipping {} from {}. No match found: {}", new Object[] {
+      logger.debug("Skipping {} from {}. No match found: {}", new Object[]{
           uri, getDecoratedObject(), toString() });
       WroHelper.safeCopy(reader, writer);
     }

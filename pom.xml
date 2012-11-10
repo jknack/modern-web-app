@@ -44,7 +44,7 @@
     <querydsl-version>2.8.2</querydsl-version>
     <mongo-java-driver-version>2.9.1</mongo-java-driver-version>
     <morphia-version>0.99</morphia-version>
-    <wro4j-version>1.4.9</wro4j-version>
+    <wro4j-version>1.6.0</wro4j-version>
     <lesscss-version>1.3.0</lesscss-version>
     <mail-version>1.4.5</mail-version>
 

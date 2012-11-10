@@ -12,6 +12,10 @@
   <packaging>jar</packaging>
   <name>Wro4j Module</name>
 
+  <properties>
+    <rhino.version>1.7R4</rhino.version>
+  </properties>
+
   <dependencies>
     <!-- Servlet API -->
     <dependency>
@@ -20,11 +24,17 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- MWA MVC -->
+    <!-- MWA Web -->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>mwa-web</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mozilla</groupId>
+      <artifactId>rhino</artifactId>
+      <version>${rhino.version}</version>
     </dependency>
 
     <!-- Web Resource Optimizer -->
@@ -41,6 +51,11 @@
         <exclusion>
           <groupId>org.codehaus.gmaven.runtime</groupId>
           <artifactId>gmaven-runtime-1.7</artifactId>
+        </exclusion>
+        <!-- No Rhino -->
+        <exclusion>
+          <groupId>org.mozilla</groupId>
+          <artifactId>rhino</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

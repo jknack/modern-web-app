@@ -1,7 +1,9 @@
 package com.github.jknack.mwa.wro4j;
 
+import static org.apache.commons.lang3.Validate.notEmpty;
+
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,7 +32,7 @@ public final class LintOptions {
   /**
    * The option list.
    */
-  private final Map<String, Object> options = new HashMap<String, Object>();
+  private final Map<String, Object> options = new LinkedHashMap<String, Object>();
 
   /**
    * Predefined/global variables.
@@ -51,21 +53,32 @@ public final class LintOptions {
    */
   public static LintOptions jsDefaults() {
     return new LintOptions()
+        .options(
+            "browser",
+            "jquery",
+            "devel",
+            "forin",
+            "noarg",
+            "noempty",
+            "eqeqeq",
+            "bitwise",
+            "undef",
+            "curly"
+        )
         .option("maxerr", MAX_ERRORS)
-        .option("browser")
-        .option("jquery")
-        .option("devel")
         .option("globalstrict", false)
         .option("strict", false)
-        .option("forin")
-        .option("noarg")
-        .option("noempty")
-        .option("eqeqeq")
-        .option("bitwise")
-        .option("undef")
-        .option("curly")
         .option("indent", 2)
         .option("maxlen", MAX_LEN);
+  }
+
+  /**
+   * Creates a 'white' JS Hint/Lint options using the JavaScript Good Parts tips.
+   *
+   * @return A new options.
+   */
+  public static LintOptions jsWhite() {
+    return jsDefaults().options("white", "trailing");
   }
 
   /**
@@ -78,42 +91,37 @@ public final class LintOptions {
    * <li>important: Be careful when using !important declaration.
    * <li>box-sizing: The box-sizing properties isn't supported in IE6 and IE7.
    * <li>box-model: Don't use width or height when using padding or border.
-   * <li>known-properties: Properties should be known (listed in CSS
-   * specification) or be a vendor-prefixed property.
-   * <li>duplicate-background-images: Every background-image should be unique.
-   * Use a common class for e.g. sprites.
-   * <li>compatible-vendor-prefixes: Include all compatible vendor prefixes to
-   * reach a wider range of users.
-   * <li>display-property-grouping: Certain properties shouldn't be used with
-   * certain display property values.
-   * <li>overqualified-elements: Don't use classes or IDs with elements (a.foo
-   * or a#foo).
-   * <li>fallback-colors: For older browsers that don't support RGBA, HSL, or
-   * HSLA, provide a fallback color.
-   * <li>duplicate-properties: Duplicate properties must appear one after the
-   * other.
+   * <li>known-properties: Properties should be known (listed in CSS specification) or be a
+   * vendor-prefixed property.
+   * <li>duplicate-background-images: Every background-image should be unique. Use a common class
+   * for e.g. sprites.
+   * <li>compatible-vendor-prefixes: Include all compatible vendor prefixes to reach a wider range
+   * of users.
+   * <li>display-property-grouping: Certain properties shouldn't be used with certain display
+   * property values.
+   * <li>overqualified-elements: Don't use classes or IDs with elements (a.foo or a#foo).
+   * <li>fallback-colors: For older browsers that don't support RGBA, HSL, or HSLA, provide a
+   * fallback color.
+   * <li>duplicate-properties: Duplicate properties must appear one after the other.
    * <li>empty-rules: Rules without any properties specified should be removed.
    * <li>errors: This rule looks for recoverable syntax errors.
    * <li>rules-count: Track how many rules there are.
    * <li>ids: Selectors should not contain IDs.
    * <li>font-sizes: Checks the number of font-size declarations.
    * <li>font-faces: Too many different web fonts in the same stylesheet.
-   * <li>gradients: When using a vendor-prefixed gradient, make sure to use them
-   * all.
+   * <li>gradients: When using a vendor-prefixed gradient, make sure to use them all.
    * <li>floats: This rule tests if the float property is used too many times
-   * <li>outline-none: Use of outline: none or outline: 0 should be limited to
-   * :focus rules.
+   * <li>outline-none: Use of outline: none or outline: 0 should be limited to :focus rules.
    * <li>qualified-headings: Headings should not be qualified (namespaced).
-   * <li>regex-selectors: Selectors that look like regular expressions are slow
-   * and should be avoided.
+   * <li>regex-selectors: Selectors that look like regular expressions are slow and should be
+   * avoided.
    * <li>shorthand: Use shorthand properties where possible.
    * <li>text-indent: Checks for text indent less than -99px.
    * <li>unique-headings: Headings should be defined only once.
    * <li>universal-selector: The universal selector (*) is known to be slow.
-   * <li>unqualified-attributes: Unqualified attribute selectors are known to be
-   * slow.
-   * <li>vendor-prefix: When using a vendor-prefixed property, make sure to
-   * include the standard one.
+   * <li>unqualified-attributes: Unqualified attribute selectors are known to be slow.
+   * <li>vendor-prefix: When using a vendor-prefixed property, make sure to include the standard
+   * one.
    * <li>zero-units: You don't need to specify units when a value is 0.
    * </ul>
    *
@@ -154,23 +162,27 @@ public final class LintOptions {
    * Creates a new {@link LintOptions}. After creation you can safely add
    * new options.
    *
-   * @param names A list of option's names.
+   * @param options A list of option's.
    * @return A new {@link LintOptions}.
    */
-  public static LintOptions options(final String... names) {
-    return new LintOptions().option(names);
+  public static LintOptions creates(final String... options) {
+    notEmpty(options, "The option's are required.");
+    LintOptions lintOptions = new LintOptions();
+    for (String option : options) {
+      lintOptions.option(option);
+    }
+    return lintOptions;
   }
 
   /**
    * Enable all the given options.
    *
-   * @param names The option's name. Required.
+   * @param options All the other options. Required.
    * @return This options.
    */
-  public LintOptions option(final String... names) {
-    Validate.notEmpty(names, "The option's name is required.");
-    for (String name : names) {
-      options.put(name, true);
+  public LintOptions options(final String... options) {
+    for (String option : options) {
+      option(option);
     }
     return this;
   }
@@ -186,6 +198,16 @@ public final class LintOptions {
     Validate.notEmpty(name, "The option's name is required.");
     options.put(name, value);
     return this;
+  }
+
+  /**
+   * Enable the given option. Same as {@link #option(String, true)}
+   *
+   * @param name The option's name. Required.
+   * @return This options.
+   */
+  public LintOptions option(final String name) {
+    return option(name, true);
   }
 
   /**

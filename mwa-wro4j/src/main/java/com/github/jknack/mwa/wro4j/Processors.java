@@ -15,7 +15,6 @@ import ro.isdc.wro.extensions.processor.js.HandlebarsJsProcessor;
 import ro.isdc.wro.extensions.processor.js.JsonHPackProcessor;
 import ro.isdc.wro.extensions.processor.js.PackerJsProcessor;
 import ro.isdc.wro.extensions.processor.js.UglifyJsProcessor;
-import ro.isdc.wro.extensions.processor.js.YUIJsCompressorProcessor;
 import ro.isdc.wro.model.resource.processor.ResourcePostProcessor;
 import ro.isdc.wro.model.resource.processor.ResourcePreProcessor;
 import ro.isdc.wro.model.resource.processor.decorator.CopyrightKeeperProcessorDecorator;
@@ -164,8 +163,7 @@ public final class Processors {
    *
    * @return A new {@link DuplicatesAwareCssDataUriPreProcessor}.
    */
-  public static DuplicatesAwareCssDataUriPreProcessor
-      duplicatesAwareCssDataUri() {
+  public static DuplicatesAwareCssDataUriPreProcessor duplicatesAwareCssDataUri() {
     return new DuplicatesAwareCssDataUriPreProcessor();
   }
 
@@ -411,27 +409,6 @@ public final class Processors {
    */
   public static ResourcePostProcessor yuiCssCompressor() {
     return new ConditionalProcessor(new YUICssCompressorProcessor(), NO_DEV);
-  }
-
-  /**
-   * Use YUI js compression utility for processing js resources.
-   *
-   * @return A new {@link YUIJsCompressorProcessor}.
-   */
-  public static ResourcePostProcessor yuJsMin() {
-    return new ConditionalProcessor(
-        YUIJsCompressorProcessor.noMungeCompressor(), NO_DEV);
-  }
-
-  /**
-   * Same as {@link #yuJsMin()} but applies variable rename for better
-   * compression.
-   *
-   * @return A new {@link YUIJsCompressorProcessor}.
-   */
-  public static ResourcePostProcessor yuiJsMinAdvanced() {
-    return new ConditionalProcessor(
-        YUIJsCompressorProcessor.doMungeCompressor(), NO_DEV);
   }
 
   /**

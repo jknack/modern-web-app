@@ -1,6 +1,7 @@
 package com.github.jknack.mwa.wro4j;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -51,9 +52,7 @@ class CssLinterProcessor implements ResourcePreProcessor,
    * @param options The lint options. Required.
    */
   public CssLinterProcessor(final LintOptions options) {
-    this();
-    this.options =
-        checkNotNull(options, "The lint options are required.").build();
+    this.options = notNull(options, "The lint options are required.").build();
   }
 
   /**
@@ -77,7 +76,7 @@ class CssLinterProcessor implements ResourcePreProcessor,
     final String content = IOUtils.toString(reader);
     final CssLint cssLint = enginePool.getObject();
     try {
-      cssLint.setOptions(options).validate(content);
+      cssLint.setOptions(join(options, ",")).validate(content);
     } catch (final CssLintException e) {
       onCssLintException(e, resource);
     } finally {

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,7 +44,6 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import ro.isdc.wro.WroRuntimeException;
 import ro.isdc.wro.config.Context;
 import ro.isdc.wro.config.jmx.WroConfiguration;
-import ro.isdc.wro.extensions.model.factory.SmartWroModelFactory;
 import ro.isdc.wro.http.ConfigurableWroFilter;
 import ro.isdc.wro.http.WroFilter;
 import ro.isdc.wro.manager.factory.BaseWroManagerFactory;
@@ -51,6 +51,7 @@ import ro.isdc.wro.manager.factory.WroManagerFactory;
 import ro.isdc.wro.model.WroModel;
 import ro.isdc.wro.model.factory.WroModelFactory;
 import ro.isdc.wro.model.factory.WroModelFactoryDecorator;
+import ro.isdc.wro.model.factory.XmlModelFactory;
 import ro.isdc.wro.model.group.DefaultGroupExtractor;
 import ro.isdc.wro.model.group.Group;
 import ro.isdc.wro.model.group.GroupExtractor;
@@ -72,26 +73,26 @@ import com.github.jknack.mwa.Beans;
 import com.github.jknack.mwa.FilterMapping;
 import com.github.jknack.mwa.Mode;
 import com.github.jknack.mwa.ModeAware;
+import com.github.jknack.mwa.ModeCallback;
 import com.github.jknack.mwa.mvc.MvcModule;
 
 /**
  * <p>
- * The {@link WroBaseModule} configure all the necessary infrastructure required
- * by the <a href="http://code.google.com/p/wro4j/">WebResourceOptimizer</a>
+ * The {@link WroBaseModule} configure all the necessary infrastructure required by the <a
+ * href="http://code.google.com/p/wro4j/">WebResourceOptimizer</a>
  * </p>
  * <p>
  * Features:
  * </p>
  * <ul>
- * <li>Intercept all the *.js and *.css request and apply the all the registered
- * {@link Processors processors}.
+ * <li>Intercept all the *.js and *.css request and apply the all the registered {@link Processors
+ * processors}.
  * <li>The wro file descriptor can be written in: 'xml', 'groovy' or 'json'.
- * <li>While running in 'dev', the resource is treated as a single file (no
- * group)
- * <li>While running in 'dev', a HTML is printed if a js or css file doesn't
- * follow the rules of jsHint, jsLint or cssLint.
- * <li>While running in 'NO-dev', a group of files can be merged, minified and
- * compressed as a single bundle.
+ * <li>While running in 'dev', the resource is treated as a single file (no group)
+ * <li>While running in 'dev', a HTML is printed if a js or css file doesn't follow the rules of
+ * jsHint, jsLint or cssLint.
+ * <li>While running in 'NO-dev', a group of files can be merged, minified and compressed as a
+ * single bundle.
  * </ul>
  * <p>
  * Please see the {@link Processors processors} for a full list of processors.
@@ -132,15 +133,13 @@ public class WroBaseModule {
           }
           newGroup.add(resource);
         }
+        // Keep the original group
+        map.put(group.getName(), new LinkedHashSet<Resource>(resources));
       }
       WroModel output = new WroModel();
       for (Entry<String, Set<Resource>> g : map.entrySet()) {
         Group newGroup = new Group(g.getKey());
         Set<Resource> resources = g.getValue();
-        if (resources.size() > 2) {
-          throw new IllegalStateException("Multiples resource " + resources
-              + " for group: " + g.getKey());
-        }
         for (Resource resource : resources) {
           newGroup.addResource(resource);
         }
@@ -489,8 +488,7 @@ public class WroBaseModule {
   }
 
   /**
-   * Intercept js and css resource and apply all the registered
-   * {@link Processors}.
+   * Intercept js and css resource and apply all the registered {@link Processors}.
    *
    * @param filter The wro filter. Required.
    * @return An interceptor for js and css resources.
@@ -506,8 +504,7 @@ public class WroBaseModule {
   }
 
   /**
-   * Intercept js and css resource and apply all the registered
-   * {@link Processors}.
+   * Intercept js and css resource and apply all the registered {@link Processors}.
    *
    * @param configuration The {@link WroConfiguration}. Required.
    * @param wroManagerFactory The {@link WroModelFactory}. Required.
@@ -619,7 +616,7 @@ public class WroBaseModule {
     notNull(processorsFactory, "The processor's factory is required.");
     notNull(uriLocatorFactory, "The uri locator factory is required.");
 
-    BaseWroManagerFactory wroManagerFactory = new BaseWroManagerFactory();
+    final BaseWroManagerFactory wroManagerFactory = new BaseWroManagerFactory();
 
     wroManagerFactory
         .setUriLocatorFactory(uriLocatorFactory)
@@ -636,11 +633,20 @@ public class WroBaseModule {
         transformers.size() == 0 && groupExtractor == null;
 
     if (useDefaults) {
-      if (mode.isDev()) {
-        GroupPerFileModel groupPerFileModel = new GroupPerFileModel();
-        wroManagerFactory.addModelTransformer(groupPerFileModel);
-        wroManagerFactory.setGroupExtractor(groupPerFileModel);
-      }
+      mode.execute(new ModeCallback<Object>() {
+        @Override
+        public Object onDev() {
+          GroupPerFileModel groupPerFileModel = new GroupPerFileModel();
+          wroManagerFactory.addModelTransformer(groupPerFileModel);
+          wroManagerFactory.setGroupExtractor(groupPerFileModel);
+          return null;
+        }
+
+        @Override
+        public Object on(final Mode mode) {
+          return null;
+        }
+      });
     } else {
       for (Transformer transformer : transformers) {
         wroManagerFactory.addModelTransformer(transformer);
@@ -664,7 +670,7 @@ public class WroBaseModule {
    */
   @Bean
   public WroModelFactory wroModelFactory() {
-    return new SmartWroModelFactory();
+    return new XmlModelFactory();
   }
 
   /**
@@ -688,8 +694,8 @@ public class WroBaseModule {
   }
 
   /**
-   * Turn off some {@link ResourcePostProcessor} and
-   * {@link ResourcePreProcessor} if they don't match the given environment.
+   * Turn off some {@link ResourcePostProcessor} and {@link ResourcePreProcessor} if they don't
+   * match the given environment.
    *
    * @param mode The application's mode.
    * @param processors The candidate processor's factory.

@@ -1,6 +1,7 @@
 package com.github.jknack.mwa.wro4j;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.apache.commons.lang3.StringUtils.join;
 import ro.isdc.wro.extensions.processor.js.AbstractLinterProcessor;
 import ro.isdc.wro.extensions.processor.js.JsHintProcessor;
 import ro.isdc.wro.extensions.processor.js.JsLintProcessor;
@@ -53,7 +54,7 @@ final class LinterProcessor extends AbstractLinterProcessor implements
     this.linter = checkNotNull(linter, "The linter is required.");
     this.options =
         checkNotNull(options, "The lint options are required.").build();
-    setOptions(this.options);
+    setOptionsAsString(join(this.options, ","));
   }
 
   /**
