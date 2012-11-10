@@ -53,7 +53,7 @@ public class ApplicationContextConfigurerTest {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(BeanTest.class);
 
-    propertySources.addFirst(new MapPropertySource("appProperties", propertySource ));
+    propertySources.addFirst(new MapPropertySource("appProperties", propertySource));
 
     ApplicationContextConfigurer.configure(context, propertySources);
     context.refresh();
