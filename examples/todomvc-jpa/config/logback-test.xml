@@ -11,8 +11,9 @@
 
   <logger name="org.hibernate.type" level="INFO" />
 
-  <logger
-    name="ro.isdc.wro.model.resource.support.ResourceAuthorizationManager"
+  <logger name="com.github.jknack.examples.todomvc" level="INFO" />
+
+  <logger name="ro.isdc.wro.model.resource.support.ResourceAuthorizationManager"
     level="OFF" />
 
   <logger name="ro.isdc.wro.manager.ReloadModelRunnable" level="OFF" />

@@ -13,10 +13,10 @@ button {
   font-family: inherit;
   color: inherit;
   -webkit-appearance: none;
+  -moz-appearance: none;
   /*-moz-appearance: none;*/
   -ms-appearance: none;
   -o-appearance: none;
-  appearance: none;
 }
 
 body {
@@ -30,7 +30,6 @@ body {
   -moz-font-smoothing: antialiased;
   -ms-font-smoothing: antialiased;
   -o-font-smoothing: antialiased;
-  font-smoothing: antialiased;
 }
 
 #todoapp {
