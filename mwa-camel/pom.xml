@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>com.github.jknack</groupId>
+    <artifactId>modern-web-app</artifactId>
+    <version>0.3.4-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>mwa-camel</artifactId>
+  <packaging>jar</packaging>
+  <name>Camel Module</name>
+
+  <dependencies>
+    <!-- MWA Core -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>mwa-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Apache Camel -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core</artifactId>
+    </dependency>
+
+    <!-- Apache Camel Test -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Logging System -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>mwa-logging</artifactId>
+      <type>pom</type>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Unit test -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-easymock</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-junit4</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>

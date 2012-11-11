@@ -1,10 +1,17 @@
 package com.github.jknack.mwa;
 
 import static org.apache.commons.lang3.Validate.notNull;
+import static org.springframework.core.GenericTypeResolver.resolveTypeArgument;
 import static org.springframework.core.annotation.AnnotationUtils.getValue;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.inject.Named;
@@ -12,14 +19,19 @@ import javax.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.OrderComparator;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
@@ -124,6 +136,50 @@ public final class ApplicationContextConfigurer {
   }
 
   /**
+   * Looks for all the {@link ComponentConfigurer} and call them all.
+   *
+   * @author edgar.espina
+   *
+   */
+  private static class ConfigureComponents implements ApplicationListener<ContextRefreshedEvent> {
+    @Override
+    @SuppressWarnings({"rawtypes", "unchecked" })
+    public void onApplicationEvent(final ContextRefreshedEvent event) {
+      ApplicationContext context = event.getApplicationContext();
+      Collection<ComponentConfigurer> configurers = context.getBeansOfType(
+          ComponentConfigurer.class).values();
+      Map<Class, List<ComponentConfigurer>> orderedMap =
+          new HashMap<Class, List<ComponentConfigurer>>();
+      // Dump all the configurer in the orderedMap
+      for (ComponentConfigurer configurer : configurers) {
+        Class componentType = resolveTypeArgument(configurer.getClass(), ComponentConfigurer.class);
+        notNull(componentType, "Missing component's type for: %s", configurer);
+        List<ComponentConfigurer> configurerList = orderedMap.get(componentType);
+        if (configurerList == null) {
+          configurerList = new ArrayList<ComponentConfigurer>();
+          orderedMap.put(componentType, configurerList);
+        }
+        configurerList.add(configurer);
+      }
+      // Call each configurer by precedence
+      for (Entry<Class, List<ComponentConfigurer>> entry : orderedMap.entrySet()) {
+        Class componentType = entry.getKey();
+        List<ComponentConfigurer> configurerList = entry.getValue();
+        OrderComparator.sort(configurerList);
+        for (ComponentConfigurer configurer : configurerList) {
+          notNull(componentType, "Missing component type for: " + configurer);
+          Object bean = context.getBean(componentType);
+          try {
+            configurer.configure(bean);
+          } catch (Exception ex) {
+            throw new BeanInitializationException("Cannot configurer bean: " + componentType, ex);
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * The logging system.
    */
   private static final Logger logger = LoggerFactory.getLogger(ApplicationContextConfigurer.class);
@@ -177,6 +233,7 @@ public final class ApplicationContextConfigurer {
    * @param mode The application's mode.
    */
   private static void complement(final ConfigurableApplicationContext context, final Mode mode) {
+    context.addApplicationListener(new ConfigureComponents());
     context.addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
       @Override
       public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) {
