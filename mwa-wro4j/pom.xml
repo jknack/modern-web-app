@@ -13,7 +13,7 @@
   <name>Wro4j Module</name>
 
   <properties>
-    <rhino.version>1.7R4</rhino.version>
+    <rhino.version>1.7R3</rhino.version>
   </properties>
 
   <dependencies>

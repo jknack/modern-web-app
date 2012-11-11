@@ -211,6 +211,17 @@ public final class LintOptions {
   }
 
   /**
+   * Remove an option.
+   *
+   * @param name The option's name. Required.
+   * @return This options.
+   */
+  public LintOptions remove(final String name) {
+    options.remove(name);
+    return this;
+  }
+
+  /**
    * Enable the given option.
    *
    * @param name The option's name. Required.
