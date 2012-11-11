@@ -14,7 +14,7 @@ $(function ($) {
     el : '#todoapp',
 
     // Our template for the line of statistics at the bottom of the app.
-    statsTemplate : Handlebars.compile($('#stats-template').html()),
+    statsTemplate : Handlebars.templates['partials/stats-template.html'],
 
     // Delegated events for creating new items, and clearing completed ones.
     events : {

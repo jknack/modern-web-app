@@ -12,7 +12,7 @@ $(function () {
     tagName: 'li',
 
     // Cache the template function for a single item.
-    template: Handlebars.compile($('#item-template').html()),
+    template: Handlebars.templates['partials/item-template.html'],
 
     // The DOM events specific to an item.
     events: {

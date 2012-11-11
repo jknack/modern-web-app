@@ -1,4 +1,4 @@
-# MWA Solr 3.x Module
+# MWA Solr 4.x Module
 
 This module let you embedded a Solr Server inside your Spring Application.
 

@@ -38,10 +38,12 @@
     </p>
   </div>
 
-  {{embedded "partials/item-template" "item-template"}}
-
-  {{embedded "partials/stats-template" "stats-template"}}
-
   {{{scripts}}}
+
+  <script type="text/javascript">
+  {{precompile "partials/item-template"}}
+
+  {{precompile "partials/stats-template"}}
+  </script>
 </body>
 </html>

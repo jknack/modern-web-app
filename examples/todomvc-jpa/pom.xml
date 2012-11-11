@@ -51,13 +51,13 @@
     <dependency>
       <groupId>com.github.jknack</groupId>
       <artifactId>handlebars-springmvc</artifactId>
-      <version>0.5.5</version>
+      <version>${handlebars-version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.github.jknack</groupId>
       <artifactId>handlebars-jackson2</artifactId>
-      <version>0.5.5</version>
+      <version>${handlebars-version}</version>
     </dependency>
 
     <!-- JUnit -->
