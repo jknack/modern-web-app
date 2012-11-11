@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<groups xmlns="http://www.isdc.ro/wro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.isdc.ro/wro wro.xsd">
+
+  <group name="index">
+    <group-ref>libraries</group-ref>
+    <js>/js/models/todo.js</js>
+    <js>/js/collections/todos.js</js>
+    <js>/js/views/todos.js</js>
+    <js>/js/views/app.js</js>
+    <js>/js/routers/router.js</js>
+    <js>/js/app.js</js>
+    <css>/css/base.css</css>
+  </group>
+
+  <group name="libraries">
+    <js>/js/lib/jquery.js</js>
+    <js>/js/lib/lodash.js</js>
+    <js>/js/lib/handlebars.js</js>
+    <js>/js/lib/backbone.js</js>
+  </group>
+</groups>

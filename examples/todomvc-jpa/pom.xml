@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.github.jknack</groupId>
+    <artifactId>examples</artifactId>
+    <version>0.3.4-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>todomvc-jpa</artifactId>
+  <packaging>war</packaging>
+
+  <name>TodoMVC Examples with JPA persistence</name>
+
+  <description>
+    The http://todomvc.com/architecture-examples/backbone/ with a Java backend.
+  </description>
+
+  <dependencies>
+    <!-- Servlet API -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- MWA Web -->
+    <dependency>
+      <groupId>com.github.jknack</groupId>
+      <artifactId>mwa-web</artifactId>
+      <version>${mwa-version}</version>
+    </dependency>
+
+    <!-- MWA wro4j -->
+    <dependency>
+      <groupId>com.github.jknack</groupId>
+      <artifactId>mwa-wro4j</artifactId>
+      <version>${mwa-version}</version>
+    </dependency>
+
+    <!-- MWA JPA -->
+    <dependency>
+      <groupId>com.github.jknack</groupId>
+      <artifactId>mwa-jpa</artifactId>
+      <version>${mwa-version}</version>
+    </dependency>
+
+    <!-- Handlebars.java -->
+    <dependency>
+      <groupId>com.github.jknack</groupId>
+      <artifactId>handlebars-springmvc</artifactId>
+      <version>0.5.5</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.jknack</groupId>
+      <artifactId>handlebars-jackson2</artifactId>
+      <version>0.5.5</version>
+    </dependency>
+
+    <!-- JUnit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- EasyMock -->
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+</project>

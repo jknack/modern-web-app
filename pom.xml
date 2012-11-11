@@ -88,6 +88,7 @@
     <module>mwa-mail</module>
     <module>mwa-solr3</module>
     <module>mwa-solr4</module>
+    <module>examples</module>
     <module>mwa-logging</module>
   </modules>
 
