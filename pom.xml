@@ -65,7 +65,7 @@
     <maven-checkstyle-plugin-version>2.9.1</maven-checkstyle-plugin-version>
     <maven-java-formatter-plugin-version>0.3.1</maven-java-formatter-plugin-version>
     <maven-apt-plugin-version>1.0.2</maven-apt-plugin-version>
-    <jetty-maven-plugin-version>8.1.7.v20120910</jetty-maven-plugin-version>
+    <jetty-maven-plugin-version>8.1.8.v20121106</jetty-maven-plugin-version>
     <tomcat7-maven-plugin-version>2.0</tomcat7-maven-plugin-version>
     <findbugs-maven-plugin-version>2.4.0</findbugs-maven-plugin-version>
     <gmaven-plugin-version>1.4</gmaven-plugin-version>
@@ -553,6 +553,10 @@
           <exists>pom.xml</exists>
         </file>
       </activation>
+      <properties>
+        <application.contextPath>/${project.artifactId}</application.contextPath>
+        <application.port>8080</application.port>
+      </properties>
       <build>
         <plugins>
 
@@ -634,9 +638,14 @@
             <version>${jetty-maven-plugin-version}</version>
             <configuration>
               <webApp>
-                <contextPath>/${project.artifactId}</contextPath>
+                <contextPath>${application.contextPath}</contextPath>
                 <webInfIncludeJarPattern>.*/mwa-web-.*\.jar$</webInfIncludeJarPattern>
               </webApp>
+              <connectors>
+                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                  <port>${application.port}</port>
+                </connector>
+              </connectors>
             </configuration>
           </plugin>
 
@@ -653,8 +662,8 @@
             <artifactId>tomcat7-maven-plugin</artifactId>
             <version>${tomcat7-maven-plugin-version}</version>
             <configuration>
-              <port>8080</port>
-              <path>/${project.artifactId}</path>
+              <port>${application.port}</port>
+              <path>${application.contextPath}</path>
               <uriEncoding>${project.build.sourceEncoding}</uriEncoding>
               <charset>${project.build.sourceEncoding}</charset>
             </configuration>
