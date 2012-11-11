@@ -27,8 +27,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  * @author edgar.espina
  * @since 0.3.0
  */
-public class JacksonViewMethodProcessor implements
-    HandlerMethodReturnValueHandler, Ordered {
+public class JacksonViewMethodProcessor implements HandlerMethodReturnValueHandler, Ordered {
 
   /**
    * The JSON parser.
