@@ -24,7 +24,10 @@ import org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionRes
 import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.github.jknack.mwa.web.JacksonViewMethodProcessor;
 
 /**
@@ -56,6 +59,7 @@ class WebDefaults extends DelegatingWebMvcConfiguration implements
 
     /**
      * Creates a new exception handler.
+     *
      * @param context The application's context. Required.
      */
     public LogUncaughtException(final ApplicationContext context) {
@@ -149,7 +153,17 @@ class WebDefaults extends DelegatingWebMvcConfiguration implements
   @Bean(name = OBJECT_MAPPER)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public ObjectMapper jackson2ObjectMapper() {
-    return new ObjectMapper();
+    ObjectMapper mapper = new ObjectMapper();
+    SerializationConfig serializationConfig = mapper.getSerializationConfig();
+    VisibilityChecker<?> visibilityChecker = serializationConfig.getDefaultVisibilityChecker();
+    // Field visibility by default.
+    mapper.setVisibilityChecker(visibilityChecker
+        .withFieldVisibility(Visibility.ANY)
+        .withGetterVisibility(Visibility.NONE)
+        .withSetterVisibility(Visibility.NONE)
+        .withCreatorVisibility(Visibility.PROTECTED_AND_PUBLIC)
+        );
+    return mapper;
   }
 
   /**

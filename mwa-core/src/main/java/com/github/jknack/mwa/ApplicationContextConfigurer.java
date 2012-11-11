@@ -168,11 +168,13 @@ public final class ApplicationContextConfigurer {
         OrderComparator.sort(configurerList);
         for (ComponentConfigurer configurer : configurerList) {
           notNull(componentType, "Missing component type for: " + configurer);
-          Object bean = context.getBean(componentType);
-          try {
-            configurer.configure(bean);
-          } catch (Exception ex) {
-            throw new BeanInitializationException("Cannot configurer bean: " + componentType, ex);
+          Iterable beans = context.getBeansOfType(componentType).values();
+          for (Object bean : beans) {
+            try {
+              configurer.configure(bean);
+            } catch (Exception ex) {
+              throw new BeanInitializationException("Cannot configurer bean: " + componentType, ex);
+            }
           }
         }
       }
