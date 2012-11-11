@@ -24,7 +24,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
-import com.github.jknack.mwa.jpa.DataSources;
 import com.jolbox.bonecp.BoneCPDataSource;
 
 /**
@@ -65,6 +64,7 @@ public class DataSourcesTest {
   public void fs() throws Exception {
     Environment env = createMock(Environment.class);
     expect(env.getRequiredProperty("db")).andReturn("fs");
+    expect(env.getProperty("application.name", "testdb")).andReturn("fsdb");
 
     SimpleDriverDataSource dataSource =
         PowerMock.createMockAndExpectNew(SimpleDriverDataSource.class);
@@ -72,7 +72,7 @@ public class DataSourcesTest {
         .forName("org.h2.Driver"));
     expectLastCall();
     String databaseUrl =
-        String.format("jdbc:h2:%s" + File.separator + "testdb",
+        String.format("jdbc:h2:%s" + File.separator + "fsdb",
             System.getProperty("java.io.tmpdir"));
     dataSource.setUrl(databaseUrl);
     expectLastCall();

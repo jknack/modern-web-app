@@ -221,7 +221,7 @@ public final class DataSources {
       throws ClassNotFoundException {
     checkNotNull(environment, "The environment is required.");
     String database = environment.getRequiredProperty(DATABASE);
-    DataSource dataSource = createEmbeddedDatabase(database);
+    DataSource dataSource = createEmbeddedDatabase(environment, database);
     if (dataSource == null) {
       dataSource = newPooledDataSource(environment, database);
     }
@@ -270,18 +270,20 @@ public final class DataSources {
   /**
    * Create an embedded database.
    *
+   * @param env The application's environment.
    * @param database The database type.
    * @return A new embedded database or null.
    * @throws ClassNotFoundException If the driver isn't found.
    */
-  private static DataSource createEmbeddedDatabase(
+  private static DataSource createEmbeddedDatabase(final Environment env,
       final String database) throws ClassNotFoundException {
     if ("mem".equalsIgnoreCase(database)) {
       return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
           .build();
     } else if ("fs".equalsIgnoreCase(database)) {
       String tmpdir = System.getProperty("java.io.tmpdir");
-      String jdbcUrl = "jdbc:h2:" + tmpdir + File.separator + "testdb";
+      String dbname = env.getProperty("application.name", "testdb");
+      String jdbcUrl = "jdbc:h2:" + tmpdir + File.separator + dbname;
       SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
       @SuppressWarnings("unchecked")
       Class<? extends Driver> driverClass =
