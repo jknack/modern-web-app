@@ -53,12 +53,6 @@ class CssLinterProcessor implements ResourcePreProcessor,
    */
   public CssLinterProcessor(final LintOptions options) {
     this.options = notNull(options, "The lint options are required.").build();
-  }
-
-  /**
-   * Creates a new {@link CssLinterProcessor}.
-   */
-  public CssLinterProcessor() {
     enginePool = new ObjectPoolHelper<CssLint>(new ObjectFactory<CssLint>() {
       @Override
       public CssLint create() {
