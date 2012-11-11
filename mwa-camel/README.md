@@ -12,10 +12,10 @@ them to the ```ApplicationContext```. Optionally, a ```CamelConfigurer``` can im
 ```Ordered``` interface.
 
 # Registering ```RoutesBuilder```
-You can add routes to the ```CamelContext``` by publishing ```RoutesBuilder``` in the
-```ApplicationContext```.
+You can add routes to the ```CamelContext``` by publishing ```RoutesBuilder``` in the ```ApplicationContext```.
 
-# Camel Configuration
+# Configuration
+
 * camel.delayer: Sets a delay value in millis that a message is delayed at every step it takes
 in the route path, slowing the process down to better observe what is occurring Is disabled by
 default
