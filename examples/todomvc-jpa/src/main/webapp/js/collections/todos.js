@@ -8,7 +8,7 @@ var app = app || {};
 
   var TodoList = Backbone.Collection.extend({
 
-    url: 'api/todos',
+    url: '${contextPath}/api/todos',
 
     // Reference to this collection's model.
     model: app.Todo,

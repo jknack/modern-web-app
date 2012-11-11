@@ -3,11 +3,13 @@ package com.github.jknack.examples.todomvc.view;
 import static com.github.jknack.mwa.wro4j.Processors.excludes;
 import static com.github.jknack.mwa.wro4j.Processors.googleClosureSimple;
 import static com.github.jknack.mwa.wro4j.Processors.jsHint;
+import static com.github.jknack.mwa.wro4j.Processors.propertyResolver;
 import static com.github.jknack.mwa.wro4j.Processors.yuiCssCompressor;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 import ro.isdc.wro.model.resource.processor.factory.ProcessorsFactory;
 import ro.isdc.wro.model.resource.processor.factory.SimpleProcessorsFactory;
@@ -58,20 +60,24 @@ public class ViewModule {
   /**
    * Creates a new {@link ProcessorsFactory}. It enables:
    * <ul>
+   * <li>Access to environment properties using the ${expression} from CSS and JS files.</li>
    * <li>A js linter using jsHint</li>
    * <li>A google closure simple compiler and processor</li>
    * <li>A YUI css compressor</li>
    * </ul>
    *
+   * @param env The application's environment.
+   *
    * @return A new {@link ProcessorsFactory}.
    */
   @Bean
-  public ProcessorsFactory processorsFactory() {
+  public ProcessorsFactory processorsFactory(final Environment env) {
     LintOptions jsOptions = LintOptions.jsWhite()
         .option("nomen")
         .predefined("Backbone", "_", "$", "Handlebars", "ENTER_KEY");
 
     return new SimpleProcessorsFactory()
+        .addPreProcessor(excludes(propertyResolver(env), "/**/lib/**/*.*"))
         .addPreProcessor(excludes(jsHint(jsOptions), "/**/lib/**/*.*"))
         .addPostProcessor(googleClosureSimple())
         .addPostProcessor(yuiCssCompressor());

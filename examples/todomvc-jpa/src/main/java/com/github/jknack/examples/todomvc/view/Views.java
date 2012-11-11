@@ -38,11 +38,9 @@ public class Views {
    * Renderer the home or index page and add any todo item that might exists.
    *
    * @param model The view model.
-   * @return The page's name.
    */
   @RequestMapping("/")
-  public String index(final Model model) {
+  public void index(final Model model) {
     model.addAttribute("todos", manager.list());
-    return "index";
   }
 }
