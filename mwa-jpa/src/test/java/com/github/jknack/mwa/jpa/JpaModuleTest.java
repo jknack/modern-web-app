@@ -7,9 +7,12 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.lang.reflect.Field;
+
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+import org.hibernate.cfg.AvailableSettings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.easymock.PowerMock;
@@ -17,6 +20,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.env.Environment;
 import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.ReflectionUtils.FieldCallback;
 
 /**
  * Unit test for {@link JpaModule}.
@@ -55,9 +60,18 @@ public class JpaModuleTest {
   public void entityManagerFactory() throws Exception {
     DataSource dataSource = createMock(DataSource.class);
 
-    Environment env = createMock(Environment.class);
+    final Environment env = createMock(Environment.class);
     String mode = "create";
     expect(env.getProperty(JpaModule.DB_SCHEMA, "update")).andReturn(mode);
+
+    ReflectionUtils.doWithFields(AvailableSettings.class, new FieldCallback() {
+      @Override
+      public void doWith(Field field) throws IllegalArgumentException,
+          IllegalAccessException {
+        String propertyName = (String) field.get(null);
+        expect(env.getProperty(propertyName)).andReturn(null);
+      }
+    });
 
     PowerMock.mockStatic(DataSources.class);
     expect(DataSources.build(env)).andReturn(dataSource);
