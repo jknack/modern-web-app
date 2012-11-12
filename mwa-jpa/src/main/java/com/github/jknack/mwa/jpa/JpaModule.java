@@ -1,5 +1,6 @@
 package com.github.jknack.mwa.jpa;
 
+import java.lang.reflect.Field;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -27,6 +28,8 @@ import org.springframework.orm.jpa.support.SharedEntityManagerBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.ReflectionUtils.FieldCallback;
 
 /**
  * <p>
@@ -121,9 +124,21 @@ public class JpaModule {
     LocalContainerEntityManagerFactoryBean emf =
         new LocalContainerEntityManagerFactoryBean();
     String hbm2ddl = env.getProperty(DB_SCHEMA, "update");
-    Map<String, String> properties = new HashMap<String, String>();
+    final Map<String, String> properties = new HashMap<String, String>();
     logger.info("  schema's mode: {}", hbm2ddl);
     properties.put(AvailableSettings.HBM2DDL_AUTO, hbm2ddl);
+
+    ReflectionUtils.doWithFields(AvailableSettings.class, new FieldCallback() {
+      @Override
+      public void doWith(Field field) throws IllegalArgumentException,
+          IllegalAccessException {
+        String propertyName = (String) field.get(null);
+        if (env.getProperty(propertyName) != null) {
+          properties.put(propertyName, env.getProperty(propertyName));
+        }
+      }
+    });
+
     emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
     emf.setJpaPropertyMap(properties);
     emf.setDataSource(dataSource(env));
