@@ -45,7 +45,7 @@ public class JpaModuleTest {
     PowerMock.replay(DataSources.class);
     replay(env);
 
-    assertEquals(dataSource, new JpaModule().dataSource(env));
+    assertEquals(dataSource, new JpaModule().jpaDataSource(env));
 
     verify(env);
     PowerMock.verify(DataSources.class);
@@ -53,7 +53,7 @@ public class JpaModuleTest {
 
   @Test
   public void entityManager() throws Exception {
-    assertNotNull(new JpaModule().entityManager());
+    assertNotNull(new JpaModule().jpaEntityManager());
   }
 
   @Test
@@ -80,8 +80,8 @@ public class JpaModuleTest {
     replay(env);
 
     new JpaModule()
-        .entityManagerFactory(env,
-            new String[] {JpaModuleTest.class.getPackage().getName()});
+        .jpaEntityManagerFactory(env,
+            new String[]{JpaModuleTest.class.getPackage().getName() });
 
     verify(env);
     PowerMock.verify(DataSources.class);
@@ -93,7 +93,7 @@ public class JpaModuleTest {
 
     replay(emf);
 
-    JpaTransactionManager tx = new JpaModule().transactionManager(emf);
+    JpaTransactionManager tx = new JpaModule().jpaTransactionManager(emf);
     assertNotNull(tx);
     assertEquals(emf, tx.getEntityManagerFactory());
 
