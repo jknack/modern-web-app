@@ -773,12 +773,12 @@
                 <configuration>
                   <target>
                     <pathconvert pathsep="," property="need.to.delete">
-                      <map from="${basedir}/${project.config.directory}/" to="" />
-                      <fileset dir="${basedir}/${project.config.directory}" includes="**/*.*" />
+                      <map from="${basedir${file.separator}${project.config.directory}/" to="" />
+                      <fileset dir="${basedir}${file.separator}${project.config.directory}" includes="**/*.*" />
                     </pathconvert>
                     <echo message="Removing: ${need.to.delete} from war file." />
                     <delete failonerror="false">
-                      <fileset dir="${project.build.directory}/classes" includes="${need.to.delete}" />
+                      <fileset dir="${project.build.directory}${file.separator}classes" includes="${need.to.delete}" />
                     </delete>
                   </target>
                 </configuration>
@@ -797,11 +797,11 @@
       <id>checkstyle-code-formatter</id>
       <activation>
         <file>
-          <exists>${basedir}/src/main/etc/formatter.xml</exists>
+          <exists>${basedir}${file.separator}src${file.separator}main${file.separator}etc${file.separator}formatter.xml</exists>
         </file>
       </activation>
       <properties>
-        <formatter-file>file://${basedir}/src/main/etc/formatter.xml</formatter-file>
+        <formatter-file>${basedir}${file.separator}src${file.separator}main${file.separator}etc${file.separator}formatter.xml</formatter-file>
       </properties>
       <build>
         <plugins>
@@ -1199,11 +1199,11 @@ sp_cleanup.use_this_for_non_static_method_access_only_if_necessary=true
       <id>checkstyle</id>
       <activation>
         <file>
-          <exists>${basedir}/src/main/etc/checkstyle.xml</exists>
+          <exists>${basedir}${file.separator}src${file.separator}main${file.separator}etc${file.separator}checkstyle.xml</exists>
         </file>
       </activation>
       <properties>
-        <checkstyle-file>${basedir}/src/main/etc/checkstyle.xml</checkstyle-file>
+        <checkstyle-file>${basedir}${file.separator}src${file.separator}main${file.separator}etc${file.separator}checkstyle.xml</checkstyle-file>
         <checkstyle.phase>verify</checkstyle.phase>
       </properties>
       <build>
@@ -1236,7 +1236,7 @@ sp_cleanup.use_this_for_non_static_method_access_only_if_necessary=true
       <id>findbugs</id>
       <activation>
         <file>
-          <exists>${basedir}/src/main/etc/findbugs</exists>
+          <exists>${basedir}${file.separator}src${file.separator}main${file.separator}etc${file.separator}findbugs</exists>
         </file>
       </activation>
       <build>
@@ -1315,7 +1315,7 @@ sp_cleanup.use_this_for_non_static_method_access_only_if_necessary=true
       <id>querydsl-jpa</id>
       <activation>
         <file>
-          <exists>${basedir}/src/main/etc/querydsl-jpa.md</exists>
+          <exists>${basedir}${file.separator}src${file.separator}main${file.separator}etc${file.separator}querydsl-jpa.md</exists>
         </file>
       </activation>
       <properties>
