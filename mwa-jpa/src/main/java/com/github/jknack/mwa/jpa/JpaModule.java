@@ -19,7 +19,16 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.dialect.DB2Dialect;
+import org.hibernate.dialect.DerbyTenFiveDialect;
+import org.hibernate.dialect.H2Dialect;
+import org.hibernate.dialect.HSQLDialect;
+import org.hibernate.dialect.InformixDialect;
 import org.hibernate.dialect.MySQL5InnoDBDialect;
+import org.hibernate.dialect.Oracle10gDialect;
+import org.hibernate.dialect.PostgresPlusDialect;
+import org.hibernate.dialect.SQLServer2008Dialect;
+import org.hibernate.dialect.Sybase11Dialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -51,6 +60,153 @@ import org.springframework.util.ReflectionUtils.FieldFilter;
 @Configuration
 @EnableTransactionManagement(proxyTargetClass = true)
 public class JpaModule {
+
+  /**
+   * Default dialect.
+   *
+   * @author edgar.espina
+   *
+   */
+  private enum DefaultDialect {
+    /**
+     * Db2 db.
+     */
+    DB2 {
+      @Override
+      public Class<?> dialect() {
+        return DB2Dialect.class;
+      }
+    },
+
+    /**
+     * Derby db.
+     */
+    DERBY {
+      @Override
+      public Class<?> dialect() {
+        return DerbyTenFiveDialect.class;
+      }
+    },
+
+    /**
+     * H2 db.
+     */
+    H2 {
+      @Override
+      public Class<?> dialect() {
+        return H2Dialect.class;
+      }
+
+      @Override
+      public boolean apply(final String db) {
+        return "mem".equals(db) || "fs".equals(db) || super.apply(db);
+      }
+    },
+
+    /**
+     * HSQL db.
+     */
+    HSQLDB {
+      @Override
+      public Class<?> dialect() {
+        return HSQLDialect.class;
+      }
+    },
+
+    /**
+     * Informix db.
+     */
+    INFORMIX {
+      @Override
+      public Class<?> dialect() {
+        return InformixDialect.class;
+      }
+    },
+
+    /**
+     * mySQL db.
+     */
+    MySQL {
+      @Override
+      public Class<?> dialect() {
+        return MySQL5InnoDBDialect.class;
+      }
+    },
+
+    /**
+     * Oracle db.
+     */
+    ORACLE {
+      @Override
+      public Class<?> dialect() {
+        return Oracle10gDialect.class;
+      }
+    },
+
+    /**
+     * Postgres db.
+     */
+    POSTGRESQL {
+      @Override
+      public Class<?> dialect() {
+        return PostgresPlusDialect.class;
+      }
+    },
+
+    /**
+     * SQL Server.
+     */
+    SQL_SERVER {
+      @Override
+      public Class<?> dialect() {
+        return SQLServer2008Dialect.class;
+      }
+    },
+
+    /**
+     * Sybase db.
+     */
+    SYBASE {
+      @Override
+      public Class<?> dialect() {
+        return Sybase11Dialect.class;
+      }
+    };
+
+    /**
+     * True if the given database matches the dialect.
+     *
+     * @param db The database uri.
+     * @return True if the given database matches the dialect.
+     */
+    public boolean apply(final String db) {
+      String prefix = "jdbc:" + name().toLowerCase();
+      return db.startsWith(prefix);
+    }
+
+    /**
+     * The dialect's class.
+     *
+     * @return The dialect's class.
+     */
+    public abstract Class<?> dialect();
+
+    /**
+     * Find a default dialect for the given database.
+     *
+     * @param db The database uri.
+     * @return A default dialect or <code>null</code>.
+     */
+    public static Class<?> dialect(final String db) {
+      DefaultDialect[] dialects = values();
+      for (DefaultDialect dialect : dialects) {
+        if (dialect.apply(db)) {
+          return dialect.dialect();
+        }
+      }
+      return null;
+    }
+  }
 
   /**
    * The database's schema mode: create, create-drop, update, validate.
@@ -115,8 +271,12 @@ public class JpaModule {
     final Map<String, String> properties = new HashMap<String, String>();
     logger.info("  schema's mode: {}", hbm2ddl);
     properties.put(AvailableSettings.HBM2DDL_AUTO, hbm2ddl);
+
     // default dialect
-    properties.put(AvailableSettings.DIALECT, MySQL5InnoDBDialect.class.getName());
+    Class<?> dialect = DefaultDialect.dialect(env.getRequiredProperty(DataSources.DATABASE));
+    if (dialect != null) {
+      properties.put(AvailableSettings.DIALECT, dialect.getName());
+    }
 
     /**
      * Looks for Hibernate properties and set them all.

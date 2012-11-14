@@ -28,7 +28,7 @@ import com.jolbox.bonecp.BoneCPDataSource;
  * <li>An embedded database if the {@link #DATABASE db} property is one of:
  * 'mem' or 'fs'. Useful for during development.
  * <li>A high performance connection pool if the {@link #DATABASE db} property
- * isn't one of: h2, derby, or hsql. See: BoneCP.
+ * isn't one of: mem or fs. See: BoneCP.
  * </ul>
  *
  * @author edgar.espina
@@ -208,9 +208,9 @@ public final class DataSources {
   /**
    * <ul>
    * <li>An embedded or in-memory database if the {@link #DATABASE db} property
-   * is one of: mem or file. Useful for during development.
+   * is one of: mem or fs. Useful for during development.
    * <li>A high performance connection pool if the {@link #DATABASE db} property
-   * isn't one of: h2, derby, or hsql. See: BoneCP.
+   * isn't one of: mem or fs. See: BoneCP.
    * </ul>
    *
    * @param environment The application's environment. Required.
