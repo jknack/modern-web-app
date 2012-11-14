@@ -11,7 +11,6 @@ import java.util.Map;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
@@ -31,11 +30,11 @@ import org.hibernate.dialect.SQLServer2008Dialect;
 import org.hibernate.dialect.Sybase11Dialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.support.SharedEntityManagerBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -256,17 +255,19 @@ public class JpaModule {
    * service} using the {@link PersistenceContext
    * annotation}.
    *
-   * @param env The application environment. Required.
-   * @param namespace The package to be scanned. Required.
+   * @param applicationContext The application's context. Required.
    * @return A {@link EntityManagerFactory object} available for use. Spring managed beans can use
    *         the {@link EntityManager service} using the {@link PersistenceContext annotation}.
    * @throws ClassNotFoundException If the driver class cannot be loaded.
    */
   @Bean
-  public LocalContainerEntityManagerFactoryBean jpaEntityManagerFactory(final Environment env,
-      @Named("application.ns") final String[] namespace) throws ClassNotFoundException {
+  public EntityManagerFactoryBean jpaEntityManagerFactory(
+      final ApplicationContext applicationContext) throws ClassNotFoundException {
+    EntityManagerFactoryBean emf = new EntityManagerFactoryBean(applicationContext);
     logger.info("Starting service: {}", EntityManagerFactory.class.getSimpleName());
-    LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
+    final Environment env = applicationContext.getEnvironment();
+    String[] namespace = env.getRequiredProperty("application.ns", String[].class);
+
     String hbm2ddl = env.getProperty(DB_SCHEMA, "update");
     final Map<String, String> properties = new HashMap<String, String>();
     logger.info("  schema's mode: {}", hbm2ddl);

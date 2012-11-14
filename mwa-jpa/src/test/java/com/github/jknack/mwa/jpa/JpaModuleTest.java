@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -67,6 +68,8 @@ public class JpaModuleTest {
     String mode = "create";
 
     expect(env.getRequiredProperty(DataSources.DATABASE)).andReturn("mem");
+    expect(env.getRequiredProperty("application.ns", String[].class)).andReturn(
+        new String[]{JpaModuleTest.class.getPackage().getName() });
     expect(env.getProperty(JpaModule.DB_SCHEMA, "update")).andReturn(mode);
 
     ReflectionUtils.doWithFields(AvailableSettings.class, new FieldCallback() {
@@ -78,20 +81,22 @@ public class JpaModuleTest {
       }
     });
 
+    ApplicationContext context = createMock(ApplicationContext.class);
+    expect(context.getEnvironment()).andReturn(env);
+
     PowerMock.mockStatic(DataSources.class);
     expect(DataSources.build(env)).andReturn(dataSource);
 
     PowerMock.replay(DataSources.class);
-    replay(env);
+    replay(context, env);
 
     LocalContainerEntityManagerFactoryBean factory = new JpaModule()
-        .jpaEntityManagerFactory(env,
-            new String[]{JpaModuleTest.class.getPackage().getName() });
+        .jpaEntityManagerFactory(context);
 
     assertEquals(H2Dialect.class.getName(),
         factory.getJpaPropertyMap().get("hibernate.dialect"));
 
-    verify(env);
+    verify(context, env);
     PowerMock.verify(DataSources.class);
   }
 
@@ -103,6 +108,8 @@ public class JpaModuleTest {
     String mode = "create";
 
     expect(env.getRequiredProperty(DataSources.DATABASE)).andReturn("jdbc:mysql://local");
+    expect(env.getRequiredProperty("application.ns", String[].class)).andReturn(
+        new String[]{JpaModuleTest.class.getPackage().getName() });
     expect(env.getProperty(JpaModule.DB_SCHEMA, "update")).andReturn(mode);
 
     ReflectionUtils.doWithFields(AvailableSettings.class, new FieldCallback() {
@@ -114,20 +121,22 @@ public class JpaModuleTest {
       }
     });
 
+    ApplicationContext context = createMock(ApplicationContext.class);
+    expect(context.getEnvironment()).andReturn(env);
+
     PowerMock.mockStatic(DataSources.class);
     expect(DataSources.build(env)).andReturn(dataSource);
 
     PowerMock.replay(DataSources.class);
-    replay(env);
+    replay(context, env);
 
     LocalContainerEntityManagerFactoryBean factory = new JpaModule()
-        .jpaEntityManagerFactory(env,
-            new String[]{JpaModuleTest.class.getPackage().getName() });
+        .jpaEntityManagerFactory(context);
 
     assertEquals(MySQL5InnoDBDialect.class.getName(),
         factory.getJpaPropertyMap().get("hibernate.dialect"));
 
-    verify(env);
+    verify(context, env);
     PowerMock.verify(DataSources.class);
   }
 
