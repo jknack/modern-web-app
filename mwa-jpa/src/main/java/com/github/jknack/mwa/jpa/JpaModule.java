@@ -155,7 +155,7 @@ public class JpaModule {
     /**
      * SQL Server.
      */
-    SQL_SERVER {
+    SQLSERVER {
       @Override
       public Class<?> dialect() {
         return SQLServer2008Dialect.class;
