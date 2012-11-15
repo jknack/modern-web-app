@@ -2,6 +2,7 @@ package com.github.jknack.mwa.solr;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.io.File;
@@ -335,8 +336,9 @@ public class SolrModule {
     String app = env.getProperty("application.name", "solr-data");
     File defaultDataDir = new File(env.getProperty("java.io.tmpdir"), app);
 
-    File dataDir = new File(env.getProperty(SOLR_DATA,
-        defaultDataDir.getAbsolutePath()));
+    String dataDirValue = env.getProperty(SOLR_DATA, defaultDataDir.getAbsolutePath());
+    notEmpty(dataDirValue, "{} is not set", SOLR_DATA);
+    File dataDir = new File(dataDirValue);
     if (!dataDir.exists()) {
       dataDir.mkdirs();
     }
