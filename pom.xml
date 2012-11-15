@@ -773,7 +773,7 @@
                 <configuration>
                   <target>
                     <pathconvert pathsep="," property="need.to.delete">
-                      <map from="${basedir}${file.separator}${project.config.directory}/" to="" />
+                      <map from="${basedir}${file.separator}${project.config.directory}${file.separator}" to="" />
                       <fileset dir="${basedir}${file.separator}${project.config.directory}" includes="**/*.*" />
                     </pathconvert>
                     <echo message="Removing: ${need.to.delete} from war file." />
