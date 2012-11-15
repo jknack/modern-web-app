@@ -56,6 +56,7 @@
     <!-- Maven plugins -->
     <maven-compiler-plugin-version>2.3.2</maven-compiler-plugin-version>
     <maven-release-plugin-version>2.3.2</maven-release-plugin-version>
+    <maven-deploy-plugin-version>2.7</maven-deploy-plugin-version>
     <maven-source-plugin-version>2.1.2</maven-source-plugin-version>
     <maven-javadoc-plugin-version>2.8.1</maven-javadoc-plugin-version>
     <maven-gpg-plugin-version>1.4</maven-gpg-plugin-version>
@@ -1445,6 +1446,13 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
               <useReleaseProfile>false</useReleaseProfile>
               <arguments>-Psonatype-oss-release</arguments>
             </configuration>
+          </plugin>
+
+          <!-- Deploy plugin -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>${maven-deploy-plugin-version}</version>
           </plugin>
 
           <!-- Source -->
