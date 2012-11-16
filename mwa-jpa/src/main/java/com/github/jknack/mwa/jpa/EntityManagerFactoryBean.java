@@ -1,8 +1,12 @@
 package com.github.jknack.mwa.jpa;
 
+import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
@@ -12,8 +16,10 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerGroup;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
+import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 /**
@@ -51,15 +57,31 @@ public class EntityManagerFactoryBean extends LocalContainerEntityManagerFactory
    * @param emf The {@link HibernateEntityManagerFactory}.
    */
   protected void configure(final HibernateEntityManagerFactory emf) {
-    configure((SessionFactoryImplementor) emf.getSessionFactory());
+    configure(emf, (SessionFactoryImplementor) emf.getSessionFactory());
   }
 
   /**
    * Configure {@link SessionFactoryImplementor}.
    *
+   * @param emf The entity manager factory.
    * @param sessionFactory The {@link SessionFactoryImplementor}.
    */
-  protected void configure(final SessionFactoryImplementor sessionFactory) {
+  protected void configure(final HibernateEntityManagerFactory emf,
+      final SessionFactoryImplementor sessionFactory) {
+    // load fixtures
+    Map<String, ClassMetadata> metadata = sessionFactory.getAllClassMetadata();
+    Map<String, Class<?>> classes = new LinkedHashMap<String, Class<?>>();
+    for (Entry<String, ClassMetadata> entry : metadata.entrySet()) {
+      ClassMetadata cmetadata = entry.getValue();
+      classes.put(cmetadata.getMappedClass().getSimpleName(), cmetadata.getMappedClass());
+    }
+    Environment env = applicationContext.getEnvironment();
+    String fixtures = "db.fixtures";
+    String baseDir = env.getProperty(fixtures, "/fixtures");
+    notEmpty(baseDir, "{} isn't set", fixtures);
+    JpaFixtures.load(applicationContext, emf, baseDir, classes);
+
+    // configure
     configure(sessionFactory.getServiceRegistry());
   }
 

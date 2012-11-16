@@ -109,6 +109,11 @@ The ``JpaModule``` automatically discover all the JPA entities in ```mwa.demo```
   }
 ```
 
+### Loading fixtures
+
+Fixtures will be loaded from ```classpath://fixtures```. For example, given the entity: ```User```
+the ```/fixtures/User.json``` will be automatically loaded and persisted in the database.
+
 ### QueryDSL JPA Support
 Optionally, you can enabled [Query DSL JPA Support](http://www.querydsl.com/static/querydsl/2.1.0/reference/html/ch02s02.html) for type safe queries. Let's see how easy is:
 * Create a new folder: ```src/main/etc```
