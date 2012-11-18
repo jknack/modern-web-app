@@ -17,6 +17,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
@@ -90,6 +92,11 @@ class WebDefaults extends DelegatingWebMvcConfiguration implements
   static final String OBJECT_MAPPER = "jackson2ObjectMapper";
 
   /**
+   * The local bean validator.
+   */
+  private LocalValidatorFactoryBean localValidatorFactoryBean;
+
+  /**
    * The application's context.
    */
   private ApplicationContext applicationContext;
@@ -109,8 +116,7 @@ class WebDefaults extends DelegatingWebMvcConfiguration implements
   }
 
   @Override
-  public void setApplicationContext(
-      final ApplicationContext applicationContext) {
+  public void setApplicationContext(final ApplicationContext applicationContext) {
     super.setApplicationContext(applicationContext);
     this.applicationContext = applicationContext;
   }
@@ -190,4 +196,24 @@ class WebDefaults extends DelegatingWebMvcConfiguration implements
     exceptionResolvers.add(new ResponseStatusExceptionResolver());
     exceptionResolvers.add(new LogUncaughtException(applicationContext));
   }
+
+  /**
+   * Publish a {@link LocalValidatorFactoryBean}.
+   *
+   * @return A {@link LocalValidatorFactoryBean}.
+   */
+  @Bean
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public LocalValidatorFactoryBean localValidatorFactoryBean() {
+    if (localValidatorFactoryBean == null) {
+      localValidatorFactoryBean = new LocalValidatorFactoryBean();
+    }
+    return localValidatorFactoryBean;
+  }
+
+  @Override
+  protected Validator getValidator() {
+    return localValidatorFactoryBean();
+  }
+
 }

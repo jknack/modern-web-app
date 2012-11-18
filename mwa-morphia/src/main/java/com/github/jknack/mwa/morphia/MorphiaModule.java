@@ -11,14 +11,11 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import com.github.jknack.mwa.mongo.MongoModule;
-import com.github.jknack.mwa.validation.ValidationModule;
 import com.github.jmkgreen.morphia.AbstractEntityInterceptor;
 import com.github.jmkgreen.morphia.Datastore;
 import com.github.jmkgreen.morphia.Morphia;
@@ -90,8 +87,7 @@ public class MorphiaModule {
    * The local validator factory's bean.
    */
   @Autowired(required = false)
-  @Qualifier(ValidationModule.VALIDATOR_FACTORY_BEAN_NAME)
-  private LocalValidatorFactoryBean validationFactory;
+  private ValidatorFactory validationFactory;
 
   /**
    * Publish a {@link Morphia} POJOs mapper for Mongo datatabases.

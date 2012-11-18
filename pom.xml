@@ -84,7 +84,6 @@
   <modules>
     <module>mwa-core</module>
     <module>mwa-web</module>
-    <module>mwa-validation</module>
     <module>mwa-jpa</module>
     <module>mwa-mongo</module>
     <module>mwa-morphia</module>
