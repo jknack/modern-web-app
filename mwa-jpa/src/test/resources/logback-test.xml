@@ -1,0 +1,14 @@
+<configuration scanPeriod="1 seconds" scan="true">
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%level %class{0}: %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="com.jwt.railway.solr" level="DEBUG" />
+
+  <root level="info">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>

@@ -213,6 +213,17 @@ public class JpaModule {
   public static final String DB_SCHEMA = "db.schema";
 
   /**
+   * The database's fixtures directory. YAML (*.yml) files will be loaded at application start-up
+   * time. Default directory is {@link #DB_DEFAULT_FIXTURES}.
+   */
+  public static final String DB_FIXTURES = "db.fixtures";
+
+  /**
+   * The default directory for loading fixture files.
+   */
+  public static final String DB_DEFAULT_FIXTURES = "/fixtures";
+
+  /**
    * The logging system.
    */
   private static Logger logger = LoggerFactory.getLogger(JpaModule.class);

@@ -1,4 +1,4 @@
-package com.github.jknack.examples.todomvc.domain;
+package com.github.jknack.mwa.jpa;
 
 import static org.apache.commons.lang3.Validate.notEmpty;
 

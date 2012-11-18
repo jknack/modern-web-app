@@ -110,9 +110,78 @@ The ``JpaModule``` automatically discover all the JPA entities in ```mwa.demo```
 ```
 
 ### Loading fixtures
+Fixtures can be provided using YAML. Example:
 
-Fixtures will be loaded from ```classpath://fixtures```. For example, given the entity: ```User```
-the ```/fixtures/User.json``` will be automatically loaded and persisted in the database.
+Todo.java:
+
+```java
+@Entity
+public class Todo {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private int id;
+
+  private String title;
+
+  private boolean completed;
+
+  public Todo(final int id) {
+    this.id = id;
+  }
+
+  public Todo() {
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(final String title) {
+    this.title = notEmpty(title, "The title is required.");
+  }
+
+  public boolean isCompleted() {
+    return completed;
+  }
+
+  public void setCompleted(final boolean completed) {
+    this.completed = completed;
+  }
+}
+
+```
+
+fixtures/Model.yml:
+
+```yml
+- Todo(1):
+    title: Maven 3.x
+    completed: true
+
+- Todo(2):
+    title: Servlet 3.x
+
+- Todo(3):
+    title: Spring / Spring MVC 3.1
+
+- Todo(4):
+    title: JPA 2.x
+
+```
+
+At startup time the JpaModule will load all the entities from ```fixtures/Model.yml``` and persist all them
+in the database.
+
+Only transient entities will be persisted. Detached (or already existing entities) wont be affected at all.
+
+By default, fixtures are loaded from a classpath location: ```/fixtures```. You can specify a different location
+throw the use of ```db.fixtures``` environment property.
+
+Finally, all the ```*.yml``` files under the ```fixtures``` directory will be automatically detected by the JpaModule.
 
 ### QueryDSL JPA Support
 Optionally, you can enabled [Query DSL JPA Support](http://www.querydsl.com/static/querydsl/2.1.0/reference/html/ch02s02.html) for type safe queries. Let's see how easy is:

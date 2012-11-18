@@ -4,9 +4,7 @@ import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
@@ -70,16 +68,10 @@ public class EntityManagerFactoryBean extends LocalContainerEntityManagerFactory
       final SessionFactoryImplementor sessionFactory) {
     // load fixtures
     Map<String, ClassMetadata> metadata = sessionFactory.getAllClassMetadata();
-    Map<String, Class<?>> classes = new LinkedHashMap<String, Class<?>>();
-    for (Entry<String, ClassMetadata> entry : metadata.entrySet()) {
-      ClassMetadata cmetadata = entry.getValue();
-      classes.put(cmetadata.getMappedClass().getSimpleName(), cmetadata.getMappedClass());
-    }
     Environment env = applicationContext.getEnvironment();
-    String fixtures = "db.fixtures";
-    String baseDir = env.getProperty(fixtures, "/fixtures");
-    notEmpty(baseDir, "{} isn't set", fixtures);
-    JpaFixtures.load(applicationContext, emf, baseDir, classes);
+    String baseDir = env.getProperty(JpaModule.DB_FIXTURES, JpaModule.DB_DEFAULT_FIXTURES);
+    notEmpty(baseDir, "{} isn't set", JpaModule.DB_FIXTURES);
+    JpaFixtures.load(applicationContext, emf, baseDir, metadata);
 
     // configure
     configure(sessionFactory.getServiceRegistry());
