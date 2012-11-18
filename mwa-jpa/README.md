@@ -2,7 +2,7 @@
 This module add JPA 2.x features using Hibernate 4.x
 
 ## Features
-* A datasource for development or production like environment.
+* A datasource for development or production environments.
 * An EntityManagerFactory service.
 * An EntityManager service.
 * A JpaTransactionManager Spring service.
@@ -26,7 +26,7 @@ db=mem
 **Please note you need the H2 driver in your classpath**
 
 ### Using a file system database
-If you set the ```db``` property to ```fs```, a memory database will be ready for use
+If you set the ```db``` property to ```fs```, a file database will be ready for use
 
 ```properties
 ###############################################################################
@@ -172,6 +172,7 @@ fixtures/Model.yml:
     title: JPA 2.x
 
 ```
+###### See http://code.google.com/p/snakeyaml/wiki/CompactObjectNotation for more information.
 
 At startup time the JpaModule will load all the entities from ```fixtures/Model.yml``` and persist all them
 in the database.
