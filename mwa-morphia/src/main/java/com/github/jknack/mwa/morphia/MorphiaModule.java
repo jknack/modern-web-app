@@ -19,11 +19,11 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import com.github.jknack.mwa.mongo.MongoModule;
 import com.github.jknack.mwa.validation.ValidationModule;
-import com.google.code.morphia.AbstractEntityInterceptor;
-import com.google.code.morphia.Datastore;
-import com.google.code.morphia.Morphia;
-import com.google.code.morphia.mapping.Mapper;
-import com.google.code.morphia.mapping.validation.ConstraintViolationException;
+import com.github.jmkgreen.morphia.AbstractEntityInterceptor;
+import com.github.jmkgreen.morphia.Datastore;
+import com.github.jmkgreen.morphia.Morphia;
+import com.github.jmkgreen.morphia.mapping.Mapper;
+import com.github.jmkgreen.morphia.mapping.validation.ConstraintViolationException;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.MongoURI;
