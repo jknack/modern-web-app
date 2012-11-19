@@ -1,19 +1,4 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<title>Backbone.js • TodoMVC</title>
-{{{cssLinks}}}
-<script type="text/javascript">
-  var app = {
-    {{#if todos}}
-    initData: {{{@json todos}}}
-    {{/if}}
-  };
-</script>
-</head>
-<body>
+{{#partial "body"}}
   <section id="todoapp">
     <header id="header">
       <h1>todos</h1>
@@ -28,6 +13,7 @@
     </section>
     <footer id="footer"></footer>
   </section>
+
   <div id="info">
     <p>Double-click to edit a todo</p>
     <p>
@@ -38,12 +24,11 @@
     </p>
   </div>
 
-  {{{scripts}}}
-
   <script type="text/javascript">
   {{precompile "partials/item-template"}}
 
   {{precompile "partials/stats-template"}}
   </script>
-</body>
-</html>
+{{/partial}}
+
+{{>base}}

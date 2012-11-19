@@ -1,0 +1,10 @@
+{{#partial "body"}}
+  <h1>{{error.statusCode}}</h1>
+  <h3>{{error.reasonPhrase}}</h3>
+  <h4>{{error.message}}</h4>
+  <pre>
+    {{error.stackTrace}}
+  </pre>
+{{/partial}}
+
+{{>base}}

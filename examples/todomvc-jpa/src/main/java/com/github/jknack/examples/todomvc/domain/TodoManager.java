@@ -75,7 +75,11 @@ public class TodoManager {
   @RequestMapping(value = "/{id}", method = GET)
   @ResponseBody
   public Todo get(@PathVariable final Integer id) {
-    return em.find(Todo.class, id);
+    Todo todo = em.find(Todo.class, id);
+    if (todo == null) {
+      throw new TodoNotFoundException(id);
+    }
+    return todo;
   }
 
   /**

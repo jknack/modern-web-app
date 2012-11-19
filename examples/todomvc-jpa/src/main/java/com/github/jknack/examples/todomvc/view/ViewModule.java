@@ -10,14 +10,16 @@ import static org.apache.commons.lang3.Validate.notNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 
 import ro.isdc.wro.model.resource.processor.factory.ProcessorsFactory;
 import ro.isdc.wro.model.resource.processor.factory.SimpleProcessorsFactory;
 
-import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.examples.todomvc.domain.TodoNotFoundException;
 import com.github.jknack.handlebars.Jackson2Helper;
 import com.github.jknack.handlebars.springmvc.HandlebarsViewResolver;
 import com.github.jknack.mwa.Mode;
+import com.github.jknack.mwa.mvc.ErrorPageExceptionResolver;
 import com.github.jknack.mwa.wro4j.LintOptions;
 
 /**
@@ -44,13 +46,8 @@ public class ViewModule {
   @Bean
   public HandlebarsViewResolver viewResolver(final Mode mode) {
     notNull(mode, "The mode is required.");
-    final HandlebarsViewResolver viewResolver = new HandlebarsViewResolver() {
-      @Override
-      protected void configure(final Handlebars handlebars) {
-        handlebars.registerHelper("@json", Jackson2Helper.INSTANCE);
-        super.configure(handlebars);
-      }
-    };
+    final HandlebarsViewResolver viewResolver = new HandlebarsViewResolver();
+    viewResolver.registerHelper("@json", Jackson2Helper.INSTANCE);
     viewResolver.setCache(!mode.isDev());
     viewResolver.setSuffix(".html");
 
@@ -82,4 +79,19 @@ public class ViewModule {
         .addPostProcessor(googleClosureSimple())
         .addPostProcessor(yuiCssCompressor());
   }
+
+  /**
+   * Error pages exception resolver.
+   *
+   * @param modelContributionInterceptor
+   * @return Error pages exception resolver.
+   */
+  @Bean
+  public ErrorPageExceptionResolver errorPageExceptionResolver() {
+    // Any exception (except TodoNotFound) will be rendered throw: error.html
+    // TodoNotFound has a custom error page: 404.html
+    return new ErrorPageExceptionResolver()
+        .map(HttpStatus.NOT_FOUND, "404", TodoNotFoundException.class);
+  }
+
 }

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Backbone.js • TodoMVC</title>
+{{{cssLinks}}}
+<script type="text/javascript">
+  var app = {
+    {{#if todos}}
+    initData: {{{@json todos}}}
+    {{/if}}
+  };
+</script>
+</head>
+<body>
+  {{{scripts}}}
+  {{#block "body"}}
+  {{/block}}
+</body>
+</html>

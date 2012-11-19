@@ -13,6 +13,10 @@
     <css>/css/base.css</css>
   </group>
 
+  <group name="defaults">
+    <css>/css/base.css</css>
+  </group>
+
   <group name="libraries">
     <js>/js/lib/jquery.js</js>
     <js>/js/lib/lodash.js</js>
