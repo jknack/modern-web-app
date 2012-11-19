@@ -1,10 +1,11 @@
 package com.github.jknack.mwa.morphia;
 
+import static com.github.jknack.mwa.ApplicationConstants.APP_NAMESPACE;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.Set;
 
-import javax.inject.Named;
 import javax.validation.ValidatorFactory;
 
 import org.apache.commons.lang3.Validate;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 
 import com.github.jknack.mwa.mongo.MongoModule;
 import com.github.jmkgreen.morphia.AbstractEntityInterceptor;
@@ -92,13 +94,13 @@ public class MorphiaModule {
   /**
    * Publish a {@link Morphia} POJOs mapper for Mongo datatabases.
    *
-   * @param configurers The persistent class provider. Required.
+   * @param env The application's environment. Required.
    * @return A {@link Morphia} POJOs mapper for Mongo datatabases.
    */
   @Bean
-  public Morphia morphia(@Named("application.ns") final String[] namespace) {
-    Validate
-        .notNull(namespace, "At least one root package must be present.");
+  public Morphia morphia(final Environment env) {
+    notNull(env, "The env is required.");
+    String[] namespace = env.getProperty(APP_NAMESPACE, String[].class);
     Morphia morphia = new Morphia();
     for (String ns : namespace) {
       logger.debug("Adding pacakge: {}", ns);

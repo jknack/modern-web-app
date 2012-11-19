@@ -15,14 +15,14 @@ package com.github.jknack.mwa;
  * @author edgar.espina
  * @param <T> The callback result.
  */
-public interface ModeCallback<T> {
+public abstract class ModeCallback<T> {
 
   /**
    * Call it if application's mode is set to <code>dev</code>.
    *
    * @return A callback result.
    */
-  T onDev();
+  public abstract T onDev();
 
   /**
    * Call it if application's mode is NOT <code>dev</code>.
@@ -30,5 +30,5 @@ public interface ModeCallback<T> {
    * @param mode The application's mode.
    * @return A callback result.
    */
-  T on(Mode mode);
+  public abstract T on(Mode mode);
 }

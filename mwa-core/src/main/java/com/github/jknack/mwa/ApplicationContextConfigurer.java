@@ -1,5 +1,6 @@
 package com.github.jknack.mwa;
 
+import static com.github.jknack.mwa.ApplicationConstants.APP_MODE;
 import static org.apache.commons.lang3.Validate.notNull;
 import static org.springframework.core.GenericTypeResolver.resolveTypeArgument;
 import static org.springframework.core.annotation.AnnotationUtils.getValue;
@@ -209,10 +210,12 @@ public final class ApplicationContextConfigurer {
       final ConfigurableApplicationContext context, final MutablePropertySources propertySources) {
     ConfigurableEnvironment env = configureEnvironment(context, propertySources);
 
-    String modeProperty = env.getProperty("application.mode");
+    String modeProperty = env.getProperty(APP_MODE);
     if (StringUtils.isBlank(modeProperty)) {
       modeProperty = Mode.DEV.name();
-      logger.warn("application.mode isn't set, using: {}", modeProperty);
+      logger.warn("{} isn't set, using: {}", APP_MODE, modeProperty);
+    } else {
+      logger.info("{} is: {}", APP_MODE, modeProperty);
     }
     Mode mode = Mode.valueOf(modeProperty);
 
@@ -240,7 +243,7 @@ public final class ApplicationContextConfigurer {
       @Override
       public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) {
         beanFactory.addBeanPostProcessor(modeAwareBeanPostProcessor(mode));
-        beanFactory.registerSingleton("#mode", mode);
+        beanFactory.registerSingleton(APP_MODE, mode);
         // Enable @Named and @Value
         new EnvironmentPropertyResolver(context.getEnvironment(),
             (DefaultListableBeanFactory) beanFactory);

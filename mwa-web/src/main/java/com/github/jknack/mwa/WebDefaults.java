@@ -1,5 +1,6 @@
 package com.github.jknack.mwa;
 
+import static com.github.jknack.mwa.ApplicationConstants.APP_STARTUP_CLASS;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.beans.PropertyDescriptor;
@@ -66,8 +67,8 @@ class WebDefaults extends DelegatingWebMvcConfiguration implements
      */
     public LogUncaughtException(final ApplicationContext context) {
       notNull(context, "The application's context is required.");
-      String defaultNs = context.getEnvironment().getProperty("application.default.ns");
-      logger = LoggerFactory.getLogger(defaultNs);
+      String rootClass = context.getEnvironment().getProperty(APP_STARTUP_CLASS);
+      logger = LoggerFactory.getLogger(rootClass);
     }
 
     @Override

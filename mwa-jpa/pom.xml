@@ -14,15 +14,11 @@
   <name>JPA Module</name>
 
   <dependencies>
+    <!-- MWA Core -->
     <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-    </dependency>
-
-    <!-- commons-lang3 -->
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>mwa-core</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <!-- Jackson 2 -->
@@ -97,14 +93,6 @@
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- MWA Core -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>mwa-core</artifactId>
-      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
 

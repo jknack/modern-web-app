@@ -43,6 +43,8 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ReflectionUtils.FieldCallback;
 import org.springframework.util.ReflectionUtils.FieldFilter;
 
+import com.github.jknack.mwa.ApplicationConstants;
+
 /**
  * <p>
  * A JPA Spring Module. It offers the following functionality:
@@ -263,8 +265,7 @@ public class JpaModule {
 
   /**
    * Produce a {@link EntityManagerFactory object}. Spring beans can use the {@link EntityManager
-   * service} using the {@link PersistenceContext
-   * annotation}.
+   * service} using the {@link PersistenceContext annotation}.
    *
    * @param applicationContext The application's context. Required.
    * @return A {@link EntityManagerFactory object} available for use. Spring managed beans can use
@@ -277,7 +278,8 @@ public class JpaModule {
     EntityManagerFactoryBean emf = new EntityManagerFactoryBean(applicationContext);
     logger.info("Starting service: {}", EntityManagerFactory.class.getSimpleName());
     final Environment env = applicationContext.getEnvironment();
-    String[] namespace = env.getRequiredProperty("application.ns", String[].class);
+    String[] namespace = env
+        .getRequiredProperty(ApplicationConstants.APP_NAMESPACE, String[].class);
 
     String hbm2ddl = env.getProperty(DB_SCHEMA, "update");
     final Map<String, String> properties = new HashMap<String, String>();
@@ -318,8 +320,8 @@ public class JpaModule {
   }
 
   /**
-   * Enable injection of {@link EntityManager} using {@link Inject}. Useful for
-   * constructor injection.
+   * Enable injection of {@link EntityManager} using {@link Inject}. Useful for constructor
+   * injection.
    *
    * @return A shared entity manager.
    */
@@ -349,8 +351,7 @@ public class JpaModule {
     Enumeration<java.sql.Driver> drivers = DriverManager.getDrivers();
     while (drivers.hasMoreElements()) {
       Driver driver = drivers.nextElement();
-      logger.debug("De-registering JDBC's driver: {}", driver.getClass()
-          .getName());
+      logger.debug("De-registering JDBC's driver: {}", driver.getClass().getName());
       DriverManager.deregisterDriver(driver);
     }
   }

@@ -1,5 +1,10 @@
 package com.github.jknack.mwa;
 
+import static com.github.jknack.mwa.ApplicationConstants.APP_DEFAULT_NAMESPACE;
+import static com.github.jknack.mwa.ApplicationConstants.APP_NAME;
+import static com.github.jknack.mwa.ApplicationConstants.APP_NAMESPACE;
+import static com.github.jknack.mwa.ApplicationConstants.APP_STARTUP_CLASS;
+import static com.github.jknack.mwa.ApplicationConstants.CONTEXT_PATH;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 
@@ -151,23 +156,23 @@ public abstract class Startup implements WebApplicationInitializer {
 
       // Special properties
       Map<String, Object> specialProps = new HashMap<String, Object>();
-      String appName = env.getProperty("application.name");
+      String appName = env.getProperty(APP_NAME);
       if (appName == null) {
         // No set, defaults to contextPath
         appName = getClass().getSimpleName();
-        specialProps.put("application.name", appName);
+        specialProps.put(APP_NAME, appName);
       }
       // contextPath
-      specialProps.put("application.contextPath", contextPath);
-      // Same as application.contextPath but shorter
-      specialProps.put("contextPath", contextPath);
+      specialProps.put(CONTEXT_PATH, contextPath);
 
       // All the namespace available
-      specialProps.put("application.ns", join(rootPackageNames(), ","));
+      specialProps.put(APP_NAMESPACE, join(rootPackageNames(), ","));
 
       // default name-space
-      specialProps.put("application.default.ns", getClass().getPackage()
-          .getName());
+      specialProps.put(APP_DEFAULT_NAMESPACE, getClass().getPackage().getName());
+
+      // startup class
+      specialProps.put(APP_STARTUP_CLASS, getClass().getName());
 
       MutablePropertySources propertySources = new MutablePropertySources();
       propertySources.addFirst(new MapPropertySource(appName, specialProps));
@@ -245,26 +250,22 @@ public abstract class Startup implements WebApplicationInitializer {
   }
 
   /**
-   * A list with all the packages that will be added to the classpath
-   * scanning. By default it scan all the package of the main or bootstrapper
-   * class.
+   * A list with all the packages that will be added to the classpath scanning. By default it scan
+   * all the package of the main or bootstrapper class.
    *
-   * @return A list with all the packages that will be added to the classpath
-   *         scanning. By default it scan all the package of the main or
-   *         bootstrapper class.
+   * @return A list with all the packages that will be added to the classpath scanning. By default
+   *         it scan all the package of the main or bootstrapper class.
    */
   protected String[] namespace() {
     return new String[]{getClass().getPackage().getName() };
   }
 
   /**
-   * A list with all the packages that will be added to the classpath
-   * scanning. By default it scan all the package of the main or bootstrapper
-   * class.
+   * A list with all the packages that will be added to the classpath scanning. By default it scan
+   * all the package of the main or bootstrapper class.
    *
-   * @return A list with all the packages that will be added to the classpath
-   *         scanning. By default it scan all the package of the main or
-   *         bootstrapper class.
+   * @return A list with all the packages that will be added to the classpath scanning. By default
+   *         it scan all the package of the main or bootstrapper class.
    */
   private String[] rootPackageNames() {
     String[] roots = namespace();
