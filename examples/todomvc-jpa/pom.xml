@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.github.jknack</groupId>
     <artifactId>examples</artifactId>
-    <version>0.3.8-SNAPSHOT</version>
+    <version>0.3.8</version>
   </parent>
 
   <artifactId>todomvc-jpa</artifactId>
