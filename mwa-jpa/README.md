@@ -155,21 +155,77 @@ public class Todo {
 
 ```
 
+Sprint.java:
+
+```java
+@Entity
+public class Sprint {
+
+  @Id
+  private String name;
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(final String name) {
+    this.name = name;
+  }
+}
+
+```
+
 fixtures/Model.yml:
 
 ```yml
-- Todo(1):
+# YAML.
+# EBNF Format: '!!' SimpleClassName ['&' anchor]
+
+- !!Sprint &1112
+  name: Nov 2012
+
+- !!Sprint &1212
+  name: Dec 2012
+
+# Compact Object Notation. http://code.google.com/p/snakeyaml/wiki/CompactObjectNotation
+# EBNF Format: ['&' anchor] SimpleClassName '(' (value || id '=' value)* ')'
+
+- &T1 Todo(1):
     title: Maven 3.x
     completed: true
+    sprint: *1112
 
 - Todo(2):
     title: Servlet 3.x
+    dependsOn: *T1
+    sprint: *1212
 
 - Todo(3):
     title: Spring / Spring MVC 3.1
 
 - Todo(4):
     title: JPA 2.x
+
+- Todo(5):
+    title: Solr 3.x / Solr 4.x
+
+- Todo(6):
+    title: Apache Camel
+
+- Todo(7):
+    title: MongoDB
+
+- Todo(8):
+    title: Wro4j. JS and CSS management
+
+- Todo(9):
+    title: jQuery
+
+- Todo(10):
+    title: Handlebars.java and Handlebars.js
+
+- Todo(11):
+    title: BackBone.js
 
 ```
 ###### See http://code.google.com/p/snakeyaml/wiki/CompactObjectNotation for more information.

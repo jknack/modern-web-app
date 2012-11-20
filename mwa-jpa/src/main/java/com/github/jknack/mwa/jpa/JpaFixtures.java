@@ -10,10 +10,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.persistence.EntityExistsException;
@@ -36,6 +39,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.ResourceUtils;
+import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.extensions.compactnotation.CompactConstructor;
 import org.yaml.snakeyaml.extensions.compactnotation.CompactData;
@@ -153,18 +157,16 @@ public final class JpaFixtures {
     Yaml yaml = newYaml(applicationContext, metadata);
     Set<T> result = new LinkedHashSet<T>();
     for (Resource resource : resources) {
-      if (resource.exists()) {
-        logger.debug("  yaml file found: {}", resource);
-        String yml = toString(resource);
-        Object root = yaml.load(yml);
-        if (root instanceof List) {
-          List objects = (List) root;
-          for (Object object : objects) {
-            result.add((T) object);
-          }
-        } else {
-          result.add((T) root);
+      logger.debug("  yaml file found: {}", resource);
+      String yml = toString(resource);
+      Object root = yaml.load(yml);
+      if (root instanceof List) {
+        List objects = (List) root;
+        for (Object object : objects) {
+          result.add((T) object);
         }
+      } else {
+        result.add((T) root);
       }
     }
     return result;
@@ -179,20 +181,29 @@ public final class JpaFixtures {
    * @throws IOException If file location doesn't exist.
    */
   private static Resource[] getResources(final ResourcePatternResolver resolver,
-      final String pattern)
-      throws IOException {
+      final String pattern) throws IOException {
+    Resource[] resources;
     try {
-      return resolver.getResources(pattern);
+      resources = resolver.getResources(pattern);
     } catch (FileNotFoundException ex) {
       // Fallback to classpath
       String fallbackPattern = ResourceUtils.CLASSPATH_URL_PREFIX + pattern;
       logger.debug("Resources not found: {}, looking at: {}", pattern, fallbackPattern);
       try {
-        return resolver.getResources(fallbackPattern);
+        resources = resolver.getResources(fallbackPattern);
       } catch (FileNotFoundException iex) {
-        return new Resource[0];
+        resources = new Resource[0];
       }
     }
+    Arrays.sort(resources, new Comparator<Resource>() {
+      @Override
+      public int compare(final Resource r1, final Resource r2) {
+        String f1 = r1.getFilename();
+        String f2 = r2.getFilename();
+        return f1.compareToIgnoreCase(f2);
+      }
+    });
+    return resources;
   }
 
   /**
@@ -268,6 +279,13 @@ public final class JpaFixtures {
             + "(" + join(data.getArguments(), ",") + ")");
       }
     };
+    // Add !tag
+    for (Entry<String, ClassMetadata> entry : metadata.entrySet()) {
+      ClassMetadata cmetadata = entry.getValue();
+      Class<?> mappedClass = cmetadata.getMappedClass();
+      String tag = "!!" + mappedClass.getSimpleName();
+      constructor.addTypeDescription(new TypeDescription(mappedClass, tag));
+    }
     return new Yaml(constructor);
   }
 }

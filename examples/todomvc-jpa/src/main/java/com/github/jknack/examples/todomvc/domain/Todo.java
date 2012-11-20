@@ -98,7 +98,7 @@ public class Todo {
 
   @Override
   public int hashCode() {
-    return title.hashCode();
+    return title == null ? 0 : title.hashCode();
   }
 
   @Override

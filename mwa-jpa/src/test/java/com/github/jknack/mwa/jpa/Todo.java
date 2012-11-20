@@ -2,10 +2,12 @@ package com.github.jknack.mwa.jpa;
 
 import static org.apache.commons.lang3.Validate.notEmpty;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -35,6 +37,12 @@ public class Todo {
    * Is it complete?
    */
   private boolean completed;
+
+  @ManyToOne(cascade = CascadeType.ALL)
+  private Sprint sprint;
+
+  @ManyToOne
+  private Todo dependsOn;
 
   /**
    * Creates a Todo.
@@ -107,6 +115,22 @@ public class Todo {
       return title.equalsIgnoreCase(((Todo) obj).title);
     }
     return false;
+  }
+
+  public void setSprint(final Sprint sprint) {
+    this.sprint = sprint;
+  }
+
+  public Sprint getSprint() {
+    return sprint;
+  }
+
+  public Todo getDependsOn() {
+    return dependsOn;
+  }
+
+  public void setDependsOn(final Todo dependsOn) {
+    this.dependsOn = dependsOn;
   }
 
   @Override

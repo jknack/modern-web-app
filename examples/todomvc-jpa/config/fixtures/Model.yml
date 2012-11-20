@@ -1,24 +1,15 @@
 # YAML.
 # EBNF Format: '!!' SimpleClassName ['&' anchor]
 
-- !!Sprint &1112
-  name: Nov 2012
-
-- !!Sprint &1212
-  name: Dec 2012
-
 # Compact Object Notation. http://code.google.com/p/snakeyaml/wiki/CompactObjectNotation
 # EBNF Format: ['&' anchor] SimpleClassName '(' (value || id '=' value)* ')'
 
 - &T1 Todo(1):
     title: Maven 3.x
     completed: true
-    sprint: *1112
 
 - Todo(2):
     title: Servlet 3.x
-    dependsOn: *T1
-    sprint: *1212
 
 - Todo(3):
     title: Spring / Spring MVC 3.1
