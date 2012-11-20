@@ -187,7 +187,11 @@ public final class JpaFixtures {
       // Fallback to classpath
       String fallbackPattern = ResourceUtils.CLASSPATH_URL_PREFIX + pattern;
       logger.debug("Resources not found: {}, looking at: {}", pattern, fallbackPattern);
-      return resolver.getResources(fallbackPattern);
+      try {
+        return resolver.getResources(fallbackPattern);
+      } catch (FileNotFoundException iex) {
+        return new Resource[0];
+      }
     }
   }
 
