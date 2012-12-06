@@ -149,7 +149,7 @@ public final class JpaFixtures {
   @SuppressWarnings({"unchecked", "rawtypes" })
   public static <T> Iterable<T> load(final ApplicationContext applicationContext,
       final Map<String, ClassMetadata> metadata, final String baseDir) throws IOException {
-    String pattern = new File(baseDir, "**/*.yml").toString();
+    String pattern = new File(baseDir, "**/*.yml").toString().replace('\\', '/');
 
     logger.debug("Searching for: {}", pattern);
 
