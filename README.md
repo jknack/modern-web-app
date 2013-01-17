@@ -275,14 +275,14 @@ So, how it works? The ```src/main/etc/query-dsl.md``` activate a Maven profile t
 
 ### Want to learn more?
 Check out the modules documentation
-* [Core Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-core): applies sensible defaults to your application.
-* [Web Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-web): useful additions to Spring MVC.
-* [Logging Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-logging): classpath configuration of Java logging libraries.
-* [JPA 2.0 Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-jpa): configuration of Spring beans required by JPA 2.x.
-* [Morphia Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-morphia): configuration of Spring beans for Morphia MongoDB.
-* [Mongo Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-mongo): configuration of Spring beans for MongoDB.
-* [Solr 3.x Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-solr3): configuration of Spring beans for an Embedded Solr 3.x Server.
-* [Solr 4.x Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-solr4): configuration of Spring beans for an Embedded Solr 4.x Server.
-* [Camel Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-camel): configuration of Spring beans for Apache Camel.
-* [Web Resource Optimizer Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-wro4j): javascript and css compression, optimization and more.
-* [Mail Module] (https://github.com/jknack/modern-web-app/tree/develop/mwa-mail): a simple and powerful mail facade.
+* [Core Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-core): applies sensible defaults to your application.
+* [Web Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-web): useful additions to Spring MVC.
+* [Logging Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-logging): classpath configuration of Java logging libraries.
+* [JPA 2.0 Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-jpa): configuration of Spring beans required by JPA 2.x.
+* [Morphia Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-morphia): configuration of Spring beans for Morphia MongoDB.
+* [Mongo Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-mongo): configuration of Spring beans for MongoDB.
+* [Solr 3.x Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-solr3): configuration of Spring beans for an Embedded Solr 3.x Server.
+* [Solr 4.x Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-solr4): configuration of Spring beans for an Embedded Solr 4.x Server.
+* [Camel Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-camel): configuration of Spring beans for Apache Camel.
+* [Web Resource Optimizer Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-wro4j): javascript and css compression, optimization and more.
+* [Mail Module] (https://github.com/jknack/modern-web-app/tree/master/mwa-mail): a simple and powerful mail facade.
