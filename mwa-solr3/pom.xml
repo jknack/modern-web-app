@@ -13,7 +13,7 @@
   <name>Solr 3.x Module</name>
 
   <properties>
-    <solr-version>3.6.1</solr-version>
+    <solr-version>3.6.2</solr-version>
   </properties>
 
   <dependencies>
