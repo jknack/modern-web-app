@@ -159,8 +159,7 @@ public class SolrModule {
     final Map<String, String> coreDefs = new LinkedHashMap<String, String>();
     CoreContainer cores = new CoreContainer(solrHome.getAbsolutePath(), solrXml) {
       @Override
-      public SolrCore create(final CoreDescriptor coreDescriptor)
-          throws ParserConfigurationException, IOException, SAXException {
+      public SolrCore create(final CoreDescriptor coreDescriptor) {
         coreDescriptor.getDataDir();
         String coreName = coreDescriptor.getName();
         if (coreName.length() == 0) {
@@ -239,8 +238,7 @@ public class SolrModule {
             logger.info("Solr is listening at: {}", pattern);
             return new Initializer() {
               @Override
-              public CoreContainer initialize() throws IOException,
-                  ParserConfigurationException, SAXException {
+              public CoreContainer initialize() {
                 // Don't initialize cores twice just use the Spring one.
                 return solrCores;
               }
