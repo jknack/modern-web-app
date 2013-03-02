@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.junit.Test;
 
@@ -31,13 +32,13 @@ public class SolrQueryBuilderTest {
 
   @Test
   public void rangeExpression() throws ParseException {
-    assertEquals("[2013-02-17T03:00:00.000Z TO 2013-02-18T03:00:00.000Z]",
+    assertEquals("[2013-02-17T00:00:00.000Z TO 2013-02-18T00:00:00.000Z]",
         range(date("02/17/2013"), date("02/18/2013")).queryString());
 
-    assertEquals("[2013-02-17T03:00:00.000Z TO NOW]",
+    assertEquals("[2013-02-17T00:00:00.000Z TO NOW]",
         range(date("02/17/2013"), "NOW").queryString());
 
-    assertEquals("[* TO 2013-02-18T03:00:00.000Z]", range("*", date("02/18/2013")).queryString());
+    assertEquals("[* TO 2013-02-18T00:00:00.000Z]", range("*", date("02/18/2013")).queryString());
 
     assertEquals("[B TO C]", range("B", "C").queryString());
 
@@ -153,6 +154,10 @@ public class SolrQueryBuilderTest {
   }
 
   Date date(final String date) throws ParseException {
-    return new SimpleDateFormat("MM/dd/yyyy").parse(date);
+    SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+    df.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+    return df.parse(date);
+
   }
 }
