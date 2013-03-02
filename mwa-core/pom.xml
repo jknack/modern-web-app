@@ -36,11 +36,6 @@
       <artifactId>spring-context</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-nodep</artifactId>
-    </dependency>
-
     <!-- Logging System -->
     <dependency>
       <groupId>${project.groupId}</groupId>

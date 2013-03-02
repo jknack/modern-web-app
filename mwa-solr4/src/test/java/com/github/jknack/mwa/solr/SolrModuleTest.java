@@ -27,5 +27,6 @@ public class SolrModuleTest {
 
     Thread.sleep(TimeUnit.SECONDS.toMillis(5));
     context.destroy();
+    context.close();
   }
 }

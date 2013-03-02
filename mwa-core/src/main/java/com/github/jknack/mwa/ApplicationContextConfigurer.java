@@ -132,7 +132,12 @@ public final class ApplicationContextConfigurer {
      */
     @Override
     public String resolveStringValue(final String value) {
-      return environment.getProperty(value, value);
+      try {
+        return environment.getProperty(value, value);
+      } catch (IllegalArgumentException ex) {
+        // required Spring 3.2.x
+        return value;
+      }
     }
   }
 
