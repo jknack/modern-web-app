@@ -165,30 +165,6 @@ public final class DataSources {
   public static final int DB_DEFAULT_STATEMENTS_CACHE_SIZE = 20;
 
   /**
-   * <p>
-   * Sets number of helper threads to create that will handle releasing a
-   * connection.
-   * </p>
-   * <p>
-   * When this value is set to zero, the application thread is blocked until the
-   * pool is able to perform all the necessary cleanup torecycle the connection
-   * and make it available for another thread.
-   * </p>
-   * <p>
-   * When a non-zero value is set, the pool will create threads that will take
-   * care of recycling a connection when it is closed (the application dumps the
-   * connection into a temporary queue to be processed asychronously to the
-   * application via the release helper threads).
-   * </p>
-   * <p>
-   * Useful when your application is doing lots of work on each connection (i.e.
-   * perform an SQL query, do lots of non-DB stuff and perform another query),
-   * otherwise will probably slow things down.
-   * </p>
-   */
-  public static final String DB_RELEASE_THREADS = "db.releaseThreads";
-
-  /**
    * Default value for {@link #DB_RELEASE_THREADS}.
    */
   public static final int DB_DEFAULT_RELEASE_THREADS = 3;
@@ -261,8 +237,6 @@ public final class DataSources {
     datasource.setStatementsCacheSize(env.getProperty(
         DB_STATEMENTS_CACHE_SIZE, Integer.class,
         DB_DEFAULT_STATEMENTS_CACHE_SIZE));
-    datasource.setReleaseHelperThreads(env.getProperty(DB_RELEASE_THREADS,
-        Integer.class, DB_DEFAULT_RELEASE_THREADS));
     logger.info("Creating high performance connection pool: '{}'", database);
     return datasource;
   }

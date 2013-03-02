@@ -132,10 +132,6 @@ public class DataSourcesTest {
         env.getProperty(DataSources.DB_STATEMENTS_CACHE_SIZE,
             Integer.class, 20))
         .andReturn(20);
-    expect(
-        env.getProperty(DataSources.DB_RELEASE_THREADS,
-            Integer.class, 3))
-        .andReturn(3);
 
     BoneCPDataSource dataSource =
         PowerMock.createMockAndExpectNew(BoneCPDataSource.class);
@@ -160,8 +156,6 @@ public class DataSourcesTest {
     dataSource.setAcquireIncrement(5);
     expectLastCall();
     dataSource.setStatementsCacheSize(20);
-    expectLastCall();
-    dataSource.setReleaseHelperThreads(3);
     expectLastCall();
 
     PowerMock.replay(BoneCPDataSource.class);

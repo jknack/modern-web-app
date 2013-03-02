@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,8 +26,8 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
 
 /**
  * <p>
- * A {@link HandlerExceptionResolver} that is enable to return message error
- * using a {@link HttpMessageConverter}.
+ * A {@link HandlerExceptionResolver} that is enable to return message error using a
+ * {@link HttpMessageConverter}.
  * </p>
  * The default message contains two fields:
  * <ol>
@@ -68,8 +67,7 @@ public class MessageConverterHandlerExceptionResolver
    *
    * @param exceptionClass The exception type. Required.
    */
-  public MessageConverterHandlerExceptionResolver(
-      @Nonnull final Class<? extends Exception> exceptionClass) {
+  public MessageConverterHandlerExceptionResolver(final Class<? extends Exception> exceptionClass) {
     this(exceptionClass, HttpStatus.BAD_REQUEST);
   }
 
@@ -80,8 +78,8 @@ public class MessageConverterHandlerExceptionResolver
    * @param responseStatus The HTTP response status. Required.
    */
   public MessageConverterHandlerExceptionResolver(
-      @Nonnull final Class<? extends Exception> exceptionClass,
-      @Nonnull final HttpStatus responseStatus) {
+      final Class<? extends Exception> exceptionClass,
+      final HttpStatus responseStatus) {
     this.exceptionClass =
         checkNotNull(exceptionClass, "The exception class is required.");
     this.responseStatus =
@@ -90,8 +88,8 @@ public class MessageConverterHandlerExceptionResolver
   }
 
   /**
-   * Resolve the exception as a message if the ex is an instance of
-   * {@link #exceptionClass}. {@inheritDoc}
+   * Resolve the exception as a message if the ex is an instance of {@link #exceptionClass}.
+   * {@inheritDoc}
    */
   @Override
   protected ModelAndView doResolveException(final HttpServletRequest request,

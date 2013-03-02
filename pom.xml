@@ -17,38 +17,38 @@
   <properties>
     <!-- Libraries -->
     <spring-version>3.2.1.RELEASE</spring-version>
-    <spring-security>3.1.2.RELEASE</spring-security>
+    <spring-security>3.1.3.RELEASE</spring-security>
     <spring-data-version>1.0.3.RELEASE</spring-data-version>
-    <hibernate-version>4.1.7.Final</hibernate-version>
+    <hibernate-version>4.2.0.CR1</hibernate-version>
     <hibernate-validator-version>5.0.0.Alpha1</hibernate-validator-version>
-    <jackson-version>2.1.0</jackson-version>
+    <jackson-version>2.1.2</jackson-version>
     <snakeyaml-version>1.11</snakeyaml-version>
-    <logback-version>1.0.7</logback-version>
+    <logback-version>1.0.9</logback-version>
     <slf4j-version>1.7.2</slf4j-version>
     <servlet-api-version>3.0.1</servlet-api-version>
     <javax.inject-version>1</javax.inject-version>
     <cglib-version>2.2.2</cglib-version>
-    <bonecp-version>0.7.1.RELEASE</bonecp-version>
+    <bonecp-version>0.8.0-rc1</bonecp-version>
     <mysql-connector-java-version>5.1.21</mysql-connector-java-version>
     <commons-logging-version>1.1.1</commons-logging-version>
     <log4j-version>1.2.16</log4j-version>
     <commons-fileupload-version>1.2.2</commons-fileupload-version>
     <commons-io-version>2.0.1</commons-io-version>
-    <h2-version>1.3.168</h2-version>
+    <h2-version>1.3.170</h2-version>
     <derby-version>10.8.2.2</derby-version>
-    <junit-version>4.10</junit-version>
+    <junit-version>4.11</junit-version>
     <easymock-version>3.1</easymock-version>
-    <powermock-version>1.4.11</powermock-version>
+    <powermock-version>1.5</powermock-version>
     <commons-lang3-version>3.1</commons-lang3-version>
     <commons-collections-version>3.2</commons-collections-version>
-    <guava-version>11.0</guava-version>
-    <querydsl-version>2.8.2</querydsl-version>
+    <guava-version>14.0</guava-version>
+    <querydsl-version>2.9.0</querydsl-version>
     <mongo-java-driver-version>2.9.3</mongo-java-driver-version>
-    <morphia-version>1.0</morphia-version>
-    <wro4j-version>1.6.0</wro4j-version>
+    <morphia-version>1.2.2</morphia-version>
+    <wro4j-version>1.6.2</wro4j-version>
     <lesscss-version>1.3.0</lesscss-version>
     <mail-version>1.4.5</mail-version>
-    <camel-version>2.10.2</camel-version>
+    <camel-version>2.10.4</camel-version>
 
     <!-- Encoding UTF-8 -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -68,8 +68,8 @@
     <maven-checkstyle-plugin-version>2.9.1</maven-checkstyle-plugin-version>
     <maven-java-formatter-plugin-version>0.3.1</maven-java-formatter-plugin-version>
     <maven-apt-plugin-version>1.0.2</maven-apt-plugin-version>
-    <jetty-maven-plugin-version>8.1.8.v20121106</jetty-maven-plugin-version>
-    <tomcat7-maven-plugin-version>2.0</tomcat7-maven-plugin-version>
+    <jetty-maven-plugin-version>8.1.9.v20130131</jetty-maven-plugin-version>
+    <tomcat7-maven-plugin-version>2.1</tomcat7-maven-plugin-version>
     <findbugs-maven-plugin-version>2.4.0</findbugs-maven-plugin-version>
     <gmaven-plugin-version>1.4</gmaven-plugin-version>
     <build-helper-maven-plugin-version>1.7</build-helper-maven-plugin-version>
