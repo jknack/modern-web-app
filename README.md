@@ -111,7 +111,7 @@ pom.xml
 
     <dependency>
       <groupId>com.github.jknack</groupId>
-      <artifactId>mwa-core</artifactId>
+      <artifactId>mwa-web</artifactId>
       <version>${mwa-version}</version>
     </dependency>
   </dependencies>
