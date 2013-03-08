@@ -122,10 +122,6 @@ public abstract class Startup implements WebApplicationInitializer {
     dispatcher.setLoadOnStartup(1);
     dispatcher.addMapping(dispatcherMapping());
 
-    // Add the forwarding filter
-    servletContext.addFilter("forwardingFilter", new ForwardingFilter(context))
-        .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, dispatcherMapping());
-
     onStartup(servletContext, context);
   }
 
@@ -195,6 +191,9 @@ public abstract class Startup implements WebApplicationInitializer {
    */
   protected void onStartup(final ServletContext servletContext,
       final ConfigurableWebApplicationContext applicationContext) {
+    // Add the forwarding filter
+    servletContext.addFilter("forwardingFilter", new ForwardingFilter(applicationContext))
+        .addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, dispatcherMapping());
   }
 
   /**
