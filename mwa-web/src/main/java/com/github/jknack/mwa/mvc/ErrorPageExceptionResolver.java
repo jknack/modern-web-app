@@ -207,13 +207,14 @@ public class ErrorPageExceptionResolver extends AbstractHandlerExceptionResolver
       }
     }
     applyStatusCodeIfPossible(request, response, errorPage.statusCode);
-    ModelAndView modelAndView = newModelAndView(errorPage, targetException, request);
     try {
+      ModelAndView modelAndView = newModelAndView(errorPage, targetException, request);
       contributionInterceptor.postHandle(request, response, handler, modelAndView);
+      return modelAndView;
     } catch (Exception iex) {
-      logger.debug("Cannot apply model contributions", iex);
+      logger.error("Cannot apply model contributions", iex);
     }
-    return modelAndView;
+    return null;
   }
 
   /**
@@ -325,14 +326,13 @@ public class ErrorPageExceptionResolver extends AbstractHandlerExceptionResolver
     error.put("stackTrace", stackTrace.toString());
 
     mv.addObject("error", error);
+    mv.addObject("exception", ex);
     logger.debug("Handler execution resulted in exception. Handled by: " + mv.getViewName(), ex);
     return mv;
   }
 
   @Override
   public void afterPropertiesSet() throws Exception {
-    setOrder(HIGHEST_PRECEDENCE);
-
     exceptions.put(NoSuchRequestHandlingMethodException.class,
         new ErrorPage(defaultErrorView, SC_NOT_FOUND));
 
