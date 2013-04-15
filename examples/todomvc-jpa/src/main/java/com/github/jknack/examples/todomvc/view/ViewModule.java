@@ -70,7 +70,7 @@ public class ViewModule {
   @Bean
   public ProcessorsFactory processorsFactory(final Environment env) {
     LintOptions jsOptions = LintOptions.jsWhite()
-        .option("nomen")
+        .option("nomen", false)
         .predefined("Backbone", "_", "$", "Handlebars", "ENTER_KEY");
 
     return new SimpleProcessorsFactory()
