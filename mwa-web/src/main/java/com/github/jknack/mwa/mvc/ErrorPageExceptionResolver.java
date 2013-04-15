@@ -58,6 +58,7 @@ import org.springframework.web.util.WebUtils;
  * <li>message: The exception's message</li>
  * <li>type: The exception's name</li>
  * <li>stackTrace: The exception's stacktrace</li>
+ * <li>exception: The root exception</li>
  * </ul>
  * </p>
  * <p>
@@ -207,14 +208,13 @@ public class ErrorPageExceptionResolver extends AbstractHandlerExceptionResolver
       }
     }
     applyStatusCodeIfPossible(request, response, errorPage.statusCode);
+    ModelAndView modelAndView = newModelAndView(errorPage, targetException, request);
     try {
-      ModelAndView modelAndView = newModelAndView(errorPage, targetException, request);
       contributionInterceptor.postHandle(request, response, handler, modelAndView);
-      return modelAndView;
     } catch (Exception iex) {
-      logger.error("Cannot apply model contributions", iex);
+      logger.warn("Cannot apply model contributions", iex);
     }
-    return null;
+    return modelAndView;
   }
 
   /**
@@ -327,8 +327,13 @@ public class ErrorPageExceptionResolver extends AbstractHandlerExceptionResolver
 
     mv.addObject("error", error);
     mv.addObject("exception", ex);
-    logger.debug("Handler execution resulted in exception. Handled by: " + mv.getViewName(), ex);
+    logException((Exception) ex, request);
     return mv;
+  }
+
+  @Override
+  protected void logException(final Exception ex, final HttpServletRequest request) {
+    logger.debug(buildLogMessage(ex, request), ex);
   }
 
   @Override

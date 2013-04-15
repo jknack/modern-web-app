@@ -17,7 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 /**
- * A {@link HandlerInterceptorAdapter} that enabled model contributions.
+ * A {@link HandlerInterceptorAdapter} that enable model contributions.
  *
  * @author edgar.espina
  * @since 0.1.2
@@ -72,11 +72,14 @@ public class ModelContributionInterceptor extends HandlerInterceptorAdapter
       model.put(ModelContribution.CONTEXT_PATH, request.getContextPath());
       model.put(ModelContribution.VIEW, viewName);
       for (ModelContribution contribution : contributions) {
-        logger.debug(
-            "Adding contribution: {} to: {}, view: {}",
-            new Object[]{contribution.getClass().getSimpleName(),
-                request.getRequestURI(), viewName });
-        contribution.contribute(request, response, modelAndView);
+        String contributionName = contribution.getClass().getSimpleName();
+        try {
+          logger.debug("Adding contribution: {} to: {}, view: {}",
+              new Object[]{contributionName, request.getRequestURI(), viewName });
+          contribution.contribute(request, response, modelAndView);
+        } catch (Exception ex) {
+          logger.warn("Contribution execution resulted in exception: " + contributionName, ex);
+        }
       }
     }
   }
