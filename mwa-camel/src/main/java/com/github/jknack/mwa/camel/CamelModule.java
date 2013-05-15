@@ -3,9 +3,11 @@ package com.github.jknack.mwa.camel;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.ConsumerTemplate;
@@ -96,6 +98,30 @@ public class CamelModule {
 
     @Override
     public <T> T lookup(final String name, final Class<T> type) {
+      return lookupByNameAndType(name, type);
+    }
+
+    @Override
+    public Object lookup(final String name) {
+      return lookupByName(name);
+    }
+
+    @Override
+    public <T> Map<String, T> lookupByType(final Class<T> type) {
+      return findByTypeWithName(type);
+    }
+
+    @Override
+    public Object lookupByName(final String name) {
+      try {
+        return applicationContext.getBean(name);
+      } catch (NoSuchBeanDefinitionException e) {
+        return null;
+      }
+    }
+
+    @Override
+    public <T> T lookupByNameAndType(final String name, final Class<T> type) {
       Object answer;
       try {
         answer = applicationContext.getBean(name, type);
@@ -120,17 +146,13 @@ public class CamelModule {
     }
 
     @Override
-    public Object lookup(final String name) {
-      try {
-        return applicationContext.getBean(name);
-      } catch (NoSuchBeanDefinitionException e) {
-        return null;
-      }
+    public <T> Map<String, T> findByTypeWithName(final Class<T> type) {
+      return applicationContext.getBeansOfType(type);
     }
 
     @Override
-    public <T> Map<String, T> lookupByType(final Class<T> type) {
-      return applicationContext.getBeansOfType(type);
+    public <T> Set<T> findByType(final Class<T> type) {
+      return new HashSet<T>(applicationContext.getBeansOfType(type).values());
     }
   }
 
