@@ -23,6 +23,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -102,17 +103,23 @@ public abstract class Startup implements WebApplicationInitializer {
 
     servletContext.addListener(new ContextLoaderListener(context));
 
-    MutablePropertySources propertySources =
+    Pair<MutablePropertySources, Map<String, Object>> propertyConfig =
         propertySources(servletContext.getContextPath(), context);
+    MutablePropertySources propertySources = propertyConfig.getLeft();
 
     configure(propertySources);
 
     ApplicationContextConfigurer.configure(context, propertySources);
 
+    Set<String> namespace = Sets.newHashSet(namespace(context.getEnvironment()));
+
+    // All the namespace available
+    propertyConfig.getRight().put(APP_NAMESPACE, join(namespace, ","));
+
     /**
      * Configure modules.
      */
-    registerModules(context);
+    registerModules(context, namespace);
 
     /**
      * Creates the Spring MVC dispatcher servlet.
@@ -141,8 +148,8 @@ public abstract class Startup implements WebApplicationInitializer {
    * @return A property sources array.
    * @throws ServletException If the environment cannot be configured.
    */
-  private MutablePropertySources propertySources(final String contextPath,
-      final ApplicationContext context) throws ServletException {
+  private Pair<MutablePropertySources, Map<String, Object>> propertySources(
+      final String contextPath, final ApplicationContext context) throws ServletException {
     try {
       List<Resource> properties = findResources(propertySources());
       if (properties.size() == 0) {
@@ -161,9 +168,6 @@ public abstract class Startup implements WebApplicationInitializer {
       // contextPath
       specialProps.put(CONTEXT_PATH, contextPath);
 
-      // All the namespace available
-      specialProps.put(APP_NAMESPACE, join(rootPackageNames(), ","));
-
       // default name-space
       specialProps.put(APP_DEFAULT_NAMESPACE, getClass().getPackage().getName());
 
@@ -176,7 +180,7 @@ public abstract class Startup implements WebApplicationInitializer {
         propertySources.addFirst(asPropertySource(properties.get(i)));
       }
 
-      return propertySources;
+      return Pair.of(propertySources, specialProps);
     } catch (IOException ex) {
       throw new ServletException("The environment cannot be configured.",
           ex);
@@ -210,11 +214,12 @@ public abstract class Startup implements WebApplicationInitializer {
   /**
    * Add modules to the application context.
    *
-   * @param context The String application context.
+   * @param context The Spring application context.
+   * @param namespace The application namespace.
    * @throws ServletException If something goes wrong.
    */
-  private void registerModules(final AnnotationConfigWebApplicationContext context)
-      throws ServletException {
+  private void registerModules(final AnnotationConfigWebApplicationContext context,
+      final Set<String> namespace) throws ServletException {
     try {
       Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
       Class<?>[] modules = imports();
@@ -232,7 +237,7 @@ public abstract class Startup implements WebApplicationInitializer {
       classes.add(WebDefaults.class);
       context.register(classes.toArray(new Class[classes.size()]));
       // Scan all the packages of the main class recursively.
-      context.scan(rootPackageNames());
+      context.scan(namespace.toArray(new String[namespace.size()]));
     } catch (Exception ex) {
       throw new ServletException("Cannot register modules.", ex);
     }
@@ -252,27 +257,12 @@ public abstract class Startup implements WebApplicationInitializer {
    * A list with all the packages that will be added to the classpath scanning. By default it scan
    * all the package of the main or bootstrapper class.
    *
+   * @param env The application environment.
    * @return A list with all the packages that will be added to the classpath scanning. By default
    *         it scan all the package of the main or bootstrapper class.
    */
-  protected String[] namespace() {
+  protected String[] namespace(final Environment env) {
     return new String[]{getClass().getPackage().getName() };
-  }
-
-  /**
-   * A list with all the packages that will be added to the classpath scanning. By default it scan
-   * all the package of the main or bootstrapper class.
-   *
-   * @return A list with all the packages that will be added to the classpath scanning. By default
-   *         it scan all the package of the main or bootstrapper class.
-   */
-  private String[] rootPackageNames() {
-    String[] roots = namespace();
-    Set<String> names = Sets.newHashSet();
-    for (String ns : roots) {
-      names.add(ns);
-    }
-    return names.toArray(new String[names.size()]);
   }
 
   /**
