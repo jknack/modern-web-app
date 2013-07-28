@@ -72,8 +72,7 @@ public class JacksonViewMethodProcessor implements HandlerMethodReturnValueHandl
 
     try {
       JsonFactory jsonFactory = mapper.getFactory();
-      JsonGenerator jsonGenerator =
-          jsonFactory.createJsonGenerator(writer);
+      JsonGenerator jsonGenerator = jsonFactory.createGenerator(writer);
 
       JsonView view = returnType.getMethodAnnotation(JsonView.class);
       Class<?>[] viewClass = view.value();
