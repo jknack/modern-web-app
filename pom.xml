@@ -5,7 +5,7 @@
   <groupId>com.github.jknack</groupId>
   <artifactId>modern-web-app</artifactId>
   <packaging>pom</packaging>
-  <version>0.4.0</version>
+  <version>0.4.1-SNAPSHOT</version>
   <name>A Modern Web App Archicture</name>
 
   <url>https://github.com/jknack/modern-web-app</url>
@@ -1529,7 +1529,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <connection>scm:git:git@github.com:jknack/modern-web-app.git</connection>
     <developerConnection>scm:git:git@github.com:jknack/modern-web-app.git</developerConnection>
     <url>scm:git:git@github.com:jknack/modern-web-app.git</url>
-    <tag>modern-web-app-0.4.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <distributionManagement>
