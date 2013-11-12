@@ -32,39 +32,16 @@ import com.google.common.collect.Lists;
 public enum WroProblemReporter {
 
   /**
-   * The default handler. It just throw the exception.
-   */
-  DEFAULT {
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean apply(final RuntimeException ex) {
-      return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void report(final RuntimeException ex,
-        final HttpServletRequest request,
-        final HttpServletResponse response) {
-      throw ex;
-    }
-  },
-
-  /**
-   * Handle resoureces not found errors.
+   * Handle resources not found errors.
    */
   GROUP_NOT_FOUND {
     @Override
-    public boolean apply(final RuntimeException ex) {
+    public boolean apply(final Exception ex) {
       return ex instanceof InvalidGroupNameException;
     }
 
     @Override
-    public void report(final RuntimeException ex,
+    public void report(final Exception ex,
         final HttpServletRequest request,
         final HttpServletResponse response) {
       try {
@@ -86,12 +63,12 @@ public enum WroProblemReporter {
     private String lessCssTemplate = template("lesscss.html");
 
     @Override
-    public boolean apply(final RuntimeException ex) {
+    public boolean apply(final Exception ex) {
       return ex instanceof LessRuntimeException;
     }
 
     @Override
-    public void report(final RuntimeException ex,
+    public void report(final Exception ex,
         final HttpServletRequest request,
         final HttpServletResponse response) {
       LessRuntimeException lessException = (LessRuntimeException) ex;
@@ -116,7 +93,7 @@ public enum WroProblemReporter {
      * {@inheritDoc}
      */
     @Override
-    public boolean apply(final RuntimeException ex) {
+    public boolean apply(final Exception ex) {
       return ex instanceof RuntimeLinterException;
     }
 
@@ -124,7 +101,7 @@ public enum WroProblemReporter {
      * {@inheritDoc}
      */
     @Override
-    public void report(final RuntimeException ex,
+    public void report(final Exception ex,
         final HttpServletRequest request,
         final HttpServletResponse response) {
       write(response, lintHtml((RuntimeLinterException) ex));
@@ -191,7 +168,7 @@ public enum WroProblemReporter {
    * @param ex The candidate exception.
    * @return True if the exception can be handled.
    */
-  public abstract boolean apply(final RuntimeException ex);
+  public abstract boolean apply(final Exception ex);
 
   /**
    * Produce a HTMl content.
@@ -272,7 +249,7 @@ public enum WroProblemReporter {
    * @param request The HTTP request.
    * @param response The HTTP response.
    */
-  public abstract void report(RuntimeException ex, HttpServletRequest request,
+  public abstract void report(Exception ex, HttpServletRequest request,
       HttpServletResponse response);
 
   /**
@@ -299,7 +276,7 @@ public enum WroProblemReporter {
    * @param ex The candidate exception.
    * @return The most appropiated problem reporter.
    */
-  public static WroProblemReporter bestFor(final RuntimeException ex) {
+  public static WroProblemReporter bestFor(final Exception ex) {
     WroProblemReporter[] problemReporters = values();
     int best = -1;
     for (int i = 0; i < problemReporters.length; i++) {
@@ -307,6 +284,6 @@ public enum WroProblemReporter {
         best = Math.max(i, best);
       }
     }
-    return best >= 0 ? problemReporters[best] : DEFAULT;
+    return best >= 0 ? problemReporters[best] : null;
   }
 }

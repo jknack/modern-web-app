@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -28,7 +29,6 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.request.DirectXmlRequest;
 import org.apache.solr.core.CoreContainer;
-import org.apache.solr.core.CoreContainer.Initializer;
 import org.apache.solr.core.CoreDescriptor;
 import org.apache.solr.core.SolrCore;
 import org.apache.solr.servlet.SolrDispatchFilter;
@@ -151,29 +151,30 @@ public class SolrModule {
     Environment env = context.getEnvironment();
 
     final File solrHome = findSolrHome(context);
-    File solrXml = new File(solrHome, "solr.xml");
-    isTrue(solrXml.exists(), "File not found: {}", solrXml);
 
     final File dataDir = findSolrDataDir(env);
 
     final Map<String, String> coreDefs = new LinkedHashMap<String, String>();
-    CoreContainer cores = new CoreContainer(solrHome.getAbsolutePath(), solrXml) {
+    CoreContainer cores = new CoreContainer(solrHome.getAbsolutePath()) {
       @Override
       public SolrCore create(final CoreDescriptor coreDescriptor) {
-        coreDescriptor.getDataDir();
         String coreName = coreDescriptor.getName();
         if (coreName.length() == 0) {
           coreName = getDefaultCoreName();
         }
-        // Set the core data directory.
+
+        Properties properties = new Properties();
         String coreDataDir = new File(dataDir, coreName).getAbsolutePath();
         coreDefs.put(coreName, coreDataDir);
-        coreDescriptor.setDataDir(coreDataDir);
-        return super.create(coreDescriptor);
+        // default data dir
+        properties.setProperty(CoreDescriptor.CORE_DATADIR, coreDataDir);
+
+        return super.create(new CoreDescriptor(coreDescriptor.getCoreContainer(), coreDescriptor
+            .getName(), coreDescriptor.getInstanceDir(), properties));
       }
     };
     // Initialize cores
-    cores.load(solrHome.getAbsolutePath(), solrXml);
+    cores.load();
 
     logger.info("Solr home directory: {}", solrHome);
     for (Entry<String, String> core : coreDefs.entrySet()) {
@@ -234,15 +235,10 @@ public class SolrModule {
         .param("path-prefix", uri)
         .through(new SolrDispatchFilter() {
           @Override
-          protected Initializer createInitializer() {
+          protected CoreContainer createCoreContainer() {
             logger.info("Solr is listening at: {}", pattern);
-            return new Initializer() {
-              @Override
-              public CoreContainer initialize() {
-                // Don't initialize cores twice just use the Spring one.
-                return solrCores;
-              }
-            };
+            // Don't initialize cores twice just use the Spring one.
+            return solrCores;
           }
         });
   }

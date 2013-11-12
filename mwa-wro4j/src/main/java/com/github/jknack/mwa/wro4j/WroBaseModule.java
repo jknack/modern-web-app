@@ -261,13 +261,18 @@ public class WroBaseModule {
      * Handle the exception by printing a HTML page in 'dev' mode. {@inheritDoc}
      */
     @Override
-    protected void onRuntimeException(final RuntimeException ex,
+    protected void onException(final Exception ex,
         final HttpServletResponse response, final FilterChain chain) {
       if (configuration.isDebug()) {
         HttpServletRequest request = Context.get().getRequest();
-        WroProblemReporter.bestFor(ex).report(ex, request, response);
+        WroProblemReporter reporter = WroProblemReporter.bestFor(ex);
+        if (reporter != null) {
+          reporter.report(ex, request, response);
+        } else {
+          super.onException(ex, response, chain);
+        }
       } else {
-        WroProblemReporter.DEFAULT.report(ex, null, response);
+        super.onException(ex, response, chain);
       }
     }
   }
