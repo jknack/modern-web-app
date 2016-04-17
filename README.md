@@ -1,4 +1,10 @@
 [![Build Status](https://travis-ci.org/jknack/modern-web-app.png)](https://travis-ci.org/jknack/modern-web-app)
+# THIS PROJECT IS DISCONTINUED...
+If you are looking for simplify usage of **Spring** please have a look to [Spring Boot](http://projects.spring.io/spring-boot/). This project was created before [Spring Boot](http://projects.spring.io/spring-boot/) and now it doesn't make sense keep it.
+
+Or you can try [Jooby](http://jooby.org) which is the evolution of this project but without Spring!!
+
+
 # A Modern Web Application Architecture
 
 ## Introduction
