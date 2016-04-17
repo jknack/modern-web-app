@@ -1,9 +1,9 @@
 [![Build Status](https://travis-ci.org/jknack/modern-web-app.png)](https://travis-ci.org/jknack/modern-web-app)
 # THIS PROJECT IS DISCONTINUED...
-If you are looking for simplify usage of **Spring** please have a look to [Spring Boot](http://projects.spring.io/spring-boot/). This project was created before [Spring Boot](http://projects.spring.io/spring-boot/) and now it doesn't make sense keep it.
 
-Or you can try [Jooby](http://jooby.org) which is the evolution of this project but without Spring!!
+In favor of [Jooby](http://jooby.org) a scalable, fast and modular micro web framework. I consider [Jooby](http://jooby.org) the evolution of this project... but it doesn't use or depend on Spring.
 
+If you are looking for simplify usage of **Spring** have a look to [Spring Boot](http://projects.spring.io/spring-boot/). This project was created before [Spring Boot](http://projects.spring.io/spring-boot/) and now it doesn't make sense keep it.
 
 # A Modern Web Application Architecture
 
