@@ -3,6 +3,13 @@ package com.github.jknack.mwa.wro4j;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertyResolver;
 
+import com.github.jknack.mwa.Mode;
+import com.github.jknack.mwa.wro4j.ConditionalProcessor.Condition;
+import com.github.jknack.mwa.wro4j.requirejs.RequireJsProcessor;
+import com.google.javascript.jscomp.CompilationLevel;
+import com.google.javascript.jscomp.CompilerOptions;
+import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
+
 import ro.isdc.wro.extensions.processor.css.SassCssProcessor;
 import ro.isdc.wro.extensions.processor.css.YUICssCompressorProcessor;
 import ro.isdc.wro.extensions.processor.js.BeautifyJsProcessor;
@@ -31,11 +38,6 @@ import ro.isdc.wro.model.resource.processor.impl.css.VariablizeColorsCssProcesso
 import ro.isdc.wro.model.resource.processor.impl.js.JSMinProcessor;
 import ro.isdc.wro.model.resource.processor.impl.js.SemicolonAppenderPreProcessor;
 import ro.isdc.wro.model.resource.processor.support.CssCompressor;
-
-import com.github.jknack.mwa.Mode;
-import com.github.jknack.mwa.wro4j.ConditionalProcessor.Condition;
-import com.github.jknack.mwa.wro4j.requirejs.RequireJsProcessor;
-import com.google.javascript.jscomp.CompilationLevel;
 
 /**
  * A factory class for {@link ResourcePreProcessor} and
@@ -512,8 +514,8 @@ public final class Processors {
    * relationships between properties.
    *
    * <pre>
-   * @the-border: 1px;
-   * @base-color: #111;
+   * &#64;the-border: 1px;
+   * &#64;base-color: #111;
    *
    * #header {
    *   color: @base-color * 3;
@@ -556,7 +558,14 @@ public final class Processors {
    */
   public static ResourcePostProcessor googleClosureSimple() {
     return new ConditionalProcessor(new GoogleClosureCompressorProcessor(
-        CompilationLevel.SIMPLE_OPTIMIZATIONS), NO_DEV);
+        CompilationLevel.SIMPLE_OPTIMIZATIONS) {
+      @Override
+      protected CompilerOptions newCompilerOptions() {
+        CompilerOptions options = super.newCompilerOptions();
+        options.setLanguage(LanguageMode.ECMASCRIPT5);
+        return options;
+      }
+    }, NO_DEV);
   }
 
   /**
@@ -567,7 +576,14 @@ public final class Processors {
    */
   public static ResourcePostProcessor googleClosureAdvanced() {
     return new ConditionalProcessor(new GoogleClosureCompressorProcessor(
-        CompilationLevel.ADVANCED_OPTIMIZATIONS), NO_DEV);
+        CompilationLevel.ADVANCED_OPTIMIZATIONS) {
+      @Override
+      protected CompilerOptions newCompilerOptions() {
+        CompilerOptions options = super.newCompilerOptions();
+        options.setLanguage(LanguageMode.ECMASCRIPT5);
+        return options;
+      }
+    }, NO_DEV);
   }
 
   /**

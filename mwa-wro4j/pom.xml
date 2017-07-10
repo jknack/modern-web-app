@@ -4,17 +4,13 @@
   <parent>
     <groupId>com.github.jknack</groupId>
     <artifactId>modern-web-app</artifactId>
-    <version>0.4.2-SNAPSHOT</version>
+    <version>0.4.2</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>mwa-wro4j</artifactId>
   <packaging>jar</packaging>
   <name>Wro4j Module</name>
-
-  <properties>
-    <rhino.version>1.7R3</rhino.version>
-  </properties>
 
   <dependencies>
     <!-- Servlet API -->
@@ -32,9 +28,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.mozilla</groupId>
-      <artifactId>rhino</artifactId>
-      <version>${rhino.version}</version>
+      <groupId>com.google.javascript</groupId>
+      <artifactId>closure-compiler</artifactId>
+      <version>v20170626</version>
     </dependency>
 
     <!-- Web Resource Optimizer -->
@@ -51,11 +47,6 @@
         <exclusion>
           <groupId>org.codehaus.gmaven.runtime</groupId>
           <artifactId>gmaven-runtime-1.7</artifactId>
-        </exclusion>
-        <!-- No Rhino -->
-        <exclusion>
-          <groupId>org.mozilla</groupId>
-          <artifactId>rhino</artifactId>
         </exclusion>
         <exclusion>
           <groupId>me.n4u.sass</groupId>

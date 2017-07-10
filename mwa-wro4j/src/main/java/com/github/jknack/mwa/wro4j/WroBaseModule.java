@@ -41,6 +41,13 @@ import org.springframework.web.context.support.ServletContextResource;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import com.github.jknack.mwa.Beans;
+import com.github.jknack.mwa.FilterMapping;
+import com.github.jknack.mwa.Mode;
+import com.github.jknack.mwa.ModeAware;
+import com.github.jknack.mwa.ModeCallback;
+import com.github.jknack.mwa.mvc.MvcModule;
+
 import ro.isdc.wro.WroRuntimeException;
 import ro.isdc.wro.config.Context;
 import ro.isdc.wro.config.jmx.WroConfiguration;
@@ -68,13 +75,6 @@ import ro.isdc.wro.model.resource.processor.factory.SimpleProcessorsFactory;
 import ro.isdc.wro.model.transformer.WildcardExpanderModelTransformer.NoMoreAttemptsIOException;
 import ro.isdc.wro.util.ObjectFactory;
 import ro.isdc.wro.util.Transformer;
-
-import com.github.jknack.mwa.Beans;
-import com.github.jknack.mwa.FilterMapping;
-import com.github.jknack.mwa.Mode;
-import com.github.jknack.mwa.ModeAware;
-import com.github.jknack.mwa.ModeCallback;
-import com.github.jknack.mwa.mvc.MvcModule;
 
 /**
  * <p>
@@ -202,8 +202,7 @@ public class WroBaseModule {
      * @param configuration The {@link WroConfiguration}. Required.
      */
     public WroConfigurationFactory(final WroConfiguration configuration) {
-      this.configuration =
-          checkNotNull(configuration, "The wroConfiguration is required.");
+      this.configuration = checkNotNull(configuration, "The wroConfiguration is required.");
     }
 
     /**
@@ -242,8 +241,7 @@ public class WroBaseModule {
      */
     public ExtendedWroFilter(final WroConfiguration configuration,
         final WroManagerFactory wroManagerFactory) {
-      this.configuration =
-          checkNotNull(configuration, "The wroConfiguration is required.");
+      this.configuration = checkNotNull(configuration, "The wroConfiguration is required.");
       configurationFactory = new WroConfigurationFactory(configuration);
       setWroManagerFactory(wroManagerFactory);
     }
@@ -307,8 +305,7 @@ public class WroBaseModule {
      * @param servletContext The servlet context. Required.
      */
     public ServletContextUriLocator(final ServletContext servletContext) {
-      this.servletContext =
-          checkNotNull(servletContext, "The servletContext is required.");
+      this.servletContext = checkNotNull(servletContext, "The servletContext is required.");
     }
 
     /**
@@ -321,8 +318,7 @@ public class WroBaseModule {
           final String fullPath = FilenameUtils.getFullPath(uri);
           final String realPath = servletContext.getRealPath(fullPath);
           if (realPath == null) {
-            final String message =
-                "Could not determine realPath for resource: " + uri;
+            final String message = "Could not determine realPath for resource: " + uri;
             logger.error(message);
             throw new IOException(message);
           }
@@ -335,7 +331,8 @@ public class WroBaseModule {
         logger
             .warn(
                 "Couldn't localize the stream containing wildcard. Original "
-                    + "error message: '{}'", ex.getMessage()
+                    + "error message: '{}'",
+                ex.getMessage()
                     + "\".\n Trying to locate the stream without the "
                     + "wildcard.");
       }
@@ -365,8 +362,7 @@ public class WroBaseModule {
     /**
      * The logging system.
      */
-    private static final Logger logger =
-        LoggerFactory.getLogger(WildcardModelFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(WildcardModelFactory.class);
 
     /**
      * The application's context.
@@ -398,8 +394,8 @@ public class WroBaseModule {
         final ApplicationContext applicationContext,
         final WroModelFactory decorated) {
       super(decorated);
-      this.applicationContext =
-          notNull(applicationContext, "The application's context is required.");
+      this.applicationContext = notNull(applicationContext,
+          "The application's context is required.");
       mode = applicationContext.getBean(Mode.class);
     }
 
@@ -466,8 +462,7 @@ public class WroBaseModule {
      */
     private String[] findResources(final String uri) throws IOException {
       try {
-        org.springframework.core.io.Resource[] resources =
-            applicationContext.getResources(uri);
+        org.springframework.core.io.Resource[] resources = applicationContext.getResources(uri);
         if (resources == null || resources.length == 0) {
           return new String[0];
         }
@@ -504,8 +499,7 @@ public class WroBaseModule {
         "/**/*.js",
         "/**/*.css",
         "**/*.js",
-        "**/*.css"
-        ).through(filter);
+        "**/*.css").through(filter);
   }
 
   /**
@@ -513,12 +507,18 @@ public class WroBaseModule {
    *
    * @param configuration The {@link WroConfiguration}. Required.
    * @param wroManagerFactory The {@link WroModelFactory}. Required.
+   * @param env Application environment.
+   * @param mode Application mode.
    * @return An interceptor for js and css resources.
    */
   @Bean
   public WroFilter wroFilter(final WroConfiguration configuration,
-      final WroManagerFactory wroManagerFactory) {
-    return new ExtendedWroFilter(configuration, wroManagerFactory);
+      final WroManagerFactory wroManagerFactory, final Environment env, final Mode mode) {
+    boolean disableCache = mode.isDev() ? true : false;
+    ExtendedWroFilter filter = new ExtendedWroFilter(configuration, wroManagerFactory);
+    filter.setDisableCache(env.getProperty(
+        "wro.disableCache", Boolean.class, disableCache));
+    return filter;
   }
 
   /**
@@ -533,7 +533,6 @@ public class WroBaseModule {
       final Mode mode) {
     checkNotNull(env, "The application's environment is required.");
     boolean debug = mode.isDev();
-    boolean disableCache = true;
     boolean gzipEnabled = false;
     boolean cacheGzippedContent = false;
     long cacheUpdatePeriod = 0;
@@ -542,7 +541,6 @@ public class WroBaseModule {
     if (!debug) {
       cacheGzippedContent = true;
       gzipEnabled = true;
-      disableCache = false;
       modelUpdatePeriod = 0;
     }
     WroConfiguration configuration = new WroConfiguration();
@@ -554,8 +552,6 @@ public class WroBaseModule {
         "wro.connectionTimeout", Integer.class,
         WroConfiguration.DEFAULT_CONNECTION_TIMEOUT));
     configuration.setDebug(debug);
-    configuration.setDisableCache(env.getProperty(
-        "wro.disableCache", Boolean.class, disableCache));
     configuration.setEncoding(env.getProperty(
         "wro.encoding", String.class, WroConfiguration.DEFAULT_ENCODING));
     configuration.setGzipEnabled(env.getProperty(
@@ -590,9 +586,9 @@ public class WroBaseModule {
   public UriLocatorFactory wroUriLocatorFactory(
       final ServletContext servletContext) {
     return new SimpleUriLocatorFactory()
-        .addUriLocator(new ServletContextUriLocator(servletContext))
-        .addUriLocator(new ClasspathUriLocator())
-        .addUriLocator(new UrlUriLocator());
+        .addLocator(new ServletContextUriLocator(servletContext))
+        .addLocator(new ClasspathUriLocator())
+        .addLocator(new UrlUriLocator());
   }
 
   /**
@@ -628,14 +624,11 @@ public class WroBaseModule {
         .setModelFactory(new WildcardModelFactory(
             applicationContext, wroModelFactory));
 
-    List<Transformer> transformers =
-        Beans.lookFor(applicationContext, Transformer.class);
+    List<Transformer> transformers = Beans.lookFor(applicationContext, Transformer.class);
 
-    GroupExtractor groupExtractor =
-        Beans.get(applicationContext, GroupExtractor.class);
+    GroupExtractor groupExtractor = Beans.get(applicationContext, GroupExtractor.class);
 
-    boolean useDefaults =
-        transformers.size() == 0 && groupExtractor == null;
+    boolean useDefaults = transformers.size() == 0 && groupExtractor == null;
 
     if (useDefaults) {
       mode.execute(new ModeCallback<Object>() {
